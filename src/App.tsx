@@ -7,8 +7,8 @@ import { isScoreChunkDTO } from "./types";
 export default function App() {
   //replace with dataset ids
   const dataset_ids = {
-    Stories: "stories",
-    Comments: "comments",
+    Stories: "6d920a1c-fdae-441e-84a5-a9b15f29dd3f",
+    Comments: "31874d43-9755-4271-8628-c8a33f4f17a4",
     "Ask HN": "ask_hn",
     "Show HN": "show_hn",
     Jobs: "jobs",
@@ -31,7 +31,7 @@ export default function App() {
       return;
     }
 
-    void fetch(`https://api.trieve.ai/api/chunk/search`, {
+    fetch(`https://api.trieve.ai/api/chunk/search`, {
       method: "POST",
       body: JSON.stringify({
         query: query,
@@ -41,7 +41,7 @@ export default function App() {
       }),
       headers: {
         "Content-Type": "application/json",
-        "TR-Dataset": selectedDataset(),
+        "TR-Dataset": dataset_ids[selectedDataset()],
         Authorization: trive_api_key,
       },
     })
@@ -55,15 +55,18 @@ export default function App() {
               return {
                 title: story.content,
                 url: story.link ?? "",
-                points: story.metadata?.points ?? 0,
-                user: story.metadata?.user ?? "",
+                points: story.metadata?.score ?? 0,
+                user: story.metadata?.by ?? "",
                 time: story.time_stamp ?? "",
-                commentsCount: story.metadata?.comments_count ?? 0,
+                commentsCount: story.metadata?.descendants ?? 0,
               };
             }) ?? [];
           setStories(stories);
         }
-      });
+      }).catch((error) => {
+        console.error("Error:", error);
+      }
+      );
   });
 
   return (
