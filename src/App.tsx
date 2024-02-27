@@ -7,8 +7,8 @@ import { isScoreChunkDTO } from "./types";
 export default function App() {
   //replace with dataset ids
   const dataset_ids = {
-    Stories: "6d920a1c-fdae-441e-84a5-a9b15f29dd3f",
-    Comments: "31874d43-9755-4271-8628-c8a33f4f17a4",
+    Stories: import.meta.env.VITE_STORIES_DATASET_ID,
+    Comments: import.meta.env.VITE_COMMENTS_DATASET_ID,
     "Ask HN": "ask_hn",
     "Show HN": "show_hn",
     Jobs: "jobs",
