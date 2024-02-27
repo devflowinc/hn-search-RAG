@@ -56,6 +56,7 @@ def ingest_hn():
             and "dead" not in item
             and item["type"] == "story"
         ):
+            print(item.get("id"))
             row = {
                 "by": item.get("by"),
                 "descendants": item.get("descendants"),
@@ -93,7 +94,7 @@ def ingest_hn():
                 ),
             )
             chunk_response = create_chunk.sync(
-                tr_dataset="23aba24b-98d4-4ca6-af99-4305446a12fe",
+                tr_dataset="6d920a1c-fdae-441e-84a5-a9b15f29dd3f",
                 client=trieve_client,
                 body=data,
             )
@@ -107,6 +108,7 @@ def ingest_hn():
             and "dead" not in item
             and item["type"] == "comment"
         ):
+            print(item.get("id"))
             row = {
                 "by": item.get("by"),
                 "descendants": item.get("descendants"),
@@ -144,7 +146,7 @@ def ingest_hn():
                 ),
             )
             chunk_response = create_chunk.sync(
-                tr_dataset="8cd1414f-8e3d-41d3-a0fc-1d9dd66f21a5",
+                tr_dataset="31874d43-9755-4271-8628-c8a33f4f17a4",
                 client=trieve_client,
                 body=data,
             )
