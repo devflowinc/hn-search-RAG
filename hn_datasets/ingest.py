@@ -85,7 +85,7 @@ def ingest_hn():
                 time_stamp=datetime.fromtimestamp(row.get("time")).strftime(
                     "%Y-%m-%d %H:%M:%S"
                 ),
-                weight=int(row.get("score")),
+                weight=int(row.get("score") if row.get("score") else 0),
             )
             chunk_response = create_chunk.sync(
                 tr_dataset="a1f7188b-7be1-4f6b-8600-68fccd48402f",
