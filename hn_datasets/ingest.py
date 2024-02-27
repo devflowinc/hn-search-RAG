@@ -68,7 +68,7 @@ def ingest_hn():
             }
 
             data = CreateChunkData(
-                chunk_html=row["title"] if len(row["title"]) > 0 else row["text"],
+                chunk_html=row["title"] if row["title"] else row["text"],
                 link=row["url"],
                 metadata={
                     "by": row.get("by"),
