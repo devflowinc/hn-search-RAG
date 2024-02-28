@@ -66,8 +66,6 @@ def ingest_hn():
                 "type": item.get("type"),
                 "url": item.get("url"),
             }
-            print(int(row.get("score") if row.get("score") else 0))
-
             data = CreateChunkData(
                 chunk_html=row["title"] if row["title"] else row["text"],
                 link=row["url"],
