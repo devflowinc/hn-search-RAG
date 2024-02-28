@@ -1,11 +1,19 @@
 import { AiOutlineSearch } from "solid-icons/ai";
-import { Accessor } from "solid-js";
+import { createSignal } from "solid-js";
 
 export interface HeaderProps {
-  search: Accessor<(query: string) => void>;
+  search: (query: string) => void;
 }
 
 export default function Header(props: HeaderProps) {
+  let [timeoutId, setTimeoutId] = createSignal<ReturnType<typeof setTimeout>>();
+  const debounce = (fn: Function, ms = 300) => {
+    return function (this: any, ...args: any[]) {
+      clearTimeout(timeoutId());
+      setTimeoutId(setTimeout(() => fn.apply(this, args), ms));
+    };
+  };
+
   return (
     <header class="flex p-1 items-center bg-orange-500 justify-between">
       <div class="flex items-center">
@@ -26,7 +34,12 @@ export default function Header(props: HeaderProps) {
             id="search"
             class="block w-[80vw] pl-10 py-2 rounded-md bg-gray-50 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
             placeholder="Search HN stories by title, url or author"
-            onInput={(e) => props.search().call(null, e.currentTarget.value)}
+            onInput={(e) =>
+              debounce(
+                (e: string) => props.search(e),
+                200,
+              )(e.currentTarget.value)
+            }
           />
         </div>
       </div>
