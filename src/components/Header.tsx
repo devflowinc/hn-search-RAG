@@ -1,8 +1,9 @@
 import { AiOutlineSearch } from "solid-icons/ai";
-import { createSignal } from "solid-js";
+import { Accessor, Setter, createSignal } from "solid-js";
 
 export interface HeaderProps {
-  search: (query: string) => void;
+  query: Accessor<string>;
+  setQuery: Setter<string>;
 }
 
 export default function Header(props: HeaderProps) {
@@ -36,10 +37,11 @@ export default function Header(props: HeaderProps) {
             placeholder="Search HN stories by title, url or author"
             onInput={(e) =>
               debounce(
-                (e: string) => props.search(e),
+                (e: string) => props.setQuery(e),
                 200,
               )(e.currentTarget.value)
             }
+            value={props.query()}
           />
         </div>
       </div>

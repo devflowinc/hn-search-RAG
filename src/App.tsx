@@ -1,45 +1,93 @@
-import { For, Show, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal } from "solid-js";
 import Filters from "./components/Filters";
 import Header from "./components/Header";
 import Stories, { Story } from "./components/Stories";
-import { isScoreChunkDTO } from "./types";
+import { DatasetIDs, isScoreChunkDTO } from "./types";
 
 export default function App() {
   //replace with dataset ids
   const trive_api_key = import.meta.env.VITE_TRIEVE_API_KEY;
-  const story_types = {
+  const story_types: DatasetIDs = {
     All: null,
     Stories: "story",
     Comments: "comment",
     Polls: "poll",
     Jobs: "job",
   };
+  const urlParams = new URLSearchParams(window.location.search);
 
-  const [selectedDataset, setSelectedDataset] = createSignal("Stories");
-  const [dateBias, setDateBias] = createSignal(false);
-  const [dateRange, setDateRange] = createSignal<string[]>([
-    "All Time",
-    "",
-    new Date().toISOString(),
-  ]);
+  const dateRangeSwitch = (value: string) => {
+    switch (value) {
+      case "All Time":
+        return ["", new Date().toISOString()];
+      case "Last 24h":
+        return [
+          new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          new Date().toISOString(),
+        ];
+      case "Past Week":
+        return [
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          new Date().toISOString(),
+        ];
+      case "Past Month":
+        return [
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+          new Date().toISOString(),
+        ];
+      case "Past Year":
+        return [
+          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+          new Date().toISOString(),
+        ];
+        break;
+      case "Custom Range":
+        //TODO: Implement custom range
+        break;
+      default:
+        break;
+    }
+  };
+
+  const [selectedDataset, setSelectedDataset] = createSignal(
+    urlParams.get("dataset") ?? "Stories",
+  );
+  const [dateBias, setDateBias] = createSignal(
+    urlParams.get("dateBias") === "true",
+  );
+  const [dateRange, setDateRange] = createSignal<string>(
+    urlParams.get("dateRange") ?? "All Time",
+  );
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(false);
+  const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
 
-  const search = (query: string) => {
-    if (query === "") {
+  createEffect(() => {
+    if (query() === "") {
       setStories([]);
       return;
     }
     setLoading(true);
+
+    urlParams.set("q", query());
+    urlParams.set("dataset", selectedDataset());
+    urlParams.set("dateBias", dateBias().toString());
+    urlParams.set("dateRange", dateRange());
+
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${urlParams.toString()}`,
+    );
     fetch(`https://api.trieve.ai/api/chunk/search`, {
       method: "POST",
       body: JSON.stringify({
-        query: query,
+        query: query(),
         search_type: "hybrid",
         highlight_results: true,
         highlight_delimiters: [" "],
         date_bias: dateBias(),
-        time_range: dateRange().slice(1),
+        time_range: dateRangeSwitch(dateRange()),
         filters: story_types[selectedDataset()]
           ? { type: story_types[selectedDataset()] }
           : {},
@@ -75,11 +123,12 @@ export default function App() {
         console.error("Error:", error);
       });
     setLoading(false);
-  };
+  });
+
 
   return (
     <main class="bg-hn min-h-screen font-verdana">
-      <Header search={search} />
+      <Header query={query} setQuery={setQuery} />
       <Filters
         selectedDataset={selectedDataset}
         setSelectedDataset={setSelectedDataset}

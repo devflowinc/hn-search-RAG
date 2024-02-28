@@ -54,6 +54,15 @@ export interface ChunkDTO {
   weight: number;
 }
 
+export interface DatasetIDs {
+  All: string | null;
+  Stories: string;
+  Comments: string;
+  Jobs: string;
+  Polls: string;
+  [key: string]: null | string;
+}
+
 export const isChunkMetadata = (
   chunk: unknown,
 ): chunk is ChunkDTO => {
@@ -77,3 +86,4 @@ export const isChunkMetadata = (
       (chunk as ChunkDTO).metadata === null)
   );
 };
+

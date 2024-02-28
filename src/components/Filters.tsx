@@ -5,51 +5,11 @@ export interface FiltersProps {
   setSelectedDataset: Setter<string>;
   dateBias: Accessor<boolean>;
   setDateBias: Setter<boolean>;
-  dateRange: Accessor<string[]>;
-  setDateRange: Setter<string[]>;
+  dateRange: Accessor<string>;
+  setDateRange: Setter<string>;
 }
 
 export default function Filters(props: FiltersProps) {
-  const setDateRange = (value: string) => {
-    switch (value) {
-      case "All Time":
-        props.setDateRange(["All Time", "", new Date().toISOString()]);
-        break;
-      case "Last 24h":
-        props.setDateRange([
-          "Last 24h",
-          new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ]);
-        break;
-      case "Past Week":
-        props.setDateRange([
-          "Past Week",
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ]);
-        break;
-      case "Past Month":
-        props.setDateRange([
-          "Past Month",
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ]);
-        break;
-      case "Past Year":
-        props.setDateRange([
-          "Past Year",
-          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ]);
-        break;
-      case "Custom Range":
-        //TODO: Implement custom range
-        break;
-      default:
-        break;
-    }
-  };
   return (
     <div class="p-2 flex justify-between items-center">
       <div class="flex space-x-2 text-black items-center">
@@ -96,8 +56,8 @@ export default function Filters(props: FiltersProps) {
           <select
             id="date-range"
             class="form-select text-zinc-600 p-1 border border-stone-300 text-sm bg-hn"
-            onChange={(e) => setDateRange(e.currentTarget.value)}
-            value={props.dateRange()[0]}>
+            onChange={(e) => props.setDateRange(e.currentTarget.value)}
+            value={props.dateRange()}>
             <option>All Time</option>
             <option>Last 24h</option>
             <option>Past Week</option>
