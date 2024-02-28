@@ -8,6 +8,26 @@ This is the reason you see a `pnpm-lock.yaml`. That being said, any package mana
 $ npm install # or pnpm install or yarn install
 ```
 
+## Using PM2
+
+To start pm2
+
+```sh
+pm2 start ecosystem.config.js
+```
+
+To restart pm2
+
+```sh
+pm2 restart ecosystem.config.js
+```
+
+To view all running processes
+
+```sh
+pm2 monit
+```
+
 ### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
 
 ## Available Scripts
