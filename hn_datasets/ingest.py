@@ -88,14 +88,14 @@ def ingest_hn():
                 ),
                 weight=int(row.get("score") if row.get("score") else 0),
             )
-            # chunk_response = create_chunk.sync(
-            #     tr_dataset="a160724f-5c9e-4ce1-815d-9cb76611d685",
-            #     client=trieve_client,
-            #     body=data,
-            # )
-            # if type(chunk_response) == ErrorResponseBody:
-            #     print(f"Failed {chunk_response.message}")
-            #     exit(1)
+            chunk_response = create_chunk.sync(
+                tr_dataset="77e1697f-3eb2-4935-9f2c-ddc24b528eda",
+                client=trieve_client,
+                body=data,
+            )
+            if type(chunk_response) == ErrorResponseBody:
+                print(f"Failed {chunk_response.message}")
+                exit(1)
 
 
 ingest_hn()
