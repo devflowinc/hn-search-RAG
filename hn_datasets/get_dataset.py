@@ -1,12 +1,6 @@
-import csv
+import time
 import requests
-import csv
-from tqdm import tqdm
 import redis
-import os
-from trieve_client import AuthenticatedClient
-from trieve_client.models import CreateChunkData, ReturnCreatedChunk, ErrorResponseBody
-from trieve_client.api.chunk import create_chunk
 from datetime import datetime, timedelta
 
 # Connect to Redis
@@ -60,4 +54,6 @@ def ingest_hn():
             ).json()
 
 
-ingest_hn()
+while True:
+    ingest_hn()
+    time.sleep(3)
