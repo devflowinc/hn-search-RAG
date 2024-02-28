@@ -18,6 +18,7 @@
     "vite-plugin-solid": "^2.8.2"
   },
   "dependencies": {
+    "date-fns": "^3.3.1",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.8.11",
     "tailwind-gradient-mask-image": "^1.2.0",

@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import { formatDistanceToNowStrict } from "date-fns";
 export interface Story {
   content: string;
   url: string;
@@ -46,7 +47,7 @@ export default function Stories(props: { story: Story }) {
             <a
               href={article_link}
               class="text-gray-500 text-[10.6667px] hover:underline">
-              {props.story.time}
+              {formatDistanceToNowStrict(props.story.time)} ago
             </a>
             <span class="text-gray-500 text-xs">{" | "}</span>
             <a
