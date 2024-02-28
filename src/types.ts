@@ -87,3 +87,35 @@ export const isChunkMetadata = (
   );
 };
 
+export const dateRangeSwitch = (value: string) => {
+  switch (value) {
+    case "All Time":
+      return ["", new Date().toISOString()];
+    case "Last 24h":
+      return [
+        new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        new Date().toISOString(),
+      ];
+    case "Past Week":
+      return [
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        new Date().toISOString(),
+      ];
+    case "Past Month":
+      return [
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        new Date().toISOString(),
+      ];
+    case "Past Year":
+      return [
+        new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+        new Date().toISOString(),
+      ];
+      break;
+    case "Custom Range":
+      //TODO: Implement custom range
+      break;
+    default:
+      break;
+  }
+};

@@ -1,8 +1,8 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, on } from "solid-js";
 import Filters from "./components/Filters";
 import Header from "./components/Header";
 import Stories, { Story } from "./components/Stories";
-import { DatasetIDs, isScoreChunkDTO } from "./types";
+import { DatasetIDs, dateRangeSwitch, isScoreChunkDTO } from "./types";
 
 export default function App() {
   //replace with dataset ids
@@ -14,40 +14,8 @@ export default function App() {
     Polls: "poll",
     Jobs: "job",
   };
-  const urlParams = new URLSearchParams(window.location.search);
 
-  const dateRangeSwitch = (value: string) => {
-    switch (value) {
-      case "All Time":
-        return ["", new Date().toISOString()];
-      case "Last 24h":
-        return [
-          new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ];
-      case "Past Week":
-        return [
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ];
-      case "Past Month":
-        return [
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ];
-      case "Past Year":
-        return [
-          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString(),
-        ];
-        break;
-      case "Custom Range":
-        //TODO: Implement custom range
-        break;
-      default:
-        break;
-    }
-  };
+  const urlParams = new URLSearchParams(window.location.search);
 
   const [selectedDataset, setSelectedDataset] = createSignal(
     urlParams.get("dataset") ?? "Stories",
@@ -61,6 +29,12 @@ export default function App() {
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(false);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
+  const [page, setPage] = createSignal(1);
+
+  createEffect(on([query, dateBias, dateRange, selectedDataset],() => {
+    setStories([]);
+    setPage(1);
+  }));
 
   createEffect(() => {
     if (query() === "") {
@@ -84,6 +58,7 @@ export default function App() {
       body: JSON.stringify({
         query: query(),
         search_type: "hybrid",
+        page: page(),
         highlight_results: true,
         highlight_delimiters: [" "],
         date_bias: dateBias(),
@@ -116,13 +91,23 @@ export default function App() {
                 id: story.tracking_id ?? "0",
               };
             }) ?? [];
-          setStories(stories);
+          setStories((prev) => prev.concat(stories));
         }
       })
       .catch((error) => {
         console.error("Error:", error);
       });
     setLoading(false);
+  });
+
+  const handleScroll = () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  createEffect(() => {
+    window.addEventListener("scroll", handleScroll);
   });
 
 
