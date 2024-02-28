@@ -87,7 +87,7 @@ def ingest_hn():
                 weight=int(row.get("score") if row.get("score") else 0),
             )
             chunk_response = create_chunk.sync(
-                tr_dataset="77e1697f-3eb2-4935-9f2c-ddc24b528eda",
+                tr_dataset="346e6cfd-2914-4e09-8738-cd341ddf96db",
                 client=trieve_client,
                 body=data,
             )
