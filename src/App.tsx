@@ -6,15 +6,13 @@ import { isScoreChunkDTO } from "./types";
 
 export default function App() {
   //replace with dataset ids
-  const dataset_ids = {
-    Stories: import.meta.env.VITE_STORIES_DATASET_ID,
-    Comments: import.meta.env.VITE_COMMENTS_DATASET_ID,
-    "Ask HN": "ask_hn",
-    "Show HN": "show_hn",
-    Jobs: "jobs",
-    Polls: "polls",
-  };
   const trive_api_key = import.meta.env.VITE_TRIVE_API_KEY;
+  const story_types = {
+    "Stories": "story",
+    "Comments": "comment",
+    "Polls": "poll",
+    "Jobs": "job",
+  }
 
   const [selectedDataset, setSelectedDataset] = createSignal("Stories");
   const [dateBias, setDateBias] = createSignal(false);
@@ -38,10 +36,13 @@ export default function App() {
         search_type: "hybrid",
         date_bias: dateBias(),
         time_range: dateRange().slice(1),
+        filters: {
+          "type": story_types[selectedDataset()],
+        }
       }),
       headers: {
         "Content-Type": "application/json",
-        "TR-Dataset": dataset_ids[selectedDataset()],
+        "TR-Dataset": import.meta.env.VITE_TRIVE_DATASET_ID,
         Authorization: trive_api_key,
       },
     })
