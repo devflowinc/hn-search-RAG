@@ -45,6 +45,9 @@ export default function Header(props: HeaderProps) {
           />
         </div>
       </div>
+      {
+        // search type selector
+      }
     </header>
   );
 }
