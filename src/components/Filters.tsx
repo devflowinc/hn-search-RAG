@@ -7,6 +7,8 @@ export interface FiltersProps {
   setDateBias: Setter<boolean>;
   dateRange: Accessor<string>;
   setDateRange: Setter<string>;
+  searchType: Accessor<string>;
+  setSearchType: Setter<string>;
 }
 
 export default function Filters(props: FiltersProps) {
@@ -64,6 +66,25 @@ export default function Filters(props: FiltersProps) {
             <option>Past Month</option>
             <option>Past Year</option>
             <option>Custom Range</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-sm">Search Type: </span>
+        <div>
+          <label for="stories" class="sr-only">
+            Stories
+          </label>
+          <select
+            id="stories"
+            class="form-select text-zinc-600 p-1 border border-stone-300 text-sm w-fit bg-hn"
+            onChange={(e) => props.setSearchType(e.currentTarget.value)}
+            value={props.searchType()}>
+            <option selected value={"hybrid"}>
+              Hybrid
+            </option>
+            <option value={"semantic"}>Semantic</option>
+            <option value={"fulltext"}>Full Text</option>
           </select>
         </div>
       </div>

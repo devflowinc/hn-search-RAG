@@ -31,6 +31,9 @@ export default function App() {
   const [gettingMore, setGettingMore] = createSignal(false);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [page, setPage] = createSignal(1);
+  const [searchType, setSearchType] = createSignal(
+    urlParams.get("searchType") ?? "hybrid",
+  );
 
   createEffect(
     on(
@@ -53,6 +56,7 @@ export default function App() {
     urlParams.set("dataset", selectedDataset());
     urlParams.set("dateBias", dateBias().toString());
     urlParams.set("dateRange", dateRange());
+    urlParams.set("searchType", searchType());
 
     window.history.replaceState(
       {},
@@ -63,7 +67,7 @@ export default function App() {
       method: "POST",
       body: JSON.stringify({
         query: query(),
-        search_type: "semantic",
+        search_type: searchType(),
         page: page(),
         highlight_results: true,
         highlight_delimiters: [" "],
@@ -129,6 +133,8 @@ export default function App() {
         setDateBias={setDateBias}
         dateRange={dateRange}
         setDateRange={setDateRange}
+        searchType={searchType}
+        setSearchType={setSearchType}
       />
       <Show when={stories().length > 0}>
         <For each={stories()}>{(story) => <Stories story={story} />}</For>
