@@ -46,9 +46,37 @@ export default function App() {
     ),
   );
 
-  createEffect(() => {
+  createEffect(async () => {
     if (query() === "") {
-      setStories([]);
+      async function fetchTopStories() {
+        const response = await fetch(
+          "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty",
+        );
+        const storyIds = await response.json();
+        const topStoryIds = storyIds.slice(0, 20); // Limit to first 10 stories for example
+
+        const storyDetails = await Promise.all(
+          topStoryIds.map((id: number) =>
+            fetch(
+              `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`,
+            ).then((res) => res.json()),
+          ),
+        );
+
+        return storyDetails;
+      }
+      let storyDetails = await fetchTopStories();
+      let stories: Story[] = storyDetails.map((story) => ({
+        content: story.title,
+        url: story.url,
+        points: story.score,
+        user: story.by,
+        time: story.time,
+        commentsCount: story.descendants,
+        type: story.type,
+        id: story.id,
+      }));
+      setStories(stories);
       return;
     }
 
