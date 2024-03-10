@@ -9,6 +9,7 @@ import {
   isChunkMetadataWithFileData,
   isScoreChunkDTO,
 } from "./types";
+import { PaginationController } from "./components/PaginationController";
 
 export default function App() {
   //replace with dataset ids
@@ -39,6 +40,8 @@ export default function App() {
   const [searchType, setSearchType] = createSignal(
     urlParams.get("searchType") ?? "hybrid",
   );
+  const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
+  const [totalPages, setTotalPages] = createSignal(0);
 
   createEffect(async () => {
     setLoading(true);
@@ -81,6 +84,7 @@ export default function App() {
     urlParams.set("sortby", sortBy());
     urlParams.set("dateRange", dateRange());
     urlParams.set("searchType", searchType());
+    urlParams.set("page", page().toString());
 
     window.history.replaceState(
       {},
@@ -95,7 +99,7 @@ export default function App() {
       body: JSON.stringify({
         query: query(),
         search_type: searchType(),
-        page: 1,
+        page: page(),
         highlight_results: true,
         highlight_delimiters: [" "],
         use_weights: sortBy() == "popularity",
@@ -116,7 +120,6 @@ export default function App() {
           const stories: Story[] =
             data.score_chunks.map((chunk): Story => {
               const story = chunk.metadata[0];
-
               return {
                 content: story.chunk_html ?? "",
                 url: story.link ?? "",
@@ -128,6 +131,7 @@ export default function App() {
                 id: story.tracking_id ?? "0",
               };
             }) ?? [];
+          setTotalPages(data.total_chunk_pages);
           setStories(stories);
           setLoading(false);
         }
@@ -181,15 +185,15 @@ export default function App() {
 
   return (
     <main class="bg-hn min-h-screen font-verdana">
-      <Header query={query} setQuery={setQuery} />
+      <Header query={query()} setQuery={setQuery} />
       <Filters
-        selectedDataset={selectedDataset}
+        selectedDataset={selectedDataset()}
         setSelectedDataset={setSelectedDataset}
-        sortBy={sortBy}
+        sortBy={sortBy()}
         setSortBy={setSortBy}
-        dateRange={dateRange}
+        dateRange={dateRange()}
         setDateRange={setDateRange}
-        searchType={searchType}
+        searchType={searchType()}
         setSearchType={setSearchType}
       />
       <div
@@ -201,6 +205,13 @@ export default function App() {
             <Stories story={story} getRecommendations={getRecommendations} />
           )}
         </For>
+        <div class="mx-auto my-3 flex items-center space-x-2 justify-center">
+          <PaginationController
+            page={page()}
+            setPage={setPage}
+            totalPages={totalPages()}
+          />
+        </div>
       </div>
       <div class="p-3" />
       <Show when={stories().length === 0 && !loading()}>

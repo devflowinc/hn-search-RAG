@@ -1,5 +1,5 @@
 import { For, Show, createSignal } from "solid-js";
-import { formatDistanceToNowStrict, set } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 export interface Story {
   content: string;
   url: string;

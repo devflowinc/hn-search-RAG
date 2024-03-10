@@ -1,13 +1,13 @@
-import { Accessor, Setter } from "solid-js";
+import { Setter } from "solid-js";
 
 export interface FiltersProps {
-  selectedDataset: Accessor<string>;
+  selectedDataset: string;
   setSelectedDataset: Setter<string>;
-  sortBy: Accessor<string>;
+  sortBy: string;
   setSortBy: Setter<string>;
-  dateRange: Accessor<string>;
+  dateRange: string;
   setDateRange: Setter<string>;
-  searchType: Accessor<string>;
+  searchType: string;
   setSearchType: Setter<string>;
 }
 
@@ -24,7 +24,7 @@ export default function Filters(props: FiltersProps) {
             id="stories"
             class="form-select text-zinc-600 p-1 border border-stone-300 text-sm w-fit bg-hn"
             onChange={(e) => props.setSelectedDataset(e.currentTarget.value)}
-            value={props.selectedDataset()}>
+            value={props.selectedDataset}>
             <option>All</option>
             <option selected>Stories</option>
             <option>Comments</option>
@@ -43,7 +43,7 @@ export default function Filters(props: FiltersProps) {
             id="popularity"
             class="form-select text-zinc-600 p-1 border border-stone-300 text-sm bg-hn"
             onChange={(e) => props.setSortBy(e.currentTarget.value)}
-            value={props.sortBy()}>
+            value={props.sortBy}>
             <option value="relevance">Relevance</option>
             <option value="popularity">Popularity</option>
             <option value="date">Date</option>
@@ -58,7 +58,7 @@ export default function Filters(props: FiltersProps) {
             id="date-range"
             class="form-select text-zinc-600 p-1 border border-stone-300 text-sm bg-hn"
             onChange={(e) => props.setDateRange(e.currentTarget.value)}
-            value={props.dateRange()}>
+            value={props.dateRange}>
             <option>All Time</option>
             <option>Last 24h</option>
             <option>Past Week</option>
@@ -78,7 +78,7 @@ export default function Filters(props: FiltersProps) {
             id="stories"
             class="form-select text-zinc-600 p-1 border border-stone-300 text-sm w-fit bg-hn"
             onChange={(e) => props.setSearchType(e.currentTarget.value)}
-            value={props.searchType()}>
+            value={props.searchType}>
             <option selected value={"hybrid"}>
               Hybrid
             </option>

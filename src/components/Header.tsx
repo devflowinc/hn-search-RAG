@@ -1,8 +1,8 @@
 import { AiOutlineSearch } from "solid-icons/ai";
-import { Accessor, Setter, createSignal } from "solid-js";
+import { Setter, createSignal } from "solid-js";
 
 export interface HeaderProps {
-  query: Accessor<string>;
+  query: string;
   setQuery: Setter<string>;
 }
 
@@ -41,7 +41,7 @@ export default function Header(props: HeaderProps) {
                 300,
               )(e.currentTarget.value)
             }
-            value={props.query()}
+            value={props.query}
           />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
             Powered by{" "}
