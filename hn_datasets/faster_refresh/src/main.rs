@@ -29,6 +29,7 @@ fn main() -> Result<(), ureq::Error> {
                 
                 let _: () = redis::pipe()
                     .cmd("LPUSH")
+                    .arg("tovisit")
                     .arg(&chunk)
                     .ignore()
                     .cmd("SET")
