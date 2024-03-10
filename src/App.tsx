@@ -3,7 +3,6 @@ import Filters from "./components/Filters";
 import Header from "./components/Header";
 import Stories, { Story } from "./components/Stories";
 import {
-  DatasetIDs,
   dateRangeSwitch,
   getFilters,
   isChunkMetadataWithFileData,
@@ -15,26 +14,18 @@ export default function App() {
   //replace with dataset ids
   const trive_api_key = import.meta.env.VITE_TRIEVE_API_KEY;
   const api_base_url = import.meta.env.VITE_TRIEVE_API_BASE_URL;
-  const story_types: DatasetIDs = {
-    All: null,
-    Stories: "story",
-    Comments: "comment",
-    Polls: "poll",
-    Jobs: "job",
-  };
-
   const urlParams = new URLSearchParams(window.location.search);
 
   let abortController: AbortController | null = null;
 
   const [selectedDataset, setSelectedDataset] = createSignal(
-    urlParams.get("dataset") ?? "Stories",
+    urlParams.get("dataset") ?? "story",
   );
   const [sortBy, setSortBy] = createSignal(
-    urlParams.get("sortby") ?? "relevance",
+    urlParams.get("sortby") ?? "Relevance",
   );
   const [dateRange, setDateRange] = createSignal<string>(
-    urlParams.get("dateRange") ?? "All Time",
+    urlParams.get("dateRange") ?? "all",
   );
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
@@ -44,6 +35,7 @@ export default function App() {
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [totalPages, setTotalPages] = createSignal(0);
+  const [algoliaLink, setAlgoliaLink] = createSignal("");
 
   createEffect(async () => {
     setLoading(true);
@@ -98,6 +90,13 @@ export default function App() {
     urlParams.set("dateRange", dateRange());
     urlParams.set("searchType", searchType());
     urlParams.set("page", page().toString());
+    setAlgoliaLink(
+      `https://hn.algolia.com/?q=${encodeURIComponent(
+        query(),
+      )}&dateRange=${dateRange()}&sort=by${
+        sortBy() == "Relevance" ? "Popularity" : sortBy()
+      }&dataset=${selectedDataset()}`,
+    );
 
     window.history.replaceState(
       {},
@@ -117,7 +116,7 @@ export default function App() {
         highlight_delimiters: [" "],
         use_weights: sortBy() == "popularity",
         date_bias: sortBy() == "date",
-        filters: getFilters(story_types[selectedDataset()], time_range),
+        filters: getFilters(selectedDataset(), time_range),
         page_size: 20,
         score_threshold: 0.3,
       }),
@@ -165,7 +164,7 @@ export default function App() {
       method: "POST",
       body: JSON.stringify({
         positive_tracking_ids: [story_id],
-        filters: getFilters(story_types[selectedDataset()], time_range),
+        filters: getFilters(selectedDataset(), time_range),
         limit: 3,
       }),
       headers: {
@@ -213,6 +212,7 @@ export default function App() {
         setDateRange={setDateRange}
         searchType={searchType()}
         setSearchType={setSearchType}
+        algoliaLink={algoliaLink()}
       />
       <div
         classList={{
@@ -231,6 +231,32 @@ export default function App() {
           />
         </div>
       </div>
+      <Show when={stories().length === 0 && loading()}>
+        <For each={Array(20)}>
+          {() => {
+            // Generate a random width from 150px to 360px for the first line
+            const maxWidthFirstLine =
+              Math.floor(Math.random() * (560 - 150 + 1)) + 250;
+            // Generate a random width from 150px to 330px for the second line
+            const maxWidthSecondLine =
+              Math.floor(Math.random() * (530 - 150 + 1)) + 250;
+
+            return (
+              <div role="status" class="animate-pulse p-1 px-3 rounded-md">
+                <div
+                  class={`h-2 bg-gray-300 rounded-full dark:bg-gray-700 mb-2.5`}
+                  style={{ "max-width": maxWidthFirstLine + "px" }}></div>
+                <div
+                  class={`h-2 bg-gray-300 rounded-full dark:bg-gray-700 mb-2.5`}
+                  style={{ "max-width": maxWidthSecondLine + "px" }}></div>
+
+                <span class="sr-only">Loading...</span>
+              </div>
+            );
+          }}
+        </For>
+      </Show>
+
       <div class="p-3" />
       <Show when={stories().length === 0 && !loading()}>
         <div class="flex justify-center items-center ">

@@ -129,24 +129,24 @@ export const isChunkMetadata = (chunk: unknown): chunk is ChunkDTO => {
 
 export const dateRangeSwitch = (value: string): TimeRange | null => {
   switch (value) {
-    case "All Time":
+    case "all":
       return null;
-    case "Last 24h":
+    case "last24h":
       return {
         gt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         lt: new Date(),
       };
-    case "Past Week":
+    case "pastWeek":
       return {
         gt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
         lt: new Date(),
       };
-    case "Past Month":
+    case "pastMonth":
       return {
         gt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
         lt: new Date(),
       };
-    case "Past Year":
+    case "pastYear":
       return {
         gt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
         lt: new Date(),
@@ -171,7 +171,7 @@ export const getFilters = (
   dateRange: TimeRange | null,
 ) => {
   let filters = [];
-  if (selectedDataset) {
+  if (selectedDataset && selectedDataset !== "all") {
     filters.push({
       field: "metadata.type",
       match: [selectedDataset],
@@ -189,4 +189,13 @@ export const getFilters = (
   return {
     must: filters,
   };
+};
+
+export const getAlgoliaLink = (
+  dataset: string,
+  time_range: string,
+  sortby: string,
+) => {
+  let link = `https://hn.algolia.com/?q=&sort=${sortby}&prefix&page=0&dateRange=${time_range}&type=${dataset}`;
+  return link;
 };
