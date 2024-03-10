@@ -1,5 +1,5 @@
 import { For, Show, createSignal } from "solid-js";
-import { formatDistanceToNowStrict } from "date-fns";
+import { formatDistanceToNowStrict, set } from "date-fns";
 export interface Story {
   content: string;
   url: string;
@@ -17,6 +17,7 @@ export default function Stories(props: {
 }) {
   const article_link = "https://news.ycombinator.com/item?id=" + props.story.id;
   const [recommendations, setRecommendations] = createSignal<Story[]>([]);
+  const [showSimilar, setShowSimilar] = createSignal(false);
   return (
     <div class="p-1 px-4 rounded-md">
       <div class="flex items-center justify-between">
@@ -63,11 +64,16 @@ export default function Stories(props: {
             <span
               class="text-gray-500 text-[10.6667px] hover:underline"
               onClick={() => {
-                props
-                  .getRecommendations(props.story.id)
-                  .then(setRecommendations);
+                if (recommendations().length == 0) {
+                  props.getRecommendations(props.story.id).then((data) => {
+                    setRecommendations(data);
+                    setShowSimilar(true);
+                  });
+                  return;
+                }
+                setShowSimilar(!showSimilar());
               }}>
-              Show Similar
+              {showSimilar() ? "Collapse" : "Show"} Similar
             </span>
           </div>
           <Show when={props.story.type == "comment"}>
@@ -78,20 +84,17 @@ export default function Stories(props: {
               />
             </div>
           </Show>
-          <Show when={recommendations().length > 0}>
-            <details open={true} class="items-center">
-              <summary class="text-xs">Similar Stories</summary>
-              <div class="pr-3">
-                <For each={recommendations()}>
-                  {(story) => (
-                    <Stories
-                      story={story}
-                      getRecommendations={props.getRecommendations}
-                    />
-                  )}
-                </For>
-              </div>
-            </details>
+          <Show when={recommendations().length > 0 && showSimilar()}>
+            <div class="pr-3">
+              <For each={recommendations()}>
+                {(story) => (
+                  <Stories
+                    story={story}
+                    getRecommendations={props.getRecommendations}
+                  />
+                )}
+              </For>
+            </div>
           </Show>
         </div>
       </div>

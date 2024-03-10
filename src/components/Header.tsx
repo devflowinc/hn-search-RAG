@@ -38,7 +38,7 @@ export default function Header(props: HeaderProps) {
             onInput={(e) =>
               debounce(
                 (e: string) => props.setQuery(e),
-                100,
+                300,
               )(e.currentTarget.value)
             }
             value={props.query()}
@@ -53,9 +53,6 @@ export default function Header(props: HeaderProps) {
           </div>
         </div>
       </div>
-      {
-        // search type selector
-      }
     </header>
   );
 }
