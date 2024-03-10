@@ -38,11 +38,19 @@ export default function Header(props: HeaderProps) {
             onInput={(e) =>
               debounce(
                 (e: string) => props.setQuery(e),
-                200,
+                100,
               )(e.currentTarget.value)
             }
             value={props.query()}
           />
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            Powered by{" "}
+            <img
+              class="w-10 pl-1"
+              src="https://cdn.trieve.ai/trieve-logo.png"
+              alt="Logo"
+            />
+          </div>
         </div>
       </div>
       {

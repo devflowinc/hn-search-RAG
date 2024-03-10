@@ -3,8 +3,8 @@ import { Accessor, Setter } from "solid-js";
 export interface FiltersProps {
   selectedDataset: Accessor<string>;
   setSelectedDataset: Setter<string>;
-  dateBias: Accessor<boolean>;
-  setDateBias: Setter<boolean>;
+  sortBy: Accessor<string>;
+  setSortBy: Setter<string>;
   dateRange: Accessor<string>;
   setDateRange: Setter<string>;
   searchType: Accessor<string>;
@@ -42,12 +42,11 @@ export default function Filters(props: FiltersProps) {
           <select
             id="popularity"
             class="form-select text-zinc-600 p-1 border border-stone-300 text-sm bg-hn"
-            onChange={(e) =>
-              props.setDateBias(e.currentTarget.value === "Date")
-            }
-            value={props.dateBias() ? "Date" : "Popularity"}>
-            <option>Popularity</option>
-            <option>Date</option>
+            onChange={(e) => props.setSortBy(e.currentTarget.value)}
+            value={props.sortBy()}>
+            <option value="relevance">Relevance</option>
+            <option value="popularity">Popularity</option>
+            <option value="date">Date</option>
           </select>
         </div>
         <span class="text-sm">{"for "}</span>

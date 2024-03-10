@@ -4,15 +4,15 @@ export interface ScoreChunkDTO {
 }
 
 export const isScoreChunkDTO = (obj: any): obj is ScoreChunkDTO => {
-    if (typeof obj !== "object" || obj === null) return false;
-    
-    return (
-        indirectHasOwnProperty(obj, "score_chunks") &&
-        Array.isArray(obj.score_chunks) &&
-        obj.score_chunks.every(isChunkMetadataDTO) &&
-        indirectHasOwnProperty(obj, "total_chunk_pages") &&
-        typeof obj.total_chunk_pages === "number"
-    );
+  if (typeof obj !== "object" || obj === null) return false;
+
+  return (
+    indirectHasOwnProperty(obj, "score_chunks") &&
+    Array.isArray(obj.score_chunks) &&
+    obj.score_chunks.every(isChunkMetadataDTO) &&
+    indirectHasOwnProperty(obj, "total_chunk_pages") &&
+    typeof obj.total_chunk_pages === "number"
+  );
 };
 
 export const indirectHasOwnProperty = (obj: unknown, prop: string): boolean => {
@@ -25,17 +25,16 @@ export interface ChunkMetadataDTO {
 }
 
 export const isChunkMetadataDTO = (obj: any): obj is ChunkMetadataDTO => {
-    if (typeof obj !== "object" || obj === null) return false;
-    
-    return (
-        indirectHasOwnProperty(obj, "metadata") &&
-        Array.isArray(obj.metadata) &&
-        obj.metadata.every(isChunkMetadata) &&
-        indirectHasOwnProperty(obj, "score") &&
-        typeof obj.score === "number"
-    );
-};
+  if (typeof obj !== "object" || obj === null) return false;
 
+  return (
+    indirectHasOwnProperty(obj, "metadata") &&
+    Array.isArray(obj.metadata) &&
+    obj.metadata.every(isChunkMetadata) &&
+    indirectHasOwnProperty(obj, "score") &&
+    typeof obj.score === "number"
+  );
+};
 
 export interface ChunkDTO {
   id: string;
@@ -54,6 +53,49 @@ export interface ChunkDTO {
   weight: number;
 }
 
+export interface ChunkMetadataWithFileData {
+  id: string;
+  content: string;
+  chunk_html?: string;
+  link?: string;
+  qdrant_point_id: string;
+  created_at: string;
+  updated_at: string;
+  tag_set?: string;
+  file_id?: string;
+  file_name?: string;
+  metadata: Record<string, never> | null;
+  tracking_id?: string;
+  time_stamp?: string;
+  weight: number;
+}
+
+export const isChunkMetadataWithFileData = (
+  chunk: unknown,
+): chunk is ChunkMetadataWithFileData => {
+  if (typeof chunk !== "object" || chunk === null) return false;
+
+  return (
+    indirectHasOwnProperty(chunk, "id") &&
+    typeof (chunk as ChunkMetadataWithFileData).id === "string" &&
+    indirectHasOwnProperty(chunk, "content") &&
+    typeof (chunk as ChunkMetadataWithFileData).content === "string" &&
+    indirectHasOwnProperty(chunk, "qdrant_point_id") &&
+    typeof (chunk as ChunkMetadataWithFileData).qdrant_point_id === "string" &&
+    indirectHasOwnProperty(chunk, "created_at") &&
+    typeof (chunk as ChunkMetadataWithFileData).created_at === "string" &&
+    indirectHasOwnProperty(chunk, "updated_at") &&
+    typeof (chunk as ChunkMetadataWithFileData).updated_at === "string" &&
+    indirectHasOwnProperty(chunk, "tag_set") &&
+    (typeof (chunk as ChunkMetadataWithFileData).tag_set === "string" ||
+      (chunk as ChunkMetadataWithFileData).tag_set === null) &&
+    (typeof (chunk as ChunkMetadataWithFileData).metadata === "object" ||
+      (chunk as ChunkMetadataWithFileData).metadata === null) &&
+    indirectHasOwnProperty(chunk, "weight") &&
+    typeof (chunk as ChunkMetadataWithFileData).weight === "number"
+  );
+};
+
 export interface DatasetIDs {
   All: string | null;
   Stories: string;
@@ -63,9 +105,7 @@ export interface DatasetIDs {
   [key: string]: null | string;
 }
 
-export const isChunkMetadata = (
-  chunk: unknown,
-): chunk is ChunkDTO => {
+export const isChunkMetadata = (chunk: unknown): chunk is ChunkDTO => {
   if (typeof chunk !== "object" || chunk === null) return false;
 
   return (
@@ -87,35 +127,66 @@ export const isChunkMetadata = (
   );
 };
 
-export const dateRangeSwitch = (value: string) => {
+export const dateRangeSwitch = (value: string): TimeRange | null => {
   switch (value) {
     case "All Time":
-      return ["", new Date().toISOString()];
+      return null;
     case "Last 24h":
-      return [
-        new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        new Date().toISOString(),
-      ];
+      return {
+        gt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        lt: new Date(),
+      };
     case "Past Week":
-      return [
-        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        new Date().toISOString(),
-      ];
+      return {
+        gt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        lt: new Date(),
+      };
     case "Past Month":
-      return [
-        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        new Date().toISOString(),
-      ];
+      return {
+        gt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        lt: new Date(),
+      };
     case "Past Year":
-      return [
-        new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
-        new Date().toISOString(),
-      ];
-      break;
+      return {
+        gt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+        lt: new Date(),
+      };
     case "Custom Range":
-      //TODO: Implement custom range
-      break;
+      return null;
+    //TODO: Implement custom range
     default:
-      break;
+      return null;
   }
+};
+
+export interface TimeRange {
+  gt?: Date;
+  gte?: Date;
+  lt?: Date;
+  lte?: Date;
+}
+
+export const getFilters = (
+  selectedDataset: string | null,
+  dateRange: TimeRange | null,
+) => {
+  let filters = [];
+  if (selectedDataset) {
+    filters.push({
+      field: "metadata.type",
+      match: [selectedDataset],
+    });
+  }
+  if (dateRange) {
+    if (dateRange.gt) {
+      filters.push({
+        field: "time_stamp",
+        range: dateRange,
+      });
+    }
+  }
+
+  return {
+    must: filters,
+  };
 };
