@@ -25,6 +25,8 @@ export default function App() {
 
   const urlParams = new URLSearchParams(window.location.search);
 
+  let abortController: AbortController | null = null;
+
   const [selectedDataset, setSelectedDataset] = createSignal(
     urlParams.get("dataset") ?? "Stories",
   );
@@ -45,10 +47,18 @@ export default function App() {
 
   createEffect(async () => {
     setLoading(true);
+    // Cancel the previous request
+    if (abortController) {
+      abortController.abort();
+    }
+    abortController = new AbortController();
+    const { signal } = abortController;
+
     if (query() === "") {
       async function fetchTopStories() {
         const response = await fetch(
           "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty",
+          { signal },
         );
         const storyIds = await response.json();
         const topStoryIds = storyIds.slice(0, 20); // Limit to first 10 stories for example
@@ -57,6 +67,7 @@ export default function App() {
           topStoryIds.map((id: number) =>
             fetch(
               `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`,
+              { signal },
             ).then((res) => res.json()),
           ),
         );
@@ -115,6 +126,7 @@ export default function App() {
         "TR-Dataset": import.meta.env.VITE_TRIEVE_DATASET_ID,
         Authorization: trive_api_key,
       },
+      signal,
     })
       .then((response) => response.json())
       .then((data) => {
@@ -139,7 +151,9 @@ export default function App() {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        if (error.name !== "AbortError") {
+          console.error("Error:", error);
+        }
       });
   });
 
@@ -179,7 +193,9 @@ export default function App() {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        if (error.name !== "AbortError") {
+          console.error("Error:", error);
+        }
       });
 
     return recommendations;
