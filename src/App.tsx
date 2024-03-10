@@ -38,7 +38,7 @@ export default function App() {
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
-    urlParams.get("searchType") ?? "hybrid",
+    urlParams.get("searchType") ?? "semantic",
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [totalPages, setTotalPages] = createSignal(0);

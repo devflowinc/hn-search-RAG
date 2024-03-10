@@ -1,5 +1,5 @@
 import { For, Show, createSignal } from "solid-js";
-import { formatDistanceToNowStrict } from "date-fns";
+import { formatDistanceToNowStrict, set } from "date-fns";
 export interface Story {
   content: string;
   url: string;
@@ -18,6 +18,8 @@ export default function Stories(props: {
   const article_link = "https://news.ycombinator.com/item?id=" + props.story.id;
   const [recommendations, setRecommendations] = createSignal<Story[]>([]);
   const [showSimilar, setShowSimilar] = createSignal(false);
+  const [loadingRecommendations, setLoadingRecommendations] =
+    createSignal(false);
   return (
     <div class="p-1 px-4 rounded-md">
       <div class="flex items-center justify-between">
@@ -62,12 +64,18 @@ export default function Stories(props: {
             </a>
             <span class="text-gray-500 text-xs">{" | "}</span>
             <span
-              class="text-gray-500 text-[10.6667px] hover:underline"
+              classList={{
+                "text-gray-500 text-[10.6667px]": true,
+                "cursor-pointer hover:underline": !loadingRecommendations(),
+                "animate-pulse": loadingRecommendations(),
+              }}
               onClick={() => {
                 if (recommendations().length == 0) {
+                  setLoadingRecommendations(true);
                   props.getRecommendations(props.story.id).then((data) => {
                     setRecommendations(data);
                     setShowSimilar(true);
+                    setLoadingRecommendations(false);
                   });
                   return;
                 }
