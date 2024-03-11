@@ -95,7 +95,7 @@ export default function App() {
         query(),
       )}&dateRange=${dateRange()}&sort=by${
         sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&dataset=${selectedDataset()}`,
+      }&type=${selectedDataset()}&page=0&prefix=false`,
     );
 
     window.history.replaceState(
@@ -152,6 +152,7 @@ export default function App() {
       .catch((error) => {
         if (error.name !== "AbortError") {
           console.error("Error:", error);
+          setLoading(false);
         }
       });
   });

@@ -133,23 +133,31 @@ export const dateRangeSwitch = (value: string): TimeRange | null => {
       return null;
     case "last24h":
       return {
-        gt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        lt: new Date(),
+        gt: Math.floor(
+          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000,
+        ),
+        lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastWeek":
       return {
-        gt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        lt: new Date(),
+        gt: Math.floor(
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000,
+        ),
+        lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastMonth":
       return {
-        gt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-        lt: new Date(),
+        gt: Math.floor(
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000,
+        ),
+        lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastYear":
       return {
-        gt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-        lt: new Date(),
+        gt: Math.floor(
+          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000,
+        ),
+        lt: Math.floor(new Date().getTime() / 1000),
       };
     case "Custom Range":
       return null;
@@ -160,10 +168,10 @@ export const dateRangeSwitch = (value: string): TimeRange | null => {
 };
 
 export interface TimeRange {
-  gt?: Date;
-  gte?: Date;
-  lt?: Date;
-  lte?: Date;
+  gt?: number;
+  gte?: number;
+  lt?: number;
+  lte?: number;
 }
 
 export const getFilters = (
