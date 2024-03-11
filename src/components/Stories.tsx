@@ -20,6 +20,7 @@ export default function Stories(props: {
   const [showSimilar, setShowSimilar] = createSignal(false);
   const [loadingRecommendations, setLoadingRecommendations] =
     createSignal(false);
+
   return (
     <div class="p-1 px-4 rounded-md">
       <div class="flex items-center justify-between">

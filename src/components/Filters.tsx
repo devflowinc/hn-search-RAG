@@ -16,7 +16,7 @@ export interface FiltersProps {
 export default function Filters(props: FiltersProps) {
   return (
     <div class="p-2 flex justify-between items-center">
-      <div class="flex space-x-2 text-black items-center">
+      <div class="flex flex-wrap space-x-2 text-black items-center space-y-2">
         <span class="text-sm">Search</span>
         <div>
           <label for="stories" class="sr-only">
@@ -78,7 +78,7 @@ export default function Filters(props: FiltersProps) {
         </div>
       </div>
 
-      <div class="flex items-center space-x-2">
+      <div class=" items-center space-x-2 hidden md:flex">
         <span class="text-sm">Search Type: </span>
         <div>
           <label for="stories" class="sr-only">
