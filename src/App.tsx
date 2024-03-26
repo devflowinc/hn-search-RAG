@@ -19,7 +19,7 @@ export default function App() {
   let abortController: AbortController | null = null;
 
   const [selectedDataset, setSelectedDataset] = createSignal(
-    urlParams.get("dataset") ?? "story",
+    urlParams.get("dataset") ?? "all",
   );
   const [sortBy, setSortBy] = createSignal(
     urlParams.get("sortby") ?? "Relevance",
