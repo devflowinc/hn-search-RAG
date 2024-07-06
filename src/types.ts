@@ -111,8 +111,6 @@ export const isChunkMetadata = (chunk: unknown): chunk is ChunkDTO => {
   return (
     indirectHasOwnProperty(chunk, "id") &&
     typeof (chunk as ChunkDTO).id === "string" &&
-    indirectHasOwnProperty(chunk, "content") &&
-    typeof (chunk as ChunkDTO).content === "string" &&
     indirectHasOwnProperty(chunk, "qdrant_point_id") &&
     typeof (chunk as ChunkDTO).qdrant_point_id === "string" &&
     indirectHasOwnProperty(chunk, "created_at") &&
