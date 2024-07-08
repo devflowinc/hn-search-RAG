@@ -160,11 +160,10 @@ export default function App() {
   const getRecommendations = async (story_id: string) => {
     let recommendations: Story[] = [];
     let time_range = dateRangeSwitch(dateRange());
-
     await fetch(api_base_url + `/api/chunk/recommend`, {
       method: "POST",
       body: JSON.stringify({
-        positive_tracking_ids: [story_id],
+        positive_tracking_ids: [story_id.toString()],
         filters: getFilters(selectedDataset(), time_range),
         limit: 3,
       }),
@@ -179,7 +178,7 @@ export default function App() {
         if (data.every(isChunkMetadataWithFileData)) {
           const stories: Story[] = data.map((chunk): Story => {
             return {
-              content: chunk.content,
+              content: chunk.chunk_html,
               url: chunk.link ?? "",
               points: chunk.metadata?.score ?? 0,
               user: chunk.metadata?.by ?? "",
