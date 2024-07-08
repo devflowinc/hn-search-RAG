@@ -34,7 +34,6 @@ export default function App() {
     urlParams.get("searchType") ?? "semantic",
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
-  const [totalPages, setTotalPages] = createSignal(0);
   const [algoliaLink, setAlgoliaLink] = createSignal("");
 
   createEffect(async () => {
@@ -144,7 +143,6 @@ export default function App() {
                 id: story.tracking_id ?? "0",
               };
             }) ?? [];
-          setTotalPages(data.total_chunk_pages);
           setStories(stories);
           setLoading(false);
         }
@@ -227,7 +225,7 @@ export default function App() {
           <PaginationController
             page={page()}
             setPage={setPage}
-            totalPages={totalPages()}
+            totalPages={500}
           />
         </div>
       </div>
