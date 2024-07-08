@@ -29,7 +29,7 @@ export default function Stories(props: {
             <div class="w-full mb-[-6px]">
               <a
                 href={article_link}
-                class="transition duration-150 ease-in-out mr-1 text-md text-[12px]"
+                class="transition duration-150 ease-in-out mr-1 text-sm"
                 innerHTML={props.story.content}
               />
               <a
@@ -40,12 +40,16 @@ export default function Stories(props: {
             </div>
           </Show>
           <div class="w-full">
-            <a
-              href={article_link}
-              class="text-gray-500 text-[10.6667px] hover:underline">
-              {props.story.points} points
-            </a>
-            <span class="text-gray-500 text-xs">{" | "}</span>
+            <Show when={props.story.points > 0}>
+              <div>
+                <a
+                  href={article_link}
+                  class="text-gray-500 text-[10.6667px] hover:underline">
+                  {props.story.points} points
+                </a>
+                <span class="text-gray-500 text-xs">{" | "}</span>
+              </div>
+            </Show>
             <a
               href={article_link}
               class="text-gray-500 text-[10.6667px] hover:underline">
@@ -86,7 +90,7 @@ export default function Stories(props: {
             </span>
           </div>
           <Show when={props.story.type == "comment"}>
-            <div class="w-full mb-[-6px] pl-1">
+            <div class="w-full mb-[-6px] pl-3">
               <div
                 class="transition duration-150 ease-in-out mr-1 text-md text-[12px]"
                 innerHTML={props.story.content}

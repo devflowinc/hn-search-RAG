@@ -193,6 +193,7 @@ export const getFilters = (
   }
 
   return {
+    jsonb_prefilter: false,
     must: filters,
   };
 };
