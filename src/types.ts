@@ -78,8 +78,8 @@ export const isChunkMetadataWithFileData = (
   return (
     indirectHasOwnProperty(chunk, "id") &&
     typeof (chunk as ChunkMetadataWithFileData).id === "string" &&
-    indirectHasOwnProperty(chunk, "content") &&
-    typeof (chunk as ChunkMetadataWithFileData).content === "string" &&
+    indirectHasOwnProperty(chunk, "chunk_html") &&
+    typeof (chunk as ChunkMetadataWithFileData).chunk_html === "string" &&
     indirectHasOwnProperty(chunk, "qdrant_point_id") &&
     typeof (chunk as ChunkMetadataWithFileData).qdrant_point_id === "string" &&
     indirectHasOwnProperty(chunk, "created_at") &&
