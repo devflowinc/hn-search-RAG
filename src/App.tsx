@@ -123,6 +123,7 @@ export const App = () => {
       page_size: 20,
       score_threshold: 0.3,
     }
+    const {page: _, page_size, ...countPayload} = payload;
     const options = {
       method: "POST",
       body: JSON.stringify(payload),
@@ -135,16 +136,8 @@ export const App = () => {
         fetch(`${trieveBaseURL}/chunk/search`, options),
         fetch(`${trieveBaseURL}/chunk/count`, {
           ...options, body: JSON.stringify({
-            query: query(),
-            search_type: payload.search_type,
-            score_threshold: payload.score_threshold,
-            highlight_results: true,
-            highlight_delimiters: [" "],
-            use_weights: sortBy() != "Relevance",
-            date_bias: sortBy() == "Date",
-            filters: getFilters(selectedDataset(), time_range),
+            ...countPayload,
             limit: 100001,
-
           })
         }),
       ]);
