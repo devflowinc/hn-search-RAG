@@ -19,19 +19,19 @@ export default function App() {
   let abortController: AbortController | null = null;
 
   const [selectedDataset, setSelectedDataset] = createSignal(
-    urlParams.get("dataset") ?? "all",
+    urlParams.get("dataset") ?? "all"
   );
   const [sortBy, setSortBy] = createSignal(
-    urlParams.get("sortby") ?? "Relevance",
+    urlParams.get("sortby") ?? "Relevance"
   );
   const [dateRange, setDateRange] = createSignal<string>(
-    urlParams.get("dateRange") ?? "all",
+    urlParams.get("dateRange") ?? "all"
   );
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
-    urlParams.get("searchType") ?? "semantic",
+    urlParams.get("searchType") ?? "semantic"
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
@@ -49,7 +49,7 @@ export default function App() {
       async function fetchTopStories() {
         const response = await fetch(
           "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty",
-          { signal },
+          { signal }
         );
         const storyIds = await response.json();
         const topStoryIds = storyIds.slice(0, 20); // Limit to first 10 stories for example
@@ -58,9 +58,9 @@ export default function App() {
           topStoryIds.map((id: number) =>
             fetch(
               `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`,
-              { signal },
-            ).then((res) => res.json()),
-          ),
+              { signal }
+            ).then((res) => res.json())
+          )
         );
 
         setLoading(false);
@@ -91,16 +91,16 @@ export default function App() {
     urlParams.set("page", page().toString());
     setAlgoliaLink(
       `https://hn.algolia.com/?q=${encodeURIComponent(
-        query(),
+        query()
       )}&dateRange=${dateRange()}&sort=by${
         sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&type=${selectedDataset()}&page=0&prefix=false`,
+      }&type=${selectedDataset()}&page=0&prefix=false`
     );
 
     window.history.replaceState(
       {},
       "",
-      `${window.location.pathname}?${urlParams.toString()}`,
+      `${window.location.pathname}?${urlParams.toString()}`
     );
 
     let time_range = dateRangeSwitch(dateRange());
@@ -176,7 +176,7 @@ export default function App() {
         if (data.every(isChunkMetadataWithFileData)) {
           const stories: Story[] = data.map((chunk): Story => {
             return {
-              content: chunk.chunk_html,
+              content: chunk.chunk_html ?? "",
               url: chunk.link ?? "",
               points: chunk.metadata?.score ?? 0,
               user: chunk.metadata?.by ?? "",
@@ -215,7 +215,8 @@ export default function App() {
       <div
         classList={{
           "animate-pulse": loading(),
-        }}>
+        }}
+      >
         <For each={stories()}>
           {(story) => (
             <Stories story={story} getRecommendations={getRecommendations} />
@@ -243,10 +244,12 @@ export default function App() {
               <div role="status" class="animate-pulse p-1 px-3 rounded-md">
                 <div
                   class={`h-2 bg-gray-300 rounded-full dark:bg-gray-700 mb-2.5`}
-                  style={{ "max-width": maxWidthFirstLine + "px" }}></div>
+                  style={{ "max-width": maxWidthFirstLine + "px" }}
+                ></div>
                 <div
                   class={`h-2 bg-gray-300 rounded-full dark:bg-gray-700 mb-2.5`}
-                  style={{ "max-width": maxWidthSecondLine + "px" }}></div>
+                  style={{ "max-width": maxWidthSecondLine + "px" }}
+                ></div>
 
                 <span class="sr-only">Loading...</span>
               </div>
