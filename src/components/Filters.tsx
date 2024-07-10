@@ -1,4 +1,3 @@
-import { FiExternalLink } from "solid-icons/fi";
 import { Accessor, Setter } from "solid-js";
 
 export interface FiltersProps {
@@ -10,13 +9,12 @@ export interface FiltersProps {
   setDateRange: Setter<string>;
   searchType: Accessor<string>;
   setSearchType: Setter<string>;
-  algoliaLink: Accessor<string>;
 }
 
 export default function Filters(props: FiltersProps) {
   return (
     <div class="p-2 flex justify-between items-center">
-      <div class="flex flex-wrap space-x-2 text-black items-center">
+      <div class="flex flex-wrap gap-2 text-black items-center">
         <span>Search</span>
         <div>
           <label for="stories" class="sr-only">
@@ -87,15 +85,6 @@ export default function Filters(props: FiltersProps) {
             <option value={"fulltext"}>Splade</option>
           </select>
         </div>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <a
-          class="flex p-1 border border-stone-300 text-zinc-600 bg-hn items-center"
-          href={props.algoliaLink()}
-        >
-          Try with Algolia <FiExternalLink class="pl-1 w-5" />
-        </a>
       </div>
     </div>
   );

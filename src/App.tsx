@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Match, Switch, createEffect, createSignal } from "solid-js";
 import Filters from "./components/Filters";
 import Header from "./components/Header";
 import { Story } from "./components/Story";
@@ -200,7 +200,7 @@ export default function App() {
 
   return (
     <main class="bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
-      <Header />
+      <Header algoliaLink={algoliaLink} />
       <Filters
         selectedDataset={selectedDataset}
         setSelectedDataset={setSelectedDataset}
@@ -210,61 +210,38 @@ export default function App() {
         setDateRange={setDateRange}
         searchType={searchType}
         setSearchType={setSearchType}
-        algoliaLink={algoliaLink}
       />
       <Search query={query} setQuery={setQuery} />
-      <div
-        classList={{
-          "animate-pulse": loading(),
-        }}
-      >
-        <For each={stories()}>
-          {(story) => (
-            <Story story={story} getRecommendations={getRecommendations} />
-          )}
-        </For>
-        <div class="mx-auto my-3 flex items-center space-x-2 justify-center">
-          <PaginationController
-            page={page()}
-            setPage={setPage}
-            totalPages={500}
-          />
-        </div>
-      </div>
-      <Show when={stories().length === 0 && loading()}>
-        <For each={Array(20)}>
-          {() => {
-            // Generate a random width from 150px to 360px for the first line
-            const maxWidthFirstLine =
-              Math.floor(Math.random() * (560 - 150 + 1)) + 250;
-            // Generate a random width from 150px to 330px for the second line
-            const maxWidthSecondLine =
-              Math.floor(Math.random() * (530 - 150 + 1)) + 250;
-
-            return (
-              <div role="status" class="animate-pulse p-1 px-3 rounded-md">
-                <div
-                  class={`h-2 bg-gray-300 rounded-full dark:bg-gray-700 mb-2.5`}
-                  style={{ "max-width": maxWidthFirstLine + "px" }}
-                ></div>
-                <div
-                  class={`h-2 bg-gray-300 rounded-full dark:bg-gray-700 mb-2.5`}
-                  style={{ "max-width": maxWidthSecondLine + "px" }}
-                ></div>
-
-                <span class="sr-only">Loading...</span>
+      <Switch>
+        <Match when={stories().length === 0}>
+          <Switch>
+            <Match when={loading()}>
+              <div class="flex justify-center items-center py-2">
+                <span class="text-2xl">Loading...</span>
               </div>
-            );
-          }}
-        </For>
-      </Show>
-
-      <div class="p-3" />
-      <Show when={stories().length === 0 && !loading()}>
-        <div class="flex justify-center items-center ">
-          <span class="text-2xl">No stories found</span>
-        </div>
-      </Show>
+            </Match>
+            <Match when={!loading()}>
+              <div class="flex justify-center items-center py-2">
+                <span class="text-2xl">No stories found</span>
+              </div>
+            </Match>
+          </Switch>
+        </Match>
+        <Match when={stories().length > 0}>
+          <For each={stories()}>
+            {(story) => (
+              <Story story={story} getRecommendations={getRecommendations} />
+            )}
+          </For>
+          <div class="mx-auto py-3 flex items-center space-x-2 justify-center">
+            <PaginationController
+              page={page()}
+              setPage={setPage}
+              totalPages={500}
+            />
+          </div>
+        </Match>
+      </Switch>
     </main>
   );
 }
