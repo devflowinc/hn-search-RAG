@@ -88,8 +88,8 @@ export default function Filters(props: FiltersProps) {
         </div>
       </div>
       {props.latency() !== null && (
-        <div class="text-center text-gray-500">
-          Query Latency: {props.latency()} ms
+        <div class="text-center">
+           ({props.latency()}) s
         </div>
       )}
     </div>
