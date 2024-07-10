@@ -24,7 +24,7 @@ export const Search = (props: SearchProps) => {
         />
       </div>
       {props.latency() !== null && (
-        <div class="text-center text-gray-500">
+        <div class="text-end text-blue-600">
           Query Latency: {props.latency()} ms
         </div>
       )}
