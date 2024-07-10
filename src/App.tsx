@@ -35,6 +35,8 @@ export const App = () => {
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
+  const [totalResults, setTotalResults] = createSignal<number | null>(null);
+  const [queryTime, setQueryTime] = createSignal<number | null>(null);
 
   createEffect(async () => {
     setLoading(true);
@@ -104,53 +106,76 @@ export const App = () => {
     );
 
     let time_range = dateRangeSwitch(dateRange());
-
-    fetch(`${trieveBaseURL}/chunk/search`, {
+    const headers = {
+      "Content-Type": "application/json",
+      "TR-Dataset": trieveDatasetId,
+      Authorization: trieveApiKey,
+    }
+    const payload = {
+      query: query(),
+      search_type: searchType(),
+      page: page(),
+      highlight_results: true,
+      highlight_delimiters: [" "],
+      use_weights: sortBy() != "Relevance",
+      date_bias: sortBy() == "Date",
+      filters: getFilters(selectedDataset(), time_range),
+      page_size: 20,
+      score_threshold: 0.3,
+    }
+    const options = {
       method: "POST",
-      body: JSON.stringify({
-        query: query(),
-        search_type: searchType(),
-        page: page(),
-        highlight_results: true,
-        highlight_delimiters: [" "],
-        use_weights: sortBy() != "Relevance",
-        date_bias: sortBy() == "Date",
-        filters: getFilters(selectedDataset(), time_range),
-        page_size: 20,
-        score_threshold: 0.3,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-        "TR-Dataset": trieveDatasetId,
-        Authorization: trieveApiKey,
-      },
+      body: JSON.stringify(payload),
+      headers,
       signal,
-    })
-      .then((response) => response.json())
-      .then((data: SearchChunkQueryResponseBody) => {
-        const stories: Story[] =
-          data.score_chunks.map((chunk): Story => {
-            const story = chunk.metadata[0];
-            return {
-              content: story.chunk_html ?? "",
-              url: story.link ?? "",
-              points: story.metadata?.score ?? 0,
-              user: story.metadata?.by ?? "",
-              time: story.time_stamp ?? "",
-              commentsCount: story.metadata?.descendants ?? 0,
-              type: story.metadata?.type ?? "",
-              id: story.tracking_id ?? "0",
-            };
-          }) ?? [];
-        setStories(stories);
+    }
+    try {
+      const startTime = Date.now();
+      const responses = await Promise.all([
+        fetch(`${trieveBaseURL}/chunk/search`, options),
+        fetch(`${trieveBaseURL}/chunk/count`, {
+          ...options, body: JSON.stringify({
+            query: query(),
+            search_type: payload.search_type,
+            score_threshold: payload.score_threshold,
+            highlight_results: true,
+            highlight_delimiters: [" "],
+            use_weights: sortBy() != "Relevance",
+            date_bias: sortBy() == "Date",
+            filters: getFilters(selectedDataset(), time_range),
+            limit: 100001,
+
+          })
+        }),
+      ]);
+      const data = await responses[0]?.json() || [];
+      const { count } = await responses[1]?.json() || 0;
+      const endTime = Date.now();
+
+      const stories: Story[] =
+        data.score_chunks.map((chunk: any): Story => {
+          const story = chunk?.metadata?.[0] || {};
+          return {
+            content: story.chunk_html ?? "",
+            url: story.link ?? "",
+            points: story.metadata?.score ?? 0,
+            user: story.metadata?.by ?? "",
+            time: story.time_stamp ?? "",
+            commentsCount: story.metadata?.descendants ?? 0,
+            type: story.metadata?.type ?? "",
+            id: story.tracking_id ?? "0",
+          };
+        }) ?? [];
+      setStories(stories);
+      setTotalResults(count);
+      setQueryTime(endTime - startTime);
+      setLoading(false);
+    } catch(error:any) {
+      if (error.name !== "AbortError") {
+        console.error("Error:", error);
         setLoading(false);
-      })
-      .catch((error) => {
-        if (error.name !== "AbortError") {
-          console.error("Error:", error);
-          setLoading(false);
-        }
-      });
+      }
+    }
   });
 
   const getRecommendations = async (story_id: string) => {
@@ -198,16 +223,35 @@ export const App = () => {
   return (
     <main class="bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
       <Header algoliaLink={algoliaLink} />
-      <Filters
-        selectedDataset={selectedDataset}
-        setSelectedDataset={setSelectedDataset}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        searchType={searchType}
-        setSearchType={setSearchType}
-      />
+      <div class="flex items-center justify-between">
+        <Filters
+          selectedDataset={selectedDataset}
+          setSelectedDataset={setSelectedDataset}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          searchType={searchType}
+          setSearchType={setSearchType}
+        />
+        <Switch>
+          <Match when={totalResults() !== null && queryTime() !== null}>
+            <div class="mr-2">
+              {totalResults()! > 100000 ? "100,000+" : totalResults()} results&nbsp;&lpar;{((queryTime() as number) / 1000).toFixed(3)} sec&rpar;
+            </div>
+          </Match>
+          <Match when={totalResults() !== null && queryTime() === null}>
+            <div class="mr-2">
+              {totalResults()} results&nbsp;&lpar;...&rpar;
+            </div>
+          </Match>
+          <Match when={totalResults() === null}>
+            <div class="mr-2">
+              Loading results...
+            </div>
+          </Match>
+        </Switch>
+      </div>
       <Search query={query} setQuery={setQuery} />
       <Switch>
         <Match when={stories().length === 0}>
