@@ -136,7 +136,8 @@ export const App = () => {
             return parseFloat(duration.split('=')[1]);
           });
           const totalLatency = durations.reduce((sum, duration) => sum + duration, 0);
-          setLatency(totalLatency);
+          const latencyInSeconds = totalLatency / 1000;
+          setLatency(latencyInSeconds);
         }
         return response.json();
       })
