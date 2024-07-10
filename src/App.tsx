@@ -5,15 +5,15 @@ import { Story } from "./components/Story";
 import {
   dateRangeSwitch,
   getFilters,
-  isChunkMetadataWithFileData,
-  isScoreChunkDTO,
+  SearchChunkQueryResponseBody,
 } from "./types";
 import { PaginationController } from "./components/PaginationController";
 import { Search } from "./components/Search";
 
-export default function App() {
-  const trive_api_key = import.meta.env.VITE_TRIEVE_API_KEY;
-  const api_base_url = import.meta.env.VITE_TRIEVE_API_URL;
+export const App = () => {
+  const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY;
+  const trieveBaseURL = import.meta.env.VITE_TRIEVE_API_URL;
+  const trieveDatasetId = import.meta.env.VITE_TRIEVE_DATASET_ID;
   const urlParams = new URLSearchParams(window.location.search);
 
   let abortController: AbortController | null = null;
@@ -38,7 +38,7 @@ export default function App() {
 
   createEffect(async () => {
     setLoading(true);
-    // Cancel the previous request
+
     if (abortController) {
       abortController.abort();
     }
@@ -105,7 +105,7 @@ export default function App() {
 
     let time_range = dateRangeSwitch(dateRange());
 
-    fetch(api_base_url + `/api/chunk/search`, {
+    fetch(`${trieveBaseURL}/chunk/search`, {
       method: "POST",
       body: JSON.stringify({
         query: query(),
@@ -121,31 +121,29 @@ export default function App() {
       }),
       headers: {
         "Content-Type": "application/json",
-        "TR-Dataset": import.meta.env.VITE_TRIEVE_DATASET_ID,
-        Authorization: trive_api_key,
+        "TR-Dataset": trieveDatasetId,
+        Authorization: trieveApiKey,
       },
       signal,
     })
       .then((response) => response.json())
-      .then((data) => {
-        if (isScoreChunkDTO(data)) {
-          const stories: Story[] =
-            data.score_chunks.map((chunk): Story => {
-              const story = chunk.metadata[0];
-              return {
-                content: story.chunk_html ?? "",
-                url: story.link ?? "",
-                points: story.metadata?.score ?? 0,
-                user: story.metadata?.by ?? "",
-                time: story.time_stamp ?? "",
-                commentsCount: story.metadata?.descendants ?? 0,
-                type: story.metadata?.type ?? "",
-                id: story.tracking_id ?? "0",
-              };
-            }) ?? [];
-          setStories(stories);
-          setLoading(false);
-        }
+      .then((data: SearchChunkQueryResponseBody) => {
+        const stories: Story[] =
+          data.score_chunks.map((chunk): Story => {
+            const story = chunk.metadata[0];
+            return {
+              content: story.chunk_html ?? "",
+              url: story.link ?? "",
+              points: story.metadata?.score ?? 0,
+              user: story.metadata?.by ?? "",
+              time: story.time_stamp ?? "",
+              commentsCount: story.metadata?.descendants ?? 0,
+              type: story.metadata?.type ?? "",
+              id: story.tracking_id ?? "0",
+            };
+          }) ?? [];
+        setStories(stories);
+        setLoading(false);
       })
       .catch((error) => {
         if (error.name !== "AbortError") {
@@ -158,7 +156,8 @@ export default function App() {
   const getRecommendations = async (story_id: string) => {
     let recommendations: Story[] = [];
     let time_range = dateRangeSwitch(dateRange());
-    await fetch(api_base_url + `/api/chunk/recommend`, {
+
+    fetch(trieveBaseURL + `/api/chunk/recommend`, {
       method: "POST",
       body: JSON.stringify({
         positive_tracking_ids: [story_id.toString()],
@@ -168,26 +167,24 @@ export default function App() {
       headers: {
         "Content-Type": "application/json",
         "TR-Dataset": import.meta.env.VITE_TRIEVE_DATASET_ID,
-        Authorization: trive_api_key,
+        Authorization: trieveApiKey,
       },
     })
       .then((response) => response.json())
       .then((data: any[]) => {
-        if (data.every(isChunkMetadataWithFileData)) {
-          const stories: Story[] = data.map((chunk): Story => {
-            return {
-              content: chunk.chunk_html ?? "",
-              url: chunk.link ?? "",
-              points: chunk.metadata?.score ?? 0,
-              user: chunk.metadata?.by ?? "",
-              time: chunk.time_stamp ?? "",
-              commentsCount: chunk.metadata?.descendants ?? 0,
-              type: chunk.metadata?.type ?? "",
-              id: chunk.tracking_id ?? "0",
-            };
-          });
-          recommendations = stories;
-        }
+        const stories: Story[] = data.map((chunk): Story => {
+          return {
+            content: chunk.chunk_html ?? "",
+            url: chunk.link ?? "",
+            points: chunk.metadata?.score ?? 0,
+            user: chunk.metadata?.by ?? "",
+            time: chunk.time_stamp ?? "",
+            commentsCount: chunk.metadata?.descendants ?? 0,
+            type: chunk.metadata?.type ?? "",
+            id: chunk.tracking_id ?? "0",
+          };
+        });
+        recommendations = stories;
       })
       .catch((error) => {
         if (error.name !== "AbortError") {
@@ -244,4 +241,6 @@ export default function App() {
       </Switch>
     </main>
   );
-}
+};
+
+export default App;

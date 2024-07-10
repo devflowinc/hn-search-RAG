@@ -1,100 +1,37 @@
-export interface ScoreChunkDTO {
-  score_chunks: ChunkMetadataDTO[];
-  total_chunk_pages: number;
-}
-
-export const isScoreChunkDTO = (obj: any): obj is ScoreChunkDTO => {
-  if (typeof obj !== "object" || obj === null) return false;
-
-  return (
-    indirectHasOwnProperty(obj, "score_chunks") &&
-    Array.isArray(obj.score_chunks) &&
-    obj.score_chunks.every(isChunkMetadataDTO) &&
-    indirectHasOwnProperty(obj, "total_chunk_pages") &&
-    typeof obj.total_chunk_pages === "number"
-  );
-};
-
 export const indirectHasOwnProperty = (obj: unknown, prop: string): boolean => {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 };
 
-export interface ChunkMetadataDTO {
-  metadata: ChunkDTO[];
-  score: number;
+export interface GeoInfo {
+  lat: number;
+  lon: number;
 }
-
-export const isChunkMetadataDTO = (obj: any): obj is ChunkMetadataDTO => {
-  if (typeof obj !== "object" || obj === null) return false;
-
-  return (
-    indirectHasOwnProperty(obj, "metadata") &&
-    Array.isArray(obj.metadata) &&
-    obj.metadata.every(isChunkMetadata) &&
-    indirectHasOwnProperty(obj, "score") &&
-    typeof obj.score === "number"
-  );
-};
-
-export interface ChunkDTO {
+export interface ChunkMetadataStringTagSet {
   id: string;
-  content: string;
-  chunk_html?: string;
   link: string | null;
   qdrant_point_id: string;
   created_at: string;
   updated_at: string;
-  tag_set: string | null;
+  chunk_html: string | null;
+  metadata: Record<string, never> | null;
   tracking_id: string | null;
   time_stamp: string | null;
-  file_id: string | null;
-  file_name: string | null;
-  metadata: Record<string, never> | null;
   weight: number;
+  location: GeoInfo | null;
+  image_urls: string[] | null;
+  tag_set: string | null;
+  num_value: number | null;
+}
+export interface ScoreChunkDTO {
+  metadata: ChunkMetadataStringTagSet[];
+  highlights?: string[];
+  score: number;
 }
 
-export interface ChunkMetadataWithFileData {
-  id: string;
-  content: string;
-  chunk_html?: string;
-  link?: string;
-  qdrant_point_id: string;
-  created_at: string;
-  updated_at: string;
-  tag_set?: string;
-  file_id?: string;
-  file_name?: string;
-  metadata: Record<string, never> | null;
-  tracking_id?: string;
-  time_stamp?: string;
-  weight: number;
+export interface SearchChunkQueryResponseBody {
+  score_chunks: ScoreChunkDTO[];
+  total_chunk_pages: number;
 }
-
-export const isChunkMetadataWithFileData = (
-  chunk: unknown,
-): chunk is ChunkMetadataWithFileData => {
-  if (typeof chunk !== "object" || chunk === null) return false;
-
-  return (
-    indirectHasOwnProperty(chunk, "id") &&
-    typeof (chunk as ChunkMetadataWithFileData).id === "string" &&
-    indirectHasOwnProperty(chunk, "chunk_html") &&
-    typeof (chunk as ChunkMetadataWithFileData).chunk_html === "string" &&
-    indirectHasOwnProperty(chunk, "qdrant_point_id") &&
-    typeof (chunk as ChunkMetadataWithFileData).qdrant_point_id === "string" &&
-    indirectHasOwnProperty(chunk, "created_at") &&
-    typeof (chunk as ChunkMetadataWithFileData).created_at === "string" &&
-    indirectHasOwnProperty(chunk, "updated_at") &&
-    typeof (chunk as ChunkMetadataWithFileData).updated_at === "string" &&
-    indirectHasOwnProperty(chunk, "tag_set") &&
-    (typeof (chunk as ChunkMetadataWithFileData).tag_set === "string" ||
-      (chunk as ChunkMetadataWithFileData).tag_set === null) &&
-    (typeof (chunk as ChunkMetadataWithFileData).metadata === "object" ||
-      (chunk as ChunkMetadataWithFileData).metadata === null) &&
-    indirectHasOwnProperty(chunk, "weight") &&
-    typeof (chunk as ChunkMetadataWithFileData).weight === "number"
-  );
-};
 
 export interface DatasetIDs {
   All: string | null;
@@ -105,26 +42,6 @@ export interface DatasetIDs {
   [key: string]: null | string;
 }
 
-export const isChunkMetadata = (chunk: unknown): chunk is ChunkDTO => {
-  if (typeof chunk !== "object" || chunk === null) return false;
-
-  return (
-    indirectHasOwnProperty(chunk, "id") &&
-    typeof (chunk as ChunkDTO).id === "string" &&
-    indirectHasOwnProperty(chunk, "qdrant_point_id") &&
-    typeof (chunk as ChunkDTO).qdrant_point_id === "string" &&
-    indirectHasOwnProperty(chunk, "created_at") &&
-    typeof (chunk as ChunkDTO).created_at === "string" &&
-    indirectHasOwnProperty(chunk, "updated_at") &&
-    typeof (chunk as ChunkDTO).updated_at === "string" &&
-    indirectHasOwnProperty(chunk, "tag_set") &&
-    (typeof (chunk as ChunkDTO).tag_set === "string" ||
-      (chunk as ChunkDTO).tag_set === null) &&
-    (typeof (chunk as ChunkDTO).metadata === "object" ||
-      (chunk as ChunkDTO).metadata === null)
-  );
-};
-
 export const dateRangeSwitch = (value: string): TimeRange | null => {
   switch (value) {
     case "all":
@@ -132,28 +49,28 @@ export const dateRangeSwitch = (value: string): TimeRange | null => {
     case "last24h":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastWeek":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastMonth":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastYear":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
@@ -174,7 +91,7 @@ export interface TimeRange {
 
 export const getFilters = (
   selectedDataset: string | null,
-  dateRange: TimeRange | null,
+  dateRange: TimeRange | null
 ) => {
   let filters = [];
   if (selectedDataset && selectedDataset !== "all") {
@@ -201,7 +118,7 @@ export const getFilters = (
 export const getAlgoliaLink = (
   dataset: string,
   time_range: string,
-  sortby: string,
+  sortby: string
 ) => {
   let link = `https://hn.algolia.com/?q=&sort=${sortby}&prefix&page=0&dateRange=${time_range}&type=${dataset}`;
   return link;
