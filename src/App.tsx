@@ -128,7 +128,6 @@ export const App = () => {
       signal,
     })
       .then((response) => {
-        // const timingHeader = response.headers.get("Server-Timing");
         const serverTiming = response.headers.get('Server-Timing');
         if (serverTiming) {
           const metrics = serverTiming.split(',');
