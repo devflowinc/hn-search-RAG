@@ -1,54 +1,19 @@
-## Usage
+## Trieve Hackernews Search
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+To showcase the functionality of Trieve, we are building a demo of HackerNews search which has feature superiority relative to the Algolia version. 
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+## Local Dev Setup
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+1. `cp .env.dist .env` to setup environment variables. For this demo, the user should only need the read-only API key present in the default `.env.dist` file. 
+2. `yarn` to install dependencies
+3. `yarn dev` to start the SolidJS SPA
 
-## Using PM2
+## Contributing
 
-To start pm2
+Most of the functionality is present directly in the `src/App.tsx` file. 
 
-```sh
-pm2 start ecosystem.config.js
-```
+Read that file to see how things work and then go from there to develop your feature.
 
-To restart pm2
+## Community
 
-```sh
-pm2 restart ecosystem.config.js
-```
-
-To view all running processes
-
-```sh
-pm2 monit
-```
-
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm run dev` or `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+Get in touch with us on [discord](https://discord.gg/eBJXXZDB8z), [matrix](https://matrix.to/#/#trieve-general:trieve.ai), or by email at humans@trieve.ai.
