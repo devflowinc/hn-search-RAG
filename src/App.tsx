@@ -36,9 +36,11 @@ export const App = () => {
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
+  const [count, setCount] = createSignal<number | null>(null);
 
   createEffect(async () => {
     setLoading(true);
+    setCount(null);
 
     if (abortController) {
       abortController.abort();
@@ -105,6 +107,33 @@ export const App = () => {
     );
 
     let time_range = dateRangeSwitch(dateRange());
+
+    fetch(`${trieveBaseURL}/chunk/count`, {
+      method: "POST",
+      body: JSON.stringify({
+        query: query(),
+        search_type: searchType(),
+        filters: getFilters(selectedDataset(), time_range),
+        limit: 10000,
+        score_threshold: 0.3,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        "TR-Dataset": trieveDatasetId,
+        Authorization: trieveApiKey,
+      },
+      signal,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("count", data);
+        setCount(data);
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.error("Error fetching count:", error);
+        }
+      });
 
     fetch(`${trieveBaseURL}/chunk/search`, {
       method: "POST",
@@ -222,6 +251,7 @@ export const App = () => {
         searchType={searchType}
         setSearchType={setSearchType}
         latency={latency}
+        count={count}
       />
       <Search query={query} setQuery={setQuery} />
       <Switch>

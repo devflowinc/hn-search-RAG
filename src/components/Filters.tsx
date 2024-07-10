@@ -88,7 +88,7 @@ export default function Filters(props: FiltersProps) {
           </select>
         </div>
       </div>
-      <div class="flex items-center">
+      <div class="flex items-center gap-1">
         <Show when={props.count() !== null}>
           <p>{props.count()} results</p>
         </Show>
