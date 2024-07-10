@@ -13,7 +13,7 @@ import { PaginationController } from "./components/PaginationController";
 export default function App() {
   //replace with dataset ids
   const trive_api_key = import.meta.env.VITE_TRIEVE_API_KEY;
-  const api_base_url = import.meta.env.VITE_TRIEVE_API_BASE_URL;
+  const api_base_url = import.meta.env.VITE_TRIEVE_API_URL;
   const urlParams = new URLSearchParams(window.location.search);
 
   let abortController: AbortController | null = null;
