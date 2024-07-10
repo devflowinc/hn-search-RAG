@@ -221,6 +221,7 @@ export const App = () => {
         setDateRange={setDateRange}
         searchType={searchType}
         setSearchType={setSearchType}
+        latency={latency}
       />
       <Search query={query} setQuery={setQuery} latency={latency} />
       <Switch> 
