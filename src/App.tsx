@@ -1,7 +1,7 @@
 import { For, Show, createEffect, createSignal } from "solid-js";
 import Filters from "./components/Filters";
 import Header from "./components/Header";
-import Stories, { Story } from "./components/Stories";
+import { Story } from "./components/Story";
 import {
   dateRangeSwitch,
   getFilters,
@@ -9,9 +9,9 @@ import {
   isScoreChunkDTO,
 } from "./types";
 import { PaginationController } from "./components/PaginationController";
+import { Search } from "./components/Search";
 
 export default function App() {
-  //replace with dataset ids
   const trive_api_key = import.meta.env.VITE_TRIEVE_API_KEY;
   const api_base_url = import.meta.env.VITE_TRIEVE_API_URL;
   const urlParams = new URLSearchParams(window.location.search);
@@ -199,19 +199,20 @@ export default function App() {
   };
 
   return (
-    <main class="bg-hn min-h-screen font-verdana">
-      <Header query={query()} setQuery={setQuery} />
+    <main class="bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
+      <Header />
       <Filters
-        selectedDataset={selectedDataset()}
+        selectedDataset={selectedDataset}
         setSelectedDataset={setSelectedDataset}
-        sortBy={sortBy()}
+        sortBy={sortBy}
         setSortBy={setSortBy}
-        dateRange={dateRange()}
+        dateRange={dateRange}
         setDateRange={setDateRange}
-        searchType={searchType()}
+        searchType={searchType}
         setSearchType={setSearchType}
-        algoliaLink={algoliaLink()}
+        algoliaLink={algoliaLink}
       />
+      <Search query={query} setQuery={setQuery} />
       <div
         classList={{
           "animate-pulse": loading(),
@@ -219,7 +220,7 @@ export default function App() {
       >
         <For each={stories()}>
           {(story) => (
-            <Stories story={story} getRecommendations={getRecommendations} />
+            <Story story={story} getRecommendations={getRecommendations} />
           )}
         </For>
         <div class="mx-auto my-3 flex items-center space-x-2 justify-center">

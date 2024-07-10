@@ -11,10 +11,10 @@ export interface Story {
   id: string;
 }
 
-export default function Stories(props: {
+export const Story = (props: {
   story: Story;
   getRecommendations: (story_id: string) => Promise<Story[]>;
-}) {
+}) => {
   const article_link = "https://news.ycombinator.com/item?id=" + props.story.id;
   const [recommendations, setRecommendations] = createSignal<Story[]>([]);
   const [showSimilar, setShowSimilar] = createSignal(false);
@@ -22,7 +22,7 @@ export default function Stories(props: {
     createSignal(false);
 
   return (
-    <div class="p-1 px-4 rounded-md">
+    <div class="px-2 rounded-md">
       <div class="flex items-center justify-between">
         <div class="flex items-center flex-wrap">
           <Show when={props.story.type != "comment"}>
@@ -34,7 +34,8 @@ export default function Stories(props: {
               />
               <a
                 href={props.story.url}
-                class="text-gray-500 text-[13px] hover:underline">
+                class="text-gray-500 text-[13px] hover:underline"
+              >
                 ({props.story.url})
               </a>
             </div>
@@ -44,7 +45,8 @@ export default function Stories(props: {
               <div>
                 <a
                   href={article_link}
-                  class="text-gray-500 text-[10.6667px] hover:underline">
+                  class="text-gray-500 text-[10.6667px] hover:underline"
+                >
                   {props.story.points} points
                 </a>
                 <span class="text-gray-500 text-xs">{" | "}</span>
@@ -52,19 +54,22 @@ export default function Stories(props: {
             </Show>
             <a
               href={article_link}
-              class="text-gray-500 text-[10.6667px] hover:underline">
+              class="text-gray-500 text-[10.6667px] hover:underline"
+            >
               {props.story.user}
             </a>
             <span class="text-gray-500 text-xs">{" | "}</span>
             <a
               href={article_link}
-              class="text-gray-500 text-[10.6667px] hover:underline">
+              class="text-gray-500 text-[10.6667px] hover:underline"
+            >
               {formatDistanceToNowStrict(props.story.time)} ago
             </a>
             <span class="text-gray-500 text-xs">{" | "}</span>
             <a
               href={article_link}
-              class="text-gray-500 text-[10.6667px] hover:underline">
+              class="text-gray-500 text-[10.6667px] hover:underline"
+            >
               {props.story.commentsCount} comments
             </a>
             <span class="text-gray-500 text-xs">{" | "}</span>
@@ -85,7 +90,8 @@ export default function Stories(props: {
                   return;
                 }
                 setShowSimilar(!showSimilar());
-              }}>
+              }}
+            >
               {showSimilar() ? "Collapse" : "Show"} Similar
             </span>
           </div>
@@ -101,7 +107,7 @@ export default function Stories(props: {
             <div class="pr-3">
               <For each={recommendations()}>
                 {(story) => (
-                  <Stories
+                  <Story
                     story={story}
                     getRecommendations={props.getRecommendations}
                   />
@@ -113,4 +119,4 @@ export default function Stories(props: {
       </div>
     </div>
   );
-}
+};
