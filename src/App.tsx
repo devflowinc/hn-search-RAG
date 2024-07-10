@@ -35,6 +35,7 @@ export const App = () => {
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
+  const [latency, setLatency] = createSignal<number | null>(null);
 
   createEffect(async () => {
     setLoading(true);
@@ -126,7 +127,20 @@ export const App = () => {
       },
       signal,
     })
-      .then((response) => response.json())
+      .then((response) => {
+        // const timingHeader = response.headers.get("Server-Timing");
+        const serverTiming = response.headers.get('Server-Timing');
+        if (serverTiming) {
+          const metrics = serverTiming.split(',');
+          const durations = metrics.map((metric) => {
+            const [description, duration] = metric.split(';');
+            return parseFloat(duration.split('=')[1]);
+          });
+          const totalLatency = durations.reduce((sum, duration) => sum + duration, 0);
+          setLatency(totalLatency);
+        }
+        return response.json();
+      })
       .then((data: SearchChunkQueryResponseBody) => {
         const stories: Story[] =
           data.score_chunks.map((chunk): Story => {
@@ -208,8 +222,8 @@ export const App = () => {
         searchType={searchType}
         setSearchType={setSearchType}
       />
-      <Search query={query} setQuery={setQuery} />
-      <Switch>
+      <Search query={query} setQuery={setQuery} latency={latency} />
+      <Switch> 
         <Match when={stories().length === 0}>
           <Switch>
             <Match when={loading()}>
