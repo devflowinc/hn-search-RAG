@@ -235,7 +235,7 @@ export const App = () => {
           setSearchType={setSearchType}
         />
         <Switch>
-          <Match when={totalResults() !== null && queryTime() !== null}>
+          <Match when={!loading() && totalResults() !== null && queryTime() !== null}>
             <div class="mr-2">
               {totalResults()! > 100000 ? "100,000+" : totalResults()} results&nbsp;&lpar;{((queryTime() as number) / 1000).toFixed(3)} sec&rpar;
             </div>
@@ -245,7 +245,7 @@ export const App = () => {
               {totalResults()} results&nbsp;&lpar;...&rpar;
             </div>
           </Match>
-          <Match when={totalResults() === null}>
+          <Match when={totalResults() === null || loading()}>
             <div class="mr-2">
               Loading results...
             </div>
