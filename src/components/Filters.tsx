@@ -10,6 +10,7 @@ export interface FiltersProps {
   searchType: Accessor<string>;
   setSearchType: Setter<string>;
   latency: Accessor<number | null>;
+  count: Accessor<number | null>;
 }
 
 export default function Filters(props: FiltersProps) {
@@ -87,9 +88,14 @@ export default function Filters(props: FiltersProps) {
           </select>
         </div>
       </div>
-      <Show when={props.latency() !== null}>
-        <p>({props.latency()}s)</p>
-      </Show>
+      <div class="flex items-center">
+        <Show when={props.count() !== null}>
+          <p>{props.count()} results</p>
+        </Show>
+        <Show when={props.latency() !== null}>
+          <p>({props.latency()}s)</p>
+        </Show>
+      </div>
     </div>
   );
 }
