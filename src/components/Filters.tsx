@@ -9,6 +9,7 @@ export interface FiltersProps {
   setDateRange: Setter<string>;
   searchType: Accessor<string>;
   setSearchType: Setter<string>;
+  latency: Accessor<number | null>;
 }
 
 export default function Filters(props: FiltersProps) {
@@ -86,6 +87,11 @@ export default function Filters(props: FiltersProps) {
           </select>
         </div>
       </div>
+      {props.latency() !== null && (
+        <div class="text-center text-gray-500">
+          Query Latency: {props.latency()} ms
+        </div>
+      )}
     </div>
   );
 }
