@@ -1,4 +1,4 @@
-import { Accessor, Setter } from "solid-js";
+import { Accessor, Setter, Show } from "solid-js";
 
 export interface FiltersProps {
   selectedDataset: Accessor<string>;
@@ -87,11 +87,9 @@ export default function Filters(props: FiltersProps) {
           </select>
         </div>
       </div>
-      {props.latency() !== null && (
-        <div class="text-center">
-           ({props.latency()}) s
-        </div>
-      )}
+      <Show when={props.latency() !== null}>
+        <p>({props.latency()}s)</p>
+      </Show>
     </div>
   );
 }

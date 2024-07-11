@@ -128,14 +128,14 @@ export const App = () => {
       signal,
     })
       .then((response) => {
-        const serverTiming = response.headers.get('Server-Timing');
+        const serverTiming = response.headers.get("Server-Timing");
         if (serverTiming) {
-          const metrics = serverTiming.split(',');
+          const metrics = serverTiming.split(",");
           const durations = metrics.map((metric) => {
-            const [description, duration] = metric.split(';');
-            return parseFloat(duration.split('=')[1]);
+            const duration = parseFloat(metric.split(";")[1].split("=")[1]);
+            return duration;
           });
-          const totalLatency = durations.reduce((sum, duration) => sum + duration, 0);
+          const totalLatency = durations.reduce((a, b) => a + b, 0);
           const latencyInSeconds = totalLatency / 1000;
           setLatency(latencyInSeconds);
         }
@@ -223,8 +223,8 @@ export const App = () => {
         setSearchType={setSearchType}
         latency={latency}
       />
-      <Search query={query} setQuery={setQuery} latency={latency} />
-      <Switch> 
+      <Search query={query} setQuery={setQuery} />
+      <Switch>
         <Match when={stories().length === 0}>
           <Switch>
             <Match when={loading()}>
