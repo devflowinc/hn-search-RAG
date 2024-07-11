@@ -89,8 +89,10 @@ export default function Filters(props: FiltersProps) {
         </div>
       </div>
       <div class="flex items-center gap-1">
-        <Show when={props.count() !== null}>
-          <p>{props.count()} results</p>
+        <Show when={props.count() ?? 0}>
+          {(count) => (
+            <p>{`${count()}${count() < 10000 ? "" : "+"}`} results</p>
+          )}
         </Show>
         <Show when={props.latency() !== null}>
           <p>({props.latency()}s)</p>

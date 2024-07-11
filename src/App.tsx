@@ -115,7 +115,7 @@ export const App = () => {
         search_type: searchType(),
         filters: getFilters(selectedDataset(), time_range),
         limit: 10000,
-        score_threshold: 0.3,
+        score_threshold: 0.8,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -126,8 +126,7 @@ export const App = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("count", data);
-        setCount(data);
+        setCount(data.count);
       })
       .catch((error) => {
         if (error.name !== "AbortError") {
