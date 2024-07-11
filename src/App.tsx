@@ -1,4 +1,4 @@
-import { For, Match, Switch, createEffect, createSignal } from "solid-js";
+import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
 import Filters from "./components/Filters";
 import Header from "./components/Header";
 import { Story } from "./components/Story";
@@ -9,6 +9,7 @@ import {
 } from "./types";
 import { PaginationController } from "./components/PaginationController";
 import { Search } from "./components/Search";
+import { Footer } from "./components/Footer";
 
 export const App = () => {
   const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY;
@@ -53,7 +54,7 @@ export const App = () => {
           { signal }
         );
         const storyIds = await response.json();
-        const topStoryIds = storyIds.slice(0, 20); // Limit to first 10 stories for example
+        const topStoryIds = storyIds.slice(0, 30);
 
         const storyDetails = await Promise.all(
           topStoryIds.map((id: number) =>
@@ -113,7 +114,8 @@ export const App = () => {
         search_type: searchType(),
         page: page(),
         highlight_results: true,
-        highlight_delimiters: [" "],
+        highlight_delimiters: [" ", "-", "_", ".", ","],
+        highlight_max_num: 50,
         use_weights: sortBy() != "Relevance",
         date_bias: sortBy() == "Date",
         filters: getFilters(selectedDataset(), time_range),
@@ -210,7 +212,7 @@ export const App = () => {
   };
 
   return (
-    <main class="bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
+    <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
       <Header algoliaLink={algoliaLink} />
       <Filters
         selectedDataset={selectedDataset}
@@ -229,31 +231,32 @@ export const App = () => {
           <Switch>
             <Match when={loading()}>
               <div class="flex justify-center items-center py-2">
-                <span class="text-2xl">Loading...</span>
+                <span class="text-xl animate-pulse">Firebase loading...</span>
               </div>
             </Match>
             <Match when={!loading()}>
               <div class="flex justify-center items-center py-2">
-                <span class="text-2xl">No stories found</span>
+                <span class="text-xl">No stories found</span>
               </div>
             </Match>
           </Switch>
         </Match>
         <Match when={stories().length > 0}>
-          <For each={stories()}>
-            {(story) => (
-              <Story story={story} getRecommendations={getRecommendations} />
-            )}
-          </For>
-          <div class="mx-auto py-3 flex items-center space-x-2 justify-center">
-            <PaginationController
-              page={page()}
-              setPage={setPage}
-              totalPages={500}
-            />
+          <div class="pb-2">
+            <For each={stories()}>{(story) => <Story story={story} />}</For>
           </div>
         </Match>
       </Switch>
+      <Show when={stories().length > 0 && query() != ""}>
+        <div class="mx-auto py-3 flex items-center space-x-2 justify-center">
+          <PaginationController
+            page={page()}
+            setPage={setPage}
+            totalPages={500}
+          />
+        </div>
+      </Show>
+      <Footer />
     </main>
   );
 };
