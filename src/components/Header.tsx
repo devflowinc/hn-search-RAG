@@ -22,17 +22,17 @@ export default function Header(props: HeaderProps) {
           </div>
         </a>
         <a
-          class="flex items-center hover:text-white"
+          class="flex items-center hover:text-white hover:underline"
           href="https://github.com/devflowinc/trieve"
         >
           <FiGithub class="h-3 w-3 mr-0.5" /> Star Us
         </a>
         <span class="px-1">|</span>
-        <a href={props.algoliaLink()} class="hover:text-white">
+        <a href={props.algoliaLink()} class="hover:text-white hover:underline">
           Try Algolia
         </a>
       </div>
-      <a href="/analytics" class="pr-1 hover:text-white">
+      <a href="/analytics" class="pr-1 hover:text-white hover:underline">
         View Analytics
       </a>
     </header>

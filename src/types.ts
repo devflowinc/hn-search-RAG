@@ -114,12 +114,3 @@ export const getFilters = (
     must: filters,
   };
 };
-
-export const getAlgoliaLink = (
-  dataset: string,
-  time_range: string,
-  sortby: string
-) => {
-  let link = `https://hn.algolia.com/?q=&sort=${sortby}&prefix&page=0&dateRange=${time_range}&type=${dataset}`;
-  return link;
-};

@@ -125,7 +125,7 @@ module.exports = {
           950: "#000000",
         },
         hn: {
-          DEFAULT: "#f6f6ef",
+          DEFAULT: "#F6F6EF",
         },
       },
       keyframes: {
