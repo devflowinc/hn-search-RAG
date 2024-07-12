@@ -1,6 +1,7 @@
 import { Show } from "solid-js";
 import { formatDistanceToNowStrict } from "date-fns";
 export interface Story {
+  score?: number;
   content: string;
   url: string;
   points: number;
@@ -22,6 +23,7 @@ export const Story = (props: { story: Story }) => {
             <a
               href={articleLink}
               class="mr-1 text-[11pt] sm:text-[10pt] text-black"
+              // eslint-disable-next-line solid/no-innerhtml
               innerHTML={props.story.content}
             />
             <a
@@ -30,6 +32,11 @@ export const Story = (props: { story: Story }) => {
             >
               ({props.story.url})
             </a>
+            <Show when={props.story.score}>
+              <span class="text-[8pt] text-[#828282] ml-1 rounded-lg">
+                (Score {props.story.score?.toFixed(2)})
+              </span>
+            </Show>
           </div>
         </Show>
         <div class="w-full items-center text-[9pt] sm:text-[7pt] text-[#828282] pt-1 pb-2 sm:pb-0">
@@ -61,6 +68,7 @@ export const Story = (props: { story: Story }) => {
           <div class="w-full mb-[-6px] pl-3">
             <div
               class="transition duration-150 ease-in-out mr-1 text-md text-[12px] text-wrap space-y-2"
+              // eslint-disable-next-line solid/no-innerhtml
               innerHTML={props.story.content}
             />
           </div>

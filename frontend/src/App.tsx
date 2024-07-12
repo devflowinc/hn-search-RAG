@@ -222,6 +222,7 @@ export const App = () => {
             const story = chunk.metadata[0];
             return {
               content: story.chunk_html ?? "",
+			  score: chunk.score,
               url: story.link ?? "",
               points: story.metadata?.score ?? 0,
               user: story.metadata?.by ?? "",
