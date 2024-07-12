@@ -22,6 +22,19 @@ const parseFloatOrNull = (val: string | null): number | null => {
   return num;
 };
 
+const defaultScoreThreshold = (searchType: string): number => {
+  switch (searchType) {
+    case "semantic":
+      return 0.7;
+    case "hybrid":
+      return 0.01;
+    case "fulltext":
+      return 7;
+    default:
+      return 0.3;
+  }
+};
+
 export const App = () => {
   const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY as string;
   const trieveBaseURL = import.meta.env.VITE_TRIEVE_API_URL as string;
@@ -31,20 +44,6 @@ export const App = () => {
   const defaultHighlightDelimiters = [" ", "-", "_", ".", ","];
 
   let abortController: AbortController | null = null;
-
-  const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
-    scoreThreshold: parseFloatOrNull(urlParams.get("score_threshold")),
-    pageSize: parseInt(urlParams.get("page_size") ?? "20"),
-    highlightDelimiters:
-      urlParams.get("highlight_delimiters")?.split(",") ??
-      defaultHighlightDelimiters,
-    highlightMaxLength: parseInt(urlParams.get("highlight_max_length") ?? "50"),
-    highlightMaxNum: parseInt(urlParams.get("highlight_max_num") ?? "3"),
-    highlightWindow: parseInt(urlParams.get("highlight_window") ?? "0"),
-    recencyBias: parseFloatOrNull(urlParams.get("recency_bias")) ?? 0,
-    slimChunks: urlParams.get("slim_chunks") === "true",
-    highlightResults: (urlParams.get("highlight_results") ?? "true") === "true",
-  });
 
   const [selectedDataset, setSelectedDataset] = createSignal(
     urlParams.get("dataset") ?? "all",
@@ -64,6 +63,24 @@ export const App = () => {
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
+
+  const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
+    scoreThreshold: parseFloatOrNull(urlParams.get("score_threshold")),
+    pageSize: parseInt(urlParams.get("page_size") ?? "20"),
+    highlightDelimiters:
+      urlParams.get("highlight_delimiters")?.split(",") ??
+      defaultHighlightDelimiters,
+    highlightMaxLength: parseInt(urlParams.get("highlight_max_length") ?? "50"),
+    highlightMaxNum: parseInt(urlParams.get("highlight_max_num") ?? "3"),
+    highlightWindow: parseInt(urlParams.get("highlight_window") ?? "0"),
+    recencyBias: parseFloatOrNull(urlParams.get("recency_bias")) ?? 0,
+    slimChunks: urlParams.get("slim_chunks") === "true",
+    highlightResults: (urlParams.get("highlight_results") ?? "true") === "true",
+  });
+
+  createEffect(() => {
+    setSearchOptions("scoreThreshold", defaultScoreThreshold(searchType()));
+  });
 
   createEffect(() => {
     setLoading(true);
