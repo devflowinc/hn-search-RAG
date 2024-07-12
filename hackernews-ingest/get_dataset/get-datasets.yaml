@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: get-datasets
+  namespace: 
+  labels:
+    app.kubernetes.io/name: get-datasets
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: get-datasets
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: get-datasets
+    spec:
+      containers:
+      - name: hn-getdataset
+        image: trieve/hn-getdataset
+        imagePullPolicy: Always
+        env:
+          - name: REDIS_URL
+            value: <redis-uri>
