@@ -114,3 +114,26 @@ export const getFilters = (
     must: filters,
   };
 };
+
+export interface SearchOptions {
+  scoreThreshold: number | null;
+  pageSize: number;
+  highlightDelimiters: string[];
+  highlightMaxLength: number;
+  highlightMaxNum: number;
+  highlightWindow: number;
+  recencyBias: number;
+  slimChunks: boolean;
+  highlightResults: boolean;
+}
+
+export interface HNStory {
+  title: string;
+  url: string;
+  score: number;
+  by: string;
+  time: string;
+  descendants: number;
+  type: string;
+  id: string;
+}

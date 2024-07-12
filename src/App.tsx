@@ -5,11 +5,22 @@ import { Story } from "./components/Story";
 import {
   dateRangeSwitch,
   getFilters,
+  HNStory,
   SearchChunkQueryResponseBody,
+  SearchOptions,
 } from "./types";
 import { PaginationController } from "./components/PaginationController";
 import { Search } from "./components/Search";
 import { Footer } from "./components/Footer";
+import { createStore } from "solid-js/store";
+
+const parseFloatOrNull = (val: string | null): number | null => {
+  const num = parseFloat(val ?? "NaN");
+  if (isNaN(num)) {
+    return null;
+  }
+  return num;
+};
 
 export const App = () => {
   const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY as string;
@@ -17,7 +28,23 @@ export const App = () => {
   const trieveDatasetId = import.meta.env.VITE_TRIEVE_DATASET_ID as string;
   const urlParams = new URLSearchParams(window.location.search);
 
+  const defaultHighlightDelimiters = [" ", "-", "_", ".", ","];
+
   let abortController: AbortController | null = null;
+
+  const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
+    scoreThreshold: parseFloatOrNull(urlParams.get("score_threshold")),
+    pageSize: parseInt(urlParams.get("page_size") ?? "20"),
+    highlightDelimiters:
+      urlParams.get("highlight_delimiters")?.split(",") ??
+      defaultHighlightDelimiters,
+    highlightMaxLength: parseInt(urlParams.get("highlight_max_length") ?? "50"),
+    highlightMaxNum: parseInt(urlParams.get("highlight_max_num") ?? "3"),
+    highlightWindow: parseInt(urlParams.get("highlight_window") ?? "0"),
+    recencyBias: parseFloatOrNull(urlParams.get("recency_bias")) ?? 0,
+    slimChunks: urlParams.get("slim_chunks") === "true",
+    highlightResults: (urlParams.get("highlight_results") ?? "true") === "true",
+  });
 
   const [selectedDataset, setSelectedDataset] = createSignal(
     urlParams.get("dataset") ?? "all",
@@ -40,6 +67,33 @@ export const App = () => {
 
   createEffect(() => {
     setLoading(true);
+
+    searchOptions.scoreThreshold &&
+      urlParams.set(
+        "score_threshold",
+        searchOptions.scoreThreshold?.toString(),
+      );
+
+    urlParams.set("page_size", searchOptions.pageSize.toString());
+    urlParams.set(
+      "highlight_delimiters",
+      searchOptions.highlightDelimiters.join(","),
+    );
+    urlParams.set(
+      "highlight_max_length",
+      searchOptions.highlightMaxLength.toString(),
+    );
+    urlParams.set(
+      "highlight_max_num",
+      searchOptions.highlightMaxNum.toString(),
+    );
+    urlParams.set("highlight_window", searchOptions.highlightWindow.toString());
+    urlParams.set("recency_bias", searchOptions.recencyBias.toString());
+    urlParams.set("slim_chunks", searchOptions.slimChunks ? "true" : "false");
+    urlParams.set(
+      "highlight_results",
+      searchOptions.highlightResults ? "true" : "false",
+    );
 
     if (abortController) {
       abortController.abort();
@@ -111,14 +165,18 @@ export const App = () => {
         query: query(),
         search_type: searchType(),
         page: page(),
-        highlight_results: true,
-        highlight_delimiters: [" ", "-", "_", ".", ","],
-        highlight_max_num: 50,
+        highlight_results: searchOptions.highlightResults,
+        highlight_delimiters: searchOptions.highlightDelimiters,
+        highlight_max_num: searchOptions.highlightMaxNum,
+        highlight_window: searchOptions.highlightWindow,
+        highlight_max_length: searchOptions.highlightMaxLength,
         use_weights: sortBy() != "Relevance",
         date_bias: sortBy() == "Date",
+        recency_bias: searchOptions.recencyBias,
+        slim_chunks: searchOptions.slimChunks,
         filters: getFilters(selectedDataset(), time_range),
-        page_size: 20,
-        score_threshold: 0.3,
+        page_size: searchOptions.pageSize,
+        score_threshold: searchOptions.scoreThreshold,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -213,6 +271,8 @@ export const App = () => {
     <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
       <Header algoliaLink={algoliaLink} />
       <Filters
+        setSearchOptions={setSearchOptions}
+        searchOptions={searchOptions}
         selectedDataset={selectedDataset}
         setSelectedDataset={setSelectedDataset}
         sortBy={sortBy}
