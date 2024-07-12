@@ -11,6 +11,19 @@ import { PaginationController } from "./components/PaginationController";
 import { Search } from "./components/Search";
 import { Footer } from "./components/Footer";
 
+const getDefaultScoreThreshold = (searchType: string): number => {
+	switch (searchType) {
+		case "fulltext":
+			return 7
+		case "semantic":
+			return 0.7
+		case "hybrid":
+			return 0.01
+		default:
+			return 0.3
+	}
+}
+
 export const App = () => {
   const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY;
   const trieveBaseURL = import.meta.env.VITE_TRIEVE_API_URL;
@@ -120,7 +133,7 @@ export const App = () => {
         date_bias: sortBy() == "Date",
         filters: getFilters(selectedDataset(), time_range),
         page_size: 20,
-        score_threshold: 0.3,
+        score_threshold: getDefaultScoreThreshold(searchType()),
       }),
       headers: {
         "Content-Type": "application/json",
