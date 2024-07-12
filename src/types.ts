@@ -49,28 +49,28 @@ export const dateRangeSwitch = (value: string): TimeRange | null => {
     case "last24h":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000
+          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000,
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastWeek":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000,
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastMonth":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000,
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastYear":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000
+          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000,
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
@@ -91,9 +91,9 @@ export interface TimeRange {
 
 export const getFilters = (
   selectedDataset: string | null,
-  dateRange: TimeRange | null
+  dateRange: TimeRange | null,
 ) => {
-  let filters = [];
+  const filters = [];
   if (selectedDataset && selectedDataset !== "all") {
     filters.push({
       field: "metadata.type",
