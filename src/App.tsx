@@ -12,77 +12,75 @@ import { Search } from "./components/Search";
 import { Footer } from "./components/Footer";
 
 export const App = () => {
-  const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY;
-  const trieveBaseURL = import.meta.env.VITE_TRIEVE_API_URL;
-  const trieveDatasetId = import.meta.env.VITE_TRIEVE_DATASET_ID;
+  const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY as string;
+  const trieveBaseURL = import.meta.env.VITE_TRIEVE_API_URL as string;
+  const trieveDatasetId = import.meta.env.VITE_TRIEVE_DATASET_ID as string;
   const urlParams = new URLSearchParams(window.location.search);
 
   let abortController: AbortController | null = null;
 
   const [selectedDataset, setSelectedDataset] = createSignal(
-    urlParams.get("dataset") ?? "all"
+    urlParams.get("dataset") ?? "all",
   );
   const [sortBy, setSortBy] = createSignal(
-    urlParams.get("sortby") ?? "Relevance"
+    urlParams.get("sortby") ?? "Relevance",
   );
   const [dateRange, setDateRange] = createSignal<string>(
-    urlParams.get("dateRange") ?? "all"
+    urlParams.get("dateRange") ?? "all",
   );
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
-    urlParams.get("searchType") ?? "semantic"
+    urlParams.get("searchType") ?? "semantic",
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
 
-  createEffect(async () => {
+  createEffect(() => {
     setLoading(true);
 
     if (abortController) {
       abortController.abort();
     }
+
     abortController = new AbortController();
     const { signal } = abortController;
 
     if (query() === "") {
-      async function fetchTopStories() {
-        const response = await fetch(
-          "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty",
-          { signal }
-        );
-        const storyIds = await response.json();
-        const topStoryIds = storyIds.slice(0, 30);
-
-        const storyDetails = await Promise.all(
-          topStoryIds.map((id: number) =>
-            fetch(
-              `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`,
-              { signal }
-            ).then((res) => res.json())
-          )
-        );
-
-        setLoading(false);
-
-        return storyDetails;
-      }
-
-      let storyDetails = await fetchTopStories();
-      let stories: Story[] = storyDetails.map((story) => ({
-        content: story.title,
-        url: story.url,
-        points: story.score,
-        user: story.by,
-        time: story.time,
-        commentsCount: story.descendants,
-        type: story.type,
-        id: story.id,
-      }));
-      setStories(stories);
-      return;
+      fetch(
+        "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty",
+        { signal },
+      )
+        .then((res) => res.json() as Promise<number[]>)
+        .then((storyIds) => {
+          const topStoryIds = storyIds.slice(0, 30);
+          const storyDetails = Promise.all(
+            topStoryIds.map((id: number) =>
+              fetch(
+                `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`,
+                { signal },
+              ).then((res) => res.json() as Promise<HNStory>),
+            ),
+          );
+          return storyDetails;
+        })
+        .then((storyDetails) => {
+          const stories: Story[] = storyDetails.map((story) => ({
+            content: story.title,
+            url: story.url,
+            points: story.score,
+            user: story.by,
+            time: story.time,
+            commentsCount: story.descendants,
+            type: story.type,
+            id: story.id,
+          }));
+          setStories(stories);
+        })
+        .catch(() => console.log(""))
+        .finally(() => setLoading(false));
     }
 
     urlParams.set("q", query());
@@ -93,19 +91,19 @@ export const App = () => {
     urlParams.set("page", page().toString());
     setAlgoliaLink(
       `https://hn.algolia.com/?q=${encodeURIComponent(
-        query()
+        query(),
       )}&dateRange=${dateRange()}&sort=by${
         sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&type=${selectedDataset()}&page=0&prefix=false`
+      }&type=${selectedDataset()}&page=0&prefix=false`,
     );
 
     window.history.replaceState(
       {},
       "",
-      `${window.location.pathname}?${urlParams.toString()}`
+      `${window.location.pathname}?${urlParams.toString()}`,
     );
 
-    let time_range = dateRangeSwitch(dateRange());
+    const time_range = dateRangeSwitch(dateRange());
 
     fetch(`${trieveBaseURL}/chunk/search`, {
       method: "POST",
@@ -162,54 +160,54 @@ export const App = () => {
         setLoading(false);
       })
       .catch((error) => {
-        if (error.name !== "AbortError") {
+        if ((error as Error).name !== "AbortError") {
           console.error("Error:", error);
           setLoading(false);
         }
       });
   });
 
-  const getRecommendations = async (story_id: string) => {
-    let recommendations: Story[] = [];
-    let time_range = dateRangeSwitch(dateRange());
+  //const getRecommendations = async (story_id: string) => {
+  //  let recommendations: Story[] = [];
+  //  const time_range = dateRangeSwitch(dateRange());
 
-    fetch(trieveBaseURL + `/api/chunk/recommend`, {
-      method: "POST",
-      body: JSON.stringify({
-        positive_tracking_ids: [story_id.toString()],
-        filters: getFilters(selectedDataset(), time_range),
-        limit: 3,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-        "TR-Dataset": import.meta.env.VITE_TRIEVE_DATASET_ID,
-        Authorization: trieveApiKey,
-      },
-    })
-      .then((response) => response.json())
-      .then((data: any[]) => {
-        const stories: Story[] = data.map((chunk): Story => {
-          return {
-            content: chunk.chunk_html ?? "",
-            url: chunk.link ?? "",
-            points: chunk.metadata?.score ?? 0,
-            user: chunk.metadata?.by ?? "",
-            time: chunk.time_stamp ?? "",
-            commentsCount: chunk.metadata?.descendants ?? 0,
-            type: chunk.metadata?.type ?? "",
-            id: chunk.tracking_id ?? "0",
-          };
-        });
-        recommendations = stories;
-      })
-      .catch((error) => {
-        if (error.name !== "AbortError") {
-          console.error("Error:", error);
-        }
-      });
+  //  fetch(trieveBaseURL + `/api/chunk/recommend`, {
+  //    method: "POST",
+  //    body: JSON.stringify({
+  //      positive_tracking_ids: [story_id.toString()],
+  //      filters: getFilters(selectedDataset(), time_range),
+  //      limit: 3,
+  //    }),
+  //    headers: {
+  //      "Content-Type": "application/json",
+  //      "TR-Dataset": import.meta.env.VITE_TRIEVE_DATASET_ID as string,
+  //      Authorization: trieveApiKey,
+  //    },
+  //  })
+  //    .then((response) => response.json())
+  //    .then((data: any[]) => {
+  //      const stories: Story[] = data.map((chunk): Story => {
+  //        return {
+  //          content: chunk.chunk_html ?? "",
+  //          url: chunk.link ?? "",
+  //          points: chunk.metadata?.score ?? 0,
+  //          user: chunk.metadata?.by ?? "",
+  //          time: chunk.time_stamp ?? "",
+  //          commentsCount: chunk.metadata?.descendants ?? 0,
+  //          type: chunk.metadata?.type ?? "",
+  //          id: chunk.tracking_id ?? "0",
+  //        };
+  //      });
+  //      recommendations = stories;
+  //    })
+  //    .catch((error) => {
+  //      if (error.name !== "AbortError") {
+  //        console.error("Error:", error);
+  //      }
+  //    });
 
-    return recommendations;
-  };
+  //  return recommendations;
+  //};
 
   return (
     <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
