@@ -19,7 +19,7 @@ const getReasonableGranularityFromDateRange = (
 
 export const useSimpleTimeRange = () => {
   const [dateOption, setDateOption] = createSignal<DateRangeOption>(
-    dateRanges[0]
+    dateRanges[2]
   );
 
   const granularity = createMemo(() => {

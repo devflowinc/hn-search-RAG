@@ -160,8 +160,8 @@ export interface AnalyticsFilter {
 
 export interface RequiredAnalyticsFilter {
   date_range: DateRangeFilter;
-  search_method: NonNullable<AnalyticsFilter["search_method"]>;
-  search_type: NonNullable<AnalyticsFilter["search_type"]>;
+  search_method?: AnalyticsFilter["search_method"];
+  search_type?: AnalyticsFilter["search_type"];
 }
 
 // The search analytics params bar conforms to this
@@ -222,19 +222,6 @@ export interface RPSGraphResponse {
 export interface LatencyGraphResponse {
   latency_points: LatencyDatapoint[];
 }
-
-const ALL_SEARCH_METHODS: RequiredAnalyticsFilter["search_method"][] = [
-  "hybrid",
-  "fulltext",
-  "semantic",
-];
-
-const ALL_SEARCH_TYPES: RequiredAnalyticsFilter["search_type"][] = [
-  "search",
-  "autocomplete",
-  "search_over_groups",
-  "search_within_groups",
-];
 
 export const timeFrameOptions: AnalyticsParams["granularity"][] = [
   "day",

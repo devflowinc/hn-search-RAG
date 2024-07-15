@@ -75,7 +75,12 @@ export const RpsGraph = (props: RpsGraphProps) => {
                 text: "Timestamp",
                 display: true,
               },
-              offset: true,
+              offset: data.length <= 3,
+              ticks: {
+                source: "auto",
+              },
+              min: props.params.filter.date_range.gt?.toISOString(),
+              max: props.params.filter.date_range.lt?.toISOString(),
             },
           },
           animation: {
@@ -85,20 +90,9 @@ export const RpsGraph = (props: RpsGraphProps) => {
       });
     }
 
-    if (props.params.granularity === "day") {
-      // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      chartInstance.options.scales["x"].time.unit = "day";
-    } else if (props.params.granularity === "minute") {
-      // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      chartInstance.options.scales["x"].time.unit = "minute";
-    } else {
-      // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      chartInstance.options.scales["x"].time.unit = undefined;
-    }
-
+    // @ts-expect-error library types not updated
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    chartInstance.options.scales["x"].time.minUnit = props.params.granularity;
     // Update the chart data;
     chartInstance.data.labels = data.map(
       (point) => new Date(parseCustomDateString(point.time_stamp))

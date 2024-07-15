@@ -14,11 +14,10 @@ export const HeadQueries = (props: HeadQueriesProps) => {
 
   createEffect(async () => {
     const params = props.params;
-    const curPage = pages.page();
 
-    const results = await getHeadQueries(params.filter, curPage + 1);
+    const results = await getHeadQueries(params.filter, pages.page());
     if (results.length === 0) {
-      pages.setMaxPageDiscovered(curPage);
+      pages.setMaxPageDiscovered(pages.page());
     }
     setResults(results);
   });

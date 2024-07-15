@@ -1,5 +1,5 @@
 import { createEffect, createSignal, For, Show } from "solid-js";
-import { SearchTypeCount, DateRangeOption, dateRanges } from "../../../types";
+import { SearchTypeCount, AnalyticsFilter } from "../../../types";
 import { toTitleCase } from "../usePagination";
 import { getQueryCounts } from "../api/analytics";
 
@@ -20,16 +20,18 @@ const displaySearchType = (type: SearchTypeCount["search_type"]) => {
   }
 };
 
-export const QueryCounts = () => {
-  const [dateSelection, setDateSelection] = createSignal<DateRangeOption>(
-    dateRanges[2]
-  );
+interface QueryCountsProps {
+  params: {
+    filter: AnalyticsFilter;
+  };
+}
 
-  const [headQueries, setHeadQueries] = createSignal<SearchTypeCount[]>([]);
+export const QueryCounts = (props: QueryCountsProps) => {
+  const [queryCounts, setQueryCounts] = createSignal<SearchTypeCount[]>([]);
 
   createEffect(async () => {
-    let results = await getQueryCounts(dateSelection().date);
-    setHeadQueries(results);
+    let results = await getQueryCounts(props.params.filter);
+    setQueryCounts(results);
   });
 
   return (
@@ -42,7 +44,7 @@ export const QueryCounts = () => {
           </div>
         </div>
       </div>
-      <Show fallback={<div class="py-8">Loading...</div>} when={headQueries()}>
+      <Show fallback={<div class="py-8">Loading...</div>} when={queryCounts()}>
         {(data) => (
           <div class="flex justify-around gap-2 py-2">
             <For each={data()}>

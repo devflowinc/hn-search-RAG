@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { enUS } from "date-fns/locale";
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 import { Chart } from "chart.js";
 
 import "chartjs-adapter-date-fns";
@@ -50,6 +50,10 @@ export const LatencyGraph = (props: LatencyGraphProps) => {
   });
 
   createEffect(() => {
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
     const canvas = canvasElement();
     const data = latencyPoints();
 
@@ -96,7 +100,12 @@ export const LatencyGraph = (props: LatencyGraphProps) => {
                 text: "Timestamp",
                 display: true,
               },
-              offset: data.length <= 1,
+              offset: data.length <= 3,
+              ticks: {
+                source: "auto",
+              },
+              min: props.params.filter.date_range.gt?.toISOString(),
+              max: props.params.filter.date_range.lt?.toISOString(),
             },
           },
           animation: {
@@ -106,25 +115,9 @@ export const LatencyGraph = (props: LatencyGraphProps) => {
       });
     }
 
-    if (props.params.granularity === "day") {
-      // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      chartInstance.options.scales["x"].time.unit = "day";
-    } else if (props.params.granularity === "minute") {
-      // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      chartInstance.options.scales["x"].time.unit = "minute";
-    } else {
-      // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      chartInstance.options.scales["x"].time.unit = undefined;
-    }
-
-    if (data.length <= 1) {
-      // @ts-expect-error library types not updated
-      chartInstance.options.scales["x"].offset = true;
-    }
-
+    // @ts-expect-error library types not updated
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    chartInstance.options.scales["x"].time.minUnit = props.params.granularity;
     // Update the chart data
     chartInstance.data.labels = data.map(
       (point) => new Date(parseCustomDateString(point.time_stamp))
@@ -133,13 +126,6 @@ export const LatencyGraph = (props: LatencyGraphProps) => {
       (point) => point.average_latency
     );
     chartInstance.update();
-  });
-
-  onCleanup(() => {
-    if (chartInstance) {
-      chartInstance.destroy();
-      chartInstance = null;
-    }
   });
 
   return <canvas ref={setCanvasElement} class="h-full w-full" />;
