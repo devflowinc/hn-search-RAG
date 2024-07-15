@@ -1,3 +1,5 @@
+import { subDays, subHours } from "date-fns";
+
 export const indirectHasOwnProperty = (obj: unknown, prop: string): boolean => {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 };
@@ -49,28 +51,28 @@ export const dateRangeSwitch = (value: string): TimeRange | null => {
     case "last24h":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastWeek":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastMonth":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
     case "pastYear":
       return {
         gt: Math.floor(
-          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000,
+          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000
         ),
         lt: Math.floor(new Date().getTime() / 1000),
       };
@@ -91,7 +93,7 @@ export interface TimeRange {
 
 export const getFilters = (
   selectedDataset: string | null,
-  dateRange: TimeRange | null,
+  dateRange: TimeRange | null
 ) => {
   const filters = [];
   if (selectedDataset && selectedDataset !== "all") {
@@ -137,3 +139,126 @@ export interface HNStory {
   type: string;
   id: string;
 }
+
+export interface DateRangeFilter {
+  gt?: Date;
+  lt?: Date;
+  gte?: Date;
+  lte?: Date;
+}
+
+export interface AnalyticsFilter {
+  date_range: DateRangeFilter;
+  search_method?: "fulltext" | "hybrid" | "semantic";
+  search_type?:
+    | "search"
+    | "autocomplete"
+    | "rag"
+    | "search_over_groups"
+    | "search_within_groups";
+}
+
+export interface RequiredAnalyticsFilter {
+  date_range: DateRangeFilter;
+  search_method: NonNullable<AnalyticsFilter["search_method"]>;
+  search_type: NonNullable<AnalyticsFilter["search_type"]>;
+}
+
+// The search analytics params bar conforms to this
+export interface AnalyticsParams {
+  filter: RequiredAnalyticsFilter;
+  granularity: "minute" | "second" | "hour" | "day";
+}
+
+export interface LatencyDatapoint {
+  average_latency: number;
+  time_stamp: string;
+}
+
+export interface RpsDatapoint {
+  average_rps: number;
+  time_stamp: string;
+}
+
+export interface SearchQueryEvent {
+  id: string;
+  search_type: string;
+  query: string;
+  request_params: string;
+  latency: number;
+  top_score: number;
+  results: string[];
+  dataset_id: string;
+  created_at: string;
+}
+
+export interface HeadQuery {
+  query: string;
+  count: number;
+}
+
+export interface SearchTypeCount {
+  search_type: AnalyticsFilter["search_type"];
+  search_method: AnalyticsFilter["search_method"];
+  search_count: number;
+}
+
+export interface QueryCountResponse {
+  total_queries: SearchTypeCount[];
+}
+
+export interface HeadQueryResponse {
+  queries: HeadQuery[];
+}
+
+export interface SearchQueryResponse {
+  queries: SearchQueryEvent[];
+}
+
+export interface RPSGraphResponse {
+  rps_points: RpsDatapoint[];
+}
+
+export interface LatencyGraphResponse {
+  latency_points: LatencyDatapoint[];
+}
+
+const ALL_SEARCH_METHODS: RequiredAnalyticsFilter["search_method"][] = [
+  "hybrid",
+  "fulltext",
+  "semantic",
+];
+
+const ALL_SEARCH_TYPES: RequiredAnalyticsFilter["search_type"][] = [
+  "search",
+  "autocomplete",
+  "search_over_groups",
+  "search_within_groups",
+];
+
+export const timeFrameOptions: AnalyticsParams["granularity"][] = [
+  "day",
+  "hour",
+  "minute",
+  "second",
+];
+
+export type DateRangeOption = {
+  date: Date;
+  label: string;
+};
+
+export const dateRanges: DateRangeOption[] = [
+  {
+    label: "Past Hour",
+    date: subHours(new Date(), 1),
+  },
+  {
+    label: "Past Day",
+    date: subDays(new Date(), 1),
+  },
+  {
+    label: "Past Week",
+    date: subDays(new Date(), 7),
+  },
+];

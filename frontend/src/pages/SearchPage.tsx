@@ -1,17 +1,17 @@
 import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
-import Filters from "./components/Filters";
-import Header from "./components/Header";
-import { Story } from "./components/Story";
+import Filters from "../components/search/Filters";
+import Header from "../components/Header";
+import { Story } from "../components/search/Story";
 import {
   dateRangeSwitch,
   getFilters,
   HNStory,
   SearchChunkQueryResponseBody,
   SearchOptions,
-} from "./types";
-import { PaginationController } from "./components/PaginationController";
-import { Search } from "./components/Search";
-import { Footer } from "./components/Footer";
+} from "../types";
+import { PaginationController } from "../components/search/PaginationController";
+import { Search } from "../components/search/Search";
+import { Footer } from "../components/Footer";
 import { createStore } from "solid-js/store";
 
 const parseFloatOrNull = (val: string | null): number | null => {
@@ -35,7 +35,7 @@ const defaultScoreThreshold = (searchType: string): number => {
   }
 };
 
-export const App = () => {
+export const SearchPage = () => {
   const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY as string;
   const trieveBaseURL = import.meta.env.VITE_TRIEVE_API_URL as string;
   const trieveDatasetId = import.meta.env.VITE_TRIEVE_DATASET_ID as string;
@@ -46,19 +46,19 @@ export const App = () => {
   let abortController: AbortController | null = null;
 
   const [selectedDataset, setSelectedDataset] = createSignal(
-    urlParams.get("dataset") ?? "all",
+    urlParams.get("dataset") ?? "all"
   );
   const [sortBy, setSortBy] = createSignal(
-    urlParams.get("sortby") ?? "Relevance",
+    urlParams.get("sortby") ?? "Relevance"
   );
   const [dateRange, setDateRange] = createSignal<string>(
-    urlParams.get("dateRange") ?? "all",
+    urlParams.get("dateRange") ?? "all"
   );
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
-    urlParams.get("searchType") ?? "semantic",
+    urlParams.get("searchType") ?? "semantic"
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
@@ -88,28 +88,28 @@ export const App = () => {
     searchOptions.scoreThreshold &&
       urlParams.set(
         "score_threshold",
-        searchOptions.scoreThreshold?.toString(),
+        searchOptions.scoreThreshold?.toString()
       );
 
     urlParams.set("page_size", searchOptions.pageSize.toString());
     urlParams.set(
       "highlight_delimiters",
-      searchOptions.highlightDelimiters.join(","),
+      searchOptions.highlightDelimiters.join(",")
     );
     urlParams.set(
       "highlight_max_length",
-      searchOptions.highlightMaxLength.toString(),
+      searchOptions.highlightMaxLength.toString()
     );
     urlParams.set(
       "highlight_max_num",
-      searchOptions.highlightMaxNum.toString(),
+      searchOptions.highlightMaxNum.toString()
     );
     urlParams.set("highlight_window", searchOptions.highlightWindow.toString());
     urlParams.set("recency_bias", searchOptions.recencyBias.toString());
     urlParams.set("slim_chunks", searchOptions.slimChunks ? "true" : "false");
     urlParams.set(
       "highlight_results",
-      searchOptions.highlightResults ? "true" : "false",
+      searchOptions.highlightResults ? "true" : "false"
     );
 
     if (abortController) {
@@ -122,7 +122,7 @@ export const App = () => {
     if (query() === "") {
       fetch(
         "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty",
-        { signal },
+        { signal }
       )
         .then((res) => res.json() as Promise<number[]>)
         .then((storyIds) => {
@@ -131,9 +131,9 @@ export const App = () => {
             topStoryIds.map((id: number) =>
               fetch(
                 `https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`,
-                { signal },
-              ).then((res) => res.json() as Promise<HNStory>),
-            ),
+                { signal }
+              ).then((res) => res.json() as Promise<HNStory>)
+            )
           );
           return storyDetails;
         })
@@ -162,16 +162,16 @@ export const App = () => {
     urlParams.set("page", page().toString());
     setAlgoliaLink(
       `https://hn.algolia.com/?q=${encodeURIComponent(
-        query(),
+        query()
       )}&dateRange=${dateRange()}&sort=by${
         sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&type=${selectedDataset()}&page=0&prefix=false`,
+      }&type=${selectedDataset()}&page=0&prefix=false`
     );
 
     window.history.replaceState(
       {},
       "",
-      `${window.location.pathname}?${urlParams.toString()}`,
+      `${window.location.pathname}?${urlParams.toString()}`
     );
 
     const time_range = dateRangeSwitch(dateRange());
@@ -222,7 +222,7 @@ export const App = () => {
             const story = chunk.metadata[0];
             return {
               content: story.chunk_html ?? "",
-			  score: chunk.score,
+              score: chunk.score,
               url: story.link ?? "",
               points: story.metadata?.score ?? 0,
               user: story.metadata?.by ?? "",
@@ -336,5 +336,3 @@ export const App = () => {
     </main>
   );
 };
-
-export default App;

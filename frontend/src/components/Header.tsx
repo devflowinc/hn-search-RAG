@@ -1,8 +1,8 @@
 import { FiGithub } from "solid-icons/fi";
-import { Accessor } from "solid-js";
+import { Accessor, Show } from "solid-js";
 
 export interface HeaderProps {
-  algoliaLink: Accessor<string>;
+  algoliaLink?: Accessor<string>;
 }
 
 export default function Header(props: HeaderProps) {
@@ -27,10 +27,15 @@ export default function Header(props: HeaderProps) {
         >
           <FiGithub class="h-3 w-3 mr-0.5" /> Star Us
         </a>
-        <span class="px-1">|</span>
-        <a href={props.algoliaLink()} class="hover:text-white hover:underline">
-          Try Algolia
-        </a>
+        <Show when={props.algoliaLink}>
+          <span class="px-1">|</span>
+          <a
+            href={props.algoliaLink?.()}
+            class="hover:text-white hover:underline"
+          >
+            Try Algolia
+          </a>
+        </Show>
       </div>
       <a href="/analytics" class="pr-1 hover:text-white hover:underline">
         View Analytics

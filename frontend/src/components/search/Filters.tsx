@@ -1,8 +1,7 @@
 import { FaSolidChevronDown } from "solid-icons/fa";
 import { Accessor, createSignal, Setter, Show } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
-import { SearchOptions } from "../types";
-import { Portal } from "solid-js/web";
+import { SearchOptions } from "../../types";
 
 export interface FiltersProps {
   selectedDataset: Accessor<string>;
@@ -117,7 +116,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "scoreThreshold",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -144,7 +143,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightDelimiters",
-                      e.target.value.split(","),
+                      e.target.value.split(",")
                     );
                   }}
                 />
@@ -159,7 +158,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxLength",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -174,7 +173,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxNum",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -189,7 +188,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "recencyBias",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -203,7 +202,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightResults",
-                      e.target.checked,
+                      e.target.checked
                     );
                   }}
                 />
