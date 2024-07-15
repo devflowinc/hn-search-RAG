@@ -96,7 +96,7 @@ export const getFilters = (
   const filters = [];
   if (selectedDataset && selectedDataset !== "all") {
     filters.push({
-      field: "metadata.type",
+      field: "tag_set",
       match: [selectedDataset],
     });
   }
