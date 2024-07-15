@@ -50,12 +50,11 @@ export const SimpleTimeRangeSelector = (
     <Select
       label={props.label}
       class="min-w-[80px] !bg-white"
-      display={(s) => s.label}
-      selected={props.dateOption}
+      selected={props.dateOption.label}
       onSelected={(e) => {
         props.setDateOption(dateRanges.find((d) => d.label === e)!);
       }}
-      options={dateRanges}
+      options={dateRanges.map((d) => d.label)}
     />
   );
 };

@@ -13,6 +13,8 @@ import {
   RPSGraphResponse,
   AnalyticsFilter,
   DateRangeFilter,
+  SortBy,
+  SortOrder,
 } from "../../../types";
 
 const apiHost = import.meta.env.VITE_TRIEVE_API_URL as string;
@@ -252,9 +254,12 @@ export const getQueryCounts = async (
   return data.total_queries;
 };
 
-export const getSearchQuery = async (
-  searchId: string
-): Promise<SearchQueryEvent> => {
+export const getSearchQueries = async (
+  filter: AnalyticsFilter,
+  sort_by: SortBy,
+  sort_order: SortOrder,
+  page: number
+): Promise<SearchQueryEvent[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
     method: "POST",
@@ -264,8 +269,11 @@ export const getSearchQuery = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      search_id: searchId,
-      type: "search_query",
+      page,
+      sort_by,
+      sort_order,
+      filter: filter ? transformAnalyticsFilter(filter) : undefined,
+      type: "search_queries",
     }),
   });
 
@@ -273,6 +281,6 @@ export const getSearchQuery = async (
     throw new Error(`Failed to fetch search event: ${response.statusText}`);
   }
 
-  const data = (await response.json()) as unknown as SearchQueryEvent;
-  return data;
+  const data = (await response.json()) as unknown as SearchQueryResponse;
+  return data.queries;
 };

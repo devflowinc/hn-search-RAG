@@ -18,16 +18,14 @@ export const ChartCard = (props: ChartCardProps) => {
       }}
       class={`shadow-xs rounded-lg border border-neutral-300 bg-white p-2 ${classStuff.class}`}
     >
-      <div class="flex justify-between">
+      <div class="flex justify-between items-center">
         <div>
           <Show when={props.title}>
-            {(title) => (
-              <div class="my-2 ml-2 text-lg leading-none">{title()}</div>
-            )}
+            {(title) => <div class="my-2 text-lg leading-none">{title()}</div>}
           </Show>
           <Show when={props.subtitle}>
             {(subtitle) => (
-              <div class="ml-2 text-sm leading-none text-neutral-600">
+              <div class=" text-sm leading-none text-neutral-600">
                 {subtitle()}
               </div>
             )}

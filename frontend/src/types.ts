@@ -249,3 +249,7 @@ export const dateRanges: DateRangeOption[] = [
     date: subDays(new Date(), 7),
   },
 ];
+
+export type SortBy = "created_at" | "latency" | "top_score";
+
+export type SortOrder = "desc" | "asc";

@@ -9,6 +9,7 @@ import { Footer } from "../components/Footer";
 import Header from "../components/Header";
 import { createStore } from "solid-js/store";
 import { AnalyticsParams } from "../types";
+import { SearchQueries } from "../components/analytics/charts/SearchQueries";
 
 export const AnalyticsPage = () => {
   const [analyticsFilters, setAnalyticsFilters] = createStore<AnalyticsParams>({
@@ -58,7 +59,12 @@ export const AnalyticsPage = () => {
           />
         </ChartCard>
 
-        <ChartCard title="Head Queries" class="px-4" width={1}>
+        <SearchQueries
+          params={{
+            filter: analyticsFilters.filter,
+          }}
+        />
+        <ChartCard title="Head Queries" class="px-4" width={2}>
           <HeadQueries
             params={{
               filter: analyticsFilters.filter,
