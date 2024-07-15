@@ -20,6 +20,21 @@ const displaySearchType = (type: SearchTypeCount["search_type"]) => {
   }
 };
 
+export const displaySearchMethod = (type: SearchTypeCount["search_method"]) => {
+  switch (type) {
+    case "full_text":
+      return "Full Text";
+    case "hybrid":
+      return "Hybrid";
+    case "semantic":
+      return "Semantic";
+    case "bm25":
+      return "BM25";
+    default:
+      return type;
+  }
+};
+
 interface QueryCountsProps {
   params: {
     filter: AnalyticsFilter;
@@ -54,7 +69,9 @@ export const QueryCounts = (props: QueryCountsProps) => {
                     <div>{displaySearchType(search.search_type)}</div>
                     <Show when={search.search_method}>
                       {(method) => (
-                        <div class="opacity-50">{toTitleCase(method())}</div>
+                        <div class="opacity-50">
+                          {displaySearchMethod(method())}
+                        </div>
                       )}
                     </Show>
                     <div class="text-lg font-semibold">

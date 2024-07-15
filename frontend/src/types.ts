@@ -149,7 +149,7 @@ export interface DateRangeFilter {
 
 export interface AnalyticsFilter {
   date_range: DateRangeFilter;
-  search_method?: "fulltext" | "hybrid" | "semantic";
+  search_method?: "full_text" | "hybrid" | "semantic" | "bm25";
   search_type?:
     | "search"
     | "autocomplete"

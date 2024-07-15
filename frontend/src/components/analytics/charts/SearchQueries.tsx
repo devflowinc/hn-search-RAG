@@ -10,6 +10,7 @@ import {
   SearchQueryEvent,
 } from "../../../types";
 import { getSearchQueries } from "../api/analytics";
+import { displaySearchMethod } from "./QueryCounts";
 
 interface SearchQueriesProps {
   params: { filter: AnalyticsFilter };
@@ -121,8 +122,10 @@ const SearchQueryEventCard = (props: QueryCardProps) => {
   return (
     <tr>
       <td class="w-full max-w-0 truncate">{props.search_query_event.query}</td>
-      <td class="text-right">
-        {JSON.parse(props.search_query_event.request_params)["search_type"]}
+      <td class="text-right min-w-[200px]">
+        {displaySearchMethod(
+          JSON.parse(props.search_query_event.request_params)["search_type"]
+        )}
       </td>
     </tr>
   );
