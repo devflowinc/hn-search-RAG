@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hackernews
+  labels:
+    app.kubernetes.io/name: hackernews
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hackernews
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hackernews
+    spec:
+      containers:
+      - name: hackernews
+        image: trieve/hn-ui:3
+        ports:
+          - containerPort: 80
+        env:
+          - name: VITE_TRIEVE_DATASET_ID
+            value: b760c57a-71b8-407c-8f92-c65151d9d28d
+          - name: VITE_TRIEVE_API_KEY
+            value: tr-38iHewci8I84523tQJ26vRMzKDAj68ZD
+          - name: VITE_TRIEVE_API_URL
+            value: https://hackernews.withtrieve.com/api
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hackernews
+  labels:
+    app.kubernetes.io/name: hackernews
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: hackernews
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-hackernews
+  annotations:
+    kubernetes.io/ingress.class: gce
+    external-dns.alpha.kubernetes.io/hostname: "hn.withtrieve.com"
+spec:
+  rules:
+    - host: "hn.withtrieve.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hackernews
+                port: 
+                  name: http
