@@ -283,3 +283,77 @@ export interface RAGUsageResponse {
 export interface RagQueryResponse {
   queries: RagQueryEvent[];
 }
+
+export interface Topic {
+  id: string;
+  user_id: string;
+  name: string;
+  deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  dataset_id: string;
+}
+
+export interface Message {
+  content: string;
+}
+
+export const isMessage = (data: unknown): data is Message => {
+  return typeof data === "object" && data !== null && "content" in data;
+};
+
+export const isMessageArray = (data: unknown): data is Message[] => {
+  return (
+    Array.isArray(data) &&
+    data.every((item) => {
+      return isMessage(item);
+    })
+  );
+};
+
+export const messageRoleFromIndex = (idx: number) => {
+  if (idx == 0) {
+    return "system";
+  }
+  if (idx % 2 == 0) {
+    return "assistant";
+  }
+  return "user";
+};
+export interface ChunkMetadata {
+  id: string;
+  chunk_html?: string;
+  link: string | null;
+  qdrant_point_id: string;
+  created_at: string;
+  updated_at: string;
+  tag_set: string[] | null;
+  tracking_id: string | null;
+  time_stamp: string | null;
+  file_id: string | null;
+  file_name: string | null;
+  metadata: Record<string, never> | null;
+  weight: number | null;
+  location: {
+    lat: number;
+    lon: number;
+  } | null;
+  num_value: number | null;
+}
+
+export interface ChunkCollectionDTO {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface SlimCollection {
+  id: string;
+  name: string;
+  of_current_user: boolean;
+}
+
+export interface ChunkBookmarksDTO {
+  chunk_uuid: string;
+  slim_collections: [SlimCollection];
+}

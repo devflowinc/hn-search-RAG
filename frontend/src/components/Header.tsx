@@ -37,16 +37,26 @@ export default function Header(props: HeaderProps) {
           </a>
         </Show>
       </div>
-      <Show when={props.algoliaLink}>
-        <a href="/analytics" class="pr-1 hover:text-white hover:underline">
-          View Analytics
-        </a>
-      </Show>
-      <Show when={!props.algoliaLink}>
-        <a href="/" class="pr-1 hover:text-white hover:underline">
-          Back to Search
-        </a>
-      </Show>
+      <div>
+        <Show when={props.algoliaLink}>
+          <a href="/chat" class="pr-1 hover:text-white hover:underline">
+            RAG Chat
+          </a>
+          <span class="pr-1">|</span>
+          <a href="/analytics" class="pr-1 hover:text-white hover:underline">
+            View Analytics
+          </a>
+        </Show>
+        <Show when={!props.algoliaLink}>
+          <a href="/chat" class="pr-1 hover:text-white hover:underline">
+            RAG Chat
+          </a>
+          <span class="pr-1">|</span>
+          <a href="/" class="pr-1 hover:text-white hover:underline">
+            Back to Search
+          </a>
+        </Show>
+      </div>
     </header>
   );
 }

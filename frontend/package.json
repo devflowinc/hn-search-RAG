@@ -12,6 +12,7 @@
   "devDependencies": {
     "@eslint/js": "^9.6.0",
     "@types/eslint__js": "^8.42.3",
+    "@types/sanitize-html": "^2.11.0",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -26,16 +27,24 @@
     "vite-plugin-solid": "^2.8.2"
   },
   "dependencies": {
+    "@corvu/resizable": "^0.2.2",
+    "@fingerprintjs/fingerprintjs": "^4.4.3",
     "@solidjs/router": "^0.14.1",
-    "date-fns": "^3.3.1",
     "chart.js": "^4.4.3",
     "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^3.3.1",
     "i": "^0.3.7",
     "npm": "^10.8.2",
+    "rehype-sanitize": "^6.0.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.0",
+    "sanitize-html": "^2.13.0",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.8.11",
+    "solid-markdown": "^2.0.13",
     "tailwind-gradient-mask-image": "^1.2.0",
     "tailwind-scrollbar": "^3.1.0",
+    "terracotta": "^1.0.5",
     "vite-plugin-runtime-env": "^0.1.1"
   }
 }
