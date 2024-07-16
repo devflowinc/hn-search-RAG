@@ -1,15 +1,17 @@
 import { SetStoreFunction } from "solid-js/store";
 import { subDays, subHours } from "date-fns";
-import { createEffect } from "solid-js";
+import { Accessor, createEffect, Setter } from "solid-js";
 import {
   SimpleTimeRangeSelector,
   useSimpleTimeRange,
 } from "./SimpleTimeRangeSelector";
-import { AnalyticsParams } from "../../types";
+import { AnalyticsParams, AnalyticsType } from "../../types";
 
 interface FilterBarProps {
   filters: AnalyticsParams;
   setFilters: SetStoreFunction<AnalyticsParams>;
+  analyticsType: Accessor<AnalyticsType>;
+  setAnalyticsType: Setter<AnalyticsType>;
 }
 
 export const timeFrameOptions: AnalyticsParams["granularity"][] = [
@@ -49,8 +51,24 @@ export const FilterBar = (props: FilterBarProps) => {
 
   return (
     <div class="flex justify-between border-neutral-400 px-3 py-2">
-      <div class="flex items-center gap-2"></div>
-
+      <div class="flex items-center gap-2">
+        <div class="pl-5 pt-3 text-base">
+          <button
+            class="pr-1 text-md"
+            classList={{ "font-semibold": props.analyticsType() == "search" }}
+            onClick={() => props.setAnalyticsType("search")}
+          >
+            Search Analytics
+          </button>
+          <span class="pr-1">|</span>
+          <button
+            classList={{ "font-semibold": props.analyticsType() == "rag" }}
+            onClick={() => props.setAnalyticsType("rag")}
+          >
+            RAG Analytics
+          </button>
+        </div>
+      </div>
       <div class="flex gap-2">
         <div>
           <SimpleTimeRangeSelector

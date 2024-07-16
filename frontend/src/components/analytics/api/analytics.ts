@@ -15,6 +15,10 @@ import {
   DateRangeFilter,
   SortBy,
   SortOrder,
+  RAGAnalyticsFilter,
+  RagQueryEvent,
+  RagQueryResponse,
+  RAGUsageResponse,
 } from "../../../types";
 
 const apiHost = import.meta.env.VITE_TRIEVE_API_URL as string;
@@ -36,10 +40,16 @@ export const formatDateForApi = (date: Date) => {
     .replace(",", "");
 };
 
-export const transformAnalyticsFilter = (filter: AnalyticsFilter) => {
+interface HasDateRange {
+  date_range?: DateRangeFilter;
+}
+
+export const transformAnalyticsFilter = (filter: HasDateRange) => {
   return {
     ...filter,
-    date_range: transformDateParams(filter.date_range),
+    date_range: filter.date_range
+      ? transformDateParams(filter.date_range)
+      : undefined,
   };
 };
 
@@ -283,4 +293,65 @@ export const getSearchQueries = async (
 
   const data = (await response.json()) as unknown as SearchQueryResponse;
   return data.queries;
+};
+
+export const getRAGQueries = async ({
+  page,
+  filter,
+  sort_by,
+  sort_order,
+}: {
+  page: number;
+  filter?: RAGAnalyticsFilter;
+  sort_by?: SortBy;
+  sort_order?: SortOrder;
+}): Promise<RagQueryEvent[]> => {
+  const response = await fetch(`${apiHost}/analytics/rag`, {
+    credentials: "include",
+    method: "POST",
+    body: JSON.stringify({
+      page,
+      sort_by,
+      sort_order,
+      filter: filter ? transformAnalyticsFilter(filter) : undefined,
+      type: "rag_queries",
+    }),
+    headers: {
+      "TR-Dataset": trieveDatasetId,
+      Authorization: trieveApiKey,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch head queries: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as unknown as RagQueryResponse;
+  return data.queries;
+};
+
+export const getRAGUsage = async (
+  filter?: RAGAnalyticsFilter
+): Promise<RAGUsageResponse> => {
+  const response = await fetch(`${apiHost}/analytics/rag`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "TR-Dataset": trieveDatasetId,
+      Authorization: trieveApiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      type: "rag_usage",
+      filter: filter ? transformAnalyticsFilter(filter) : undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch head queries: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as unknown as RAGUsageResponse;
+  return data;
 };

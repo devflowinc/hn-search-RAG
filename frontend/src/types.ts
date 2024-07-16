@@ -253,3 +253,33 @@ export const dateRanges: DateRangeOption[] = [
 export type SortBy = "created_at" | "latency" | "top_score";
 
 export type SortOrder = "desc" | "asc";
+
+export type AnalyticsType = "search" | "rag";
+
+export interface RequiredRAGAnalyticsFilter {
+  rag_type?: "chosen_chunks" | "all_chunks"; // Optional because that means "BOTH"
+  date_range: DateRangeFilter;
+}
+
+export interface RAGAnalyticsFilter {
+  rag_type?: "chosen_chunks" | "all_chunks";
+  date_range?: DateRangeFilter;
+}
+
+export interface RagQueryEvent {
+  id: string;
+  rag_type: string;
+  user_message: string;
+  search_id: string;
+  results: ChunkMetadataStringTagSet[];
+  dataset_id: string;
+  created_at: string;
+}
+
+export interface RAGUsageResponse {
+  total_queries: number;
+}
+
+export interface RagQueryResponse {
+  queries: RagQueryEvent[];
+}

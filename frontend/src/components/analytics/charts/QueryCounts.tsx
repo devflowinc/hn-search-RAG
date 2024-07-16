@@ -1,6 +1,5 @@
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { SearchTypeCount, AnalyticsFilter } from "../../../types";
-import { toTitleCase } from "../usePagination";
 import { getQueryCounts } from "../api/analytics";
 
 const displaySearchType = (type: SearchTypeCount["search_type"]) => {
