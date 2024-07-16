@@ -60,22 +60,6 @@ export const deleteTopic = async (topic_id: string) => {
   return;
 };
 
-export const handleReader = async (
-  reader: ReadableStreamDefaultReader<Uint8Array>
-) => {
-  let done = false;
-  let newText = "";
-  while (!done) {
-    const { value, done: doneReading } = await reader.read();
-    if (doneReading) {
-      done = doneReading;
-    } else if (value) {
-      const decoder = new TextDecoder();
-      newText += decoder.decode(value);
-    }
-  }
-  return newText;
-};
 export const createTopic = async (newMessageContent: string, id: string) => {
   const response = await fetch(`${apiHost}/topic`, {
     method: "POST",

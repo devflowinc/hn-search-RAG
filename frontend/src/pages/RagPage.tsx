@@ -19,18 +19,7 @@ export const RagPage = () => {
   const fpPromise = FingerprintJS.load();
 
   createEffect(async () => {
-    refetchTopics();
-  });
-
-  createEffect(() => {
-    if (selectedTopic()) {
-      const updatedTopic = topics().find(
-        (topic) => topic.id === selectedTopic()?.id
-      );
-      if (updatedTopic && updatedTopic.name !== selectedTopic()?.name) {
-        setSelectedTopic(updatedTopic);
-      }
-    }
+    await refetchTopics();
   });
 
   const refetchTopics = async () => {
@@ -39,6 +28,7 @@ export const RagPage = () => {
     const result = await fp.get();
     let results = await getTopics(result.visitorId);
     setTopics(results);
+    setLoadingNewTopic(false);
   };
 
   return (
@@ -47,9 +37,9 @@ export const RagPage = () => {
       <div class="relative flex max-h-[90vh] flex-row bg-zinc-100 dark:bg-zinc-900">
         <div class="hidden w-1/4 overflow-x-hidden lg:block">
           <Sidebar
-            currentTopic={selectedTopic}
+            selectedTopic={selectedTopic}
             refetchTopics={refetchTopics}
-            setCurrentTopic={setSelectedTopic}
+            setSelectedTopic={setSelectedTopic}
             topics={topics}
             setTopics={setTopics}
             setSideBarOpen={setSideBarOpen}
@@ -58,9 +48,9 @@ export const RagPage = () => {
         <div class="lg:hidden">
           <Show when={sidebarOpen()}>
             <Sidebar
-              currentTopic={selectedTopic}
+              selectedTopic={selectedTopic}
               refetchTopics={refetchTopics}
-              setCurrentTopic={setSelectedTopic}
+              setSelectedTopic={setSelectedTopic}
               topics={topics}
               setTopics={setTopics}
               setSideBarOpen={setSideBarOpen}
@@ -80,7 +70,7 @@ export const RagPage = () => {
           <MainLayout
             setTopics={setTopics}
             setSelectedTopic={setSelectedTopic}
-            selectedTopic={selectedTopic()}
+            selectedTopic={selectedTopic}
             setLoadingNewTopic={setLoadingNewTopic}
           />
         </div>

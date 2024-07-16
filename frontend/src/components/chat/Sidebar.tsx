@@ -14,8 +14,8 @@ export interface SidebarProps {
   topics: Accessor<Topic[]>;
   setTopics: Setter<Topic[]>;
   refetchTopics: () => Promise<void>;
-  currentTopic: Accessor<Topic | undefined>;
-  setCurrentTopic: (topic: Topic | undefined) => void;
+  selectedTopic: Accessor<Topic | undefined>;
+  setSelectedTopic: (topic: Topic | undefined) => void;
   setSideBarOpen: Setter<boolean>;
 }
 
@@ -38,8 +38,8 @@ export const Sidebar = (props: SidebarProps) => {
                   updated_at: "",
                   dataset_id: "",
                 };
-                props.setTopics([...props.topics(), newTopic]);
-                props.setCurrentTopic(newTopic);
+                props.setTopics([newTopic, ...props.topics()]);
+                props.setSelectedTopic(newTopic);
               }
             }}
             class="flex w-full flex-row items-center rounded-md border border-transparent px-3 py-1 hover:border-neutral-300 hover:bg-neutral-100 disabled:border-neutral-300 disabled:bg-neutral-200 disabled:text-neutral-400 hover:dark:border-neutral-700 dark:hover:bg-neutral-700 hover:dark:bg-neutral-700/50"
@@ -60,6 +60,8 @@ export const Sidebar = (props: SidebarProps) => {
 
               const submitEditText = async () => {
                 saveTitle(topic, topicName()).then(() => {
+                  props.topics().find((t) => t.id === topic.id)!.name =
+                    topicName();
                   props.refetchTopics();
                 });
               };
@@ -70,7 +72,7 @@ export const Sidebar = (props: SidebarProps) => {
                     "flex w-full cursor-pointer items-center rounded-md border border-transparent p-2 hover:ring-neutral-200 dark:hover:ring-neutral-400/70 hover:ring":
                       true,
                     "bg-white border-neutral-300 dark:border-neutral-600/70 text-black dark:text-white dark:bg-neutral-700/50":
-                      props.currentTopic()?.id === topic.id,
+                      props.selectedTopic()?.id === topic.id,
                   }}
                 >
                   <Show when={editing()}>
@@ -115,7 +117,7 @@ export const Sidebar = (props: SidebarProps) => {
                     <div
                       class="flex w-full items-center"
                       onClick={() => {
-                        props.setCurrentTopic(topic);
+                        props.setSelectedTopic(topic);
                         props.setSideBarOpen(false);
                       }}
                     >
@@ -125,7 +127,7 @@ export const Sidebar = (props: SidebarProps) => {
                       <Show
                         when={
                           topic.id !== "0" &&
-                          props.currentTopic()?.id === topic.id
+                          props.selectedTopic()?.id === topic.id
                         }
                       >
                         <div class="flex flex-row items-center space-x-2">
@@ -142,7 +144,12 @@ export const Sidebar = (props: SidebarProps) => {
                             onClick={(e) => {
                               e.preventDefault();
                               void deleteTopic(topic.id);
-                              props.refetchTopics();
+                              props.setSelectedTopic(
+                                props.topics().filter((t) => t.id !== "0")[0]
+                              );
+                              props.setTopics(
+                                props.topics().filter((t) => t.id !== topic.id)
+                              );
                             }}
                             class="text-lg hover:text-red-500"
                           >

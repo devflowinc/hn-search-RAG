@@ -7,6 +7,7 @@ import {
   createSignal,
   Match,
   Accessor,
+  on,
 } from "solid-js";
 import { FiRefreshCcw, FiSend, FiStopCircle } from "solid-icons/fi";
 
@@ -24,7 +25,6 @@ import {
   editMessage,
   fetchCompletion,
   fetchMessages,
-  handleReader,
 } from "./api/chat";
 import { createStore } from "solid-js/store";
 import FingerprintJs from "@fingerprintjs/fingerprintjs";
@@ -33,7 +33,7 @@ import { Popover, PopoverPanel, PopoverButton } from "terracotta";
 export interface LayoutProps {
   setTopics: Setter<Topic[]>;
   setSelectedTopic: Setter<Topic | undefined>;
-  selectedTopic: Topic | undefined;
+  selectedTopic: Accessor<Topic | undefined>;
   setLoadingNewTopic: Setter<boolean>;
 }
 
@@ -69,6 +69,7 @@ const MainLayout = (props: LayoutProps) => {
   const [completionAbortController, setCompletionAbortController] =
     createSignal<AbortController>(new AbortController());
   const [showFilterModal, setShowFilterModal] = createSignal<boolean>(false);
+  const [previousTopicId, setPreviousTopicId] = createSignal<string>("");
 
   const [chatSettings, setChatSettings] = createStore<ChatSettings>({
     concatUserMessagesQuery: false,
@@ -84,20 +85,47 @@ const MainLayout = (props: LayoutProps) => {
     const result = await fp.get();
     props.setLoadingNewTopic(true);
     try {
+      setPreviousTopicId("0");
       const newTopic = await createTopic(new_message_content, result.visitorId);
-      props.setTopics((prev) => [newTopic, ...prev]);
+      props.setTopics((prev) => [
+        newTopic,
+        ...prev.filter((topic) => topic.id !== "0"),
+      ]);
+
       props.setSelectedTopic(newTopic);
     } catch (error) {
       setStreamingCompletion(false);
-      const newEvent = new CustomEvent("show-toast", {
-        detail: {
-          type: "error",
-          message: "Error creating topic",
-        },
-      });
-      window.dispatchEvent(newEvent);
     } finally {
       props.setLoadingNewTopic(false);
+    }
+  };
+
+  const handleReader = async (
+    reader: ReadableStreamDefaultReader<Uint8Array>
+  ) => {
+    let done = false;
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      if (doneReading) {
+        done = doneReading;
+        setStreamingCompletion(false);
+      } else if (value) {
+        const decoder = new TextDecoder();
+        const newText = decoder.decode(value);
+
+        setMessages((prev) => {
+          const lastMessage = prev[prev.length - 1];
+          if (!lastMessage) {
+            return prev;
+          }
+
+          const newMessage = {
+            content: lastMessage.content + newText,
+          };
+          return [...prev.slice(0, prev.length - 1), newMessage];
+        });
+        setPreviousTopicId(props.selectedTopic()?.id!);
+      }
     }
   };
 
@@ -140,9 +168,9 @@ const MainLayout = (props: LayoutProps) => {
     let finalTopicId = topic_id;
     setStreamingCompletion(true);
 
-    if (!finalTopicId) {
+    if (!finalTopicId || finalTopicId === "0") {
       await createTopicHandler(new_message_content);
-      finalTopicId = props.selectedTopic?.id;
+      finalTopicId = props.selectedTopic()?.id;
     }
 
     if (regenerateLastMessage) {
@@ -174,14 +202,7 @@ const MainLayout = (props: LayoutProps) => {
         return;
       }
 
-      let newText = await handleReader(reader);
-
-      setMessages((prev) => {
-        const newMessage = {
-          content: newText,
-        };
-        return [...prev.slice(0, prev.length - 1), newMessage];
-      });
+      await handleReader(reader);
     } catch (e) {
       console.error(e);
     } finally {
@@ -207,15 +228,18 @@ const MainLayout = (props: LayoutProps) => {
     }
   };
 
-  createEffect(() => {
-    const curTopic = props.selectedTopic;
-    const fetchMessagesAbortController = new AbortController();
-    setMessages([]);
-    void fetchMessages(curTopic?.id!, fetchMessagesAbortController.signal);
-  });
+  createEffect(
+    on(props.selectedTopic, () => {
+      if (previousTopicId() === "0") {
+        return;
+      }
+      setMessages([]);
+      fetchMessagesHandler(props.selectedTopic()?.id!, new AbortController());
+    })
+  );
 
   const submitNewMessage = () => {
-    const topic_id = props.selectedTopic?.id;
+    const topic_id = props.selectedTopic()?.id;
     if (!topic_id || !newMessageContent() || streamingCompletion()) {
       return;
     }
@@ -254,7 +278,9 @@ const MainLayout = (props: LayoutProps) => {
                     setCompletionAbortController(new AbortController());
 
                     const params = {
-                      filters: getFiltersFromStorage(props.selectedTopic?.id!),
+                      filters: getFiltersFromStorage(
+                        props.selectedTopic()?.id!
+                      ),
                       concat_user_messages_query:
                         chatSettings.concatUserMessagesQuery,
                       page_size: chatSettings.pageSize,
@@ -265,7 +291,7 @@ const MainLayout = (props: LayoutProps) => {
                       score_threshold: chatSettings.minScore,
                       system_prompt: chatSettings.systemPrompt,
                       message_sort_order: idx(),
-                      topic_id: props.selectedTopic?.id,
+                      topic_id: props.selectedTopic()?.id,
                       new_message_content: content,
                     };
 
@@ -304,7 +330,7 @@ const MainLayout = (props: LayoutProps) => {
                     class="flex w-fit items-center justify-center space-x-4 rounded-xl border border-neutral-300/80 bg-neutral-50 px-4 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                     onClick={(e) => {
                       e.preventDefault();
-                      const topic_id = props.selectedTopic?.id;
+                      const topic_id = props.selectedTopic()?.id;
                       if (!topic_id) {
                         return;
                       }
@@ -419,7 +445,7 @@ const MainLayout = (props: LayoutProps) => {
                   </div>
                 </div>
                 <FilterModal
-                  topic_id={props.selectedTopic?.id!}
+                  topic_id={props.selectedTopic()?.id!}
                   setShowFilterModal={setShowFilterModal}
                   showFilterModal={showFilterModal}
                 />
@@ -438,7 +464,7 @@ const MainLayout = (props: LayoutProps) => {
                     if (!new_message_content) {
                       return;
                     }
-                    const topic_id = props.selectedTopic?.id;
+                    const topic_id = props.selectedTopic()?.id;
                     void fetchCompletionHandler({
                       new_message_content,
                       topic_id,
