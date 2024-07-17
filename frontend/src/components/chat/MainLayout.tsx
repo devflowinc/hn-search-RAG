@@ -321,7 +321,7 @@ const MainLayout = (props: LayoutProps) => {
           </For>
         </div>
 
-        <div class=" fixed bottom-[95px] right-21 flex w-full flex-col items-center space-y-4 bg-gradient-to-b from-transparent via-zinc-200 to-zinc-100 p-4 dark:via-zinc-800 dark:to-zinc-900 lg:w-[68vw]">
+        <div class=" fixed bottom-[7vh] right-21 flex w-full flex-col items-center space-y-4 bg-gradient-to-b from-transparent via-zinc-200 to-zinc-100 p-4 dark:via-zinc-800 dark:to-zinc-900 lg:w-[68vw]">
           <Show when={messages().length > 0}>
             <div class="flex w-full justify-center">
               <Switch>
