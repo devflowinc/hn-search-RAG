@@ -58,16 +58,18 @@ def deserialize_to_dict(item):
             chunk_html=row["title"] if row["title"] else row["text"],
             link=row["url"],
             metadata={
-                "by": row.get("by"),
-                "descendants": row.get("descendants"),
+                "by": row.get("by", ""),
+                "descendants": row.get("descendants", []),
                 "id": row.get("id"),
-                "kids": row.get("kids"),
-                "score": row.get("score"),
+                "kids": row.get("kids", []),
+                "score": row.get("score", 0),
                 "time": row.get("time"),
-                "title": row.get("title"),
-                "text": row.get("text"),
-                "type": row.get("type"),
+                "title": row.get("title", ""),
+                "text": row.get("text", ""),
+                "type": row.get("type", ""),
             },
+            tag_set=[row.get("type", ""), row.get("by", "")],
+            num_value=row.get("score", 0),
             tracking_id=str(row.get("id")),
             time_stamp=stamp,
             weight=int(row.get("score") if row.get("score") else 0)
@@ -76,7 +78,6 @@ def deserialize_to_dict(item):
 
     return None
 
-print("hi")
 while True:
     redis_resp = redis_client.lpop("hn", num_to_pop)
 
@@ -97,3 +98,4 @@ while True:
 
     if len(chunks) > 0:
         redis_client.lpush("sent", *[str(chunk) for chunk in chunks])
+
