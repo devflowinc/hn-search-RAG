@@ -176,6 +176,15 @@ export const SearchPage = () => {
 
     const time_range = dateRangeSwitch(dateRange());
 
+    let sort_by_field;
+    if (sortBy() == "Date") {
+      sort_by_field = "time_stamp";
+    } else if (sortBy() == "Popularity") {
+      sort_by_field = "metadata.score";
+    } else {
+      sort_by_field = undefined;
+    }
+
     fetch(`${trieveBaseURL}/chunk/search`, {
       method: "POST",
       body: JSON.stringify({
@@ -188,8 +197,12 @@ export const SearchPage = () => {
         highlight_window: searchOptions.highlightWindow,
         highlight_max_length: searchOptions.highlightMaxLength,
         use_weights: sortBy() != "Relevance",
-        date_bias: sortBy() == "Date",
-        recency_bias: searchOptions.recencyBias,
+        sort_by: sort_by_field
+          ? {
+              field: sort_by_field,
+              order: "desc",
+            }
+          : undefined,
         slim_chunks: searchOptions.slimChunks,
         filters: getFilters(selectedDataset(), time_range),
         page_size: searchOptions.pageSize,
