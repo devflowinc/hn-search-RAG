@@ -170,8 +170,8 @@ export const SearchPage = () => {
               }
             : undefined,
           slim_chunks: searchOptions.slimChunks,
-          filters: getFilters(selectedDataset(), time_range),
-          page_size: searchOptions.pageSize,
+          filters: getFilters("story", time_range),
+          page_size: 30,
           score_threshold: searchOptions.scoreThreshold,
         }),
         headers: {
