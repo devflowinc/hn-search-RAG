@@ -124,6 +124,7 @@ export const App = () => {
       }),
       headers: {
         "Content-Type": "application/json",
+        "X-API-Version": "V2",
         "TR-Dataset": trieveDatasetId,
         Authorization: trieveApiKey,
       },
@@ -145,8 +146,8 @@ export const App = () => {
       })
       .then((data: SearchChunkQueryResponseBody) => {
         const stories: Story[] =
-          data.score_chunks.map((chunk): Story => {
-            const story = chunk.metadata[0];
+          data.chunks.map((score_chunk): Story => {
+            const story = score_chunk.chunk;
             return {
               content: story.chunk_html ?? "",
               url: story.link ?? "",

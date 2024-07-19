@@ -23,13 +23,13 @@ export interface ChunkMetadataStringTagSet {
   num_value: number | null;
 }
 export interface ScoreChunkDTO {
-  metadata: ChunkMetadataStringTagSet[];
+  chunk: ChunkMetadataStringTagSet;
   highlights?: string[];
   score: number;
 }
 
 export interface SearchChunkQueryResponseBody {
-  score_chunks: ScoreChunkDTO[];
+  chunks: ScoreChunkDTO[];
   total_chunk_pages: number;
 }
 
