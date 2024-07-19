@@ -220,6 +220,11 @@
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
 
+"@esbuild/linux-x64@0.19.12":
+  version "0.19.12"
+  resolved "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.19.12.tgz"
+  integrity sha512-B71g1QpxfwBvNrfyJdVDexenDIt1CiDN1TIXLbhOw0KhJzE78KIFGX6OJ9MrtC0oOqMWf+0xop4qEU8JrJTwCg==
+
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
   resolved "https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz"
@@ -499,6 +504,28 @@
   version "0.1.1"
   resolved "https://registry.npmjs.org/@pkgr/core/-/core-0.1.1.tgz"
   integrity sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==
+
+"@rnwonder/simple-datejs@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/@rnwonder/simple-datejs/-/simple-datejs-1.0.5.tgz"
+  integrity sha512-0cJtQBkPLZlvrWsiBFmjNtH1ikyNps5rMWQN6wcIg3W3Zy7mdR5oyJrZW+sAW8Cj+3xZEgbOXRV+IyEbiKbujw==
+
+"@rnwonder/solid-date-picker@^1.3.8":
+  version "1.3.8"
+  resolved "https://registry.npmjs.org/@rnwonder/solid-date-picker/-/solid-date-picker-1.3.8.tgz"
+  integrity sha512-+Al5wh0ZRdu1zOKVHUOqzOIQBg1trNnOeaIQ3RYGgk/CSCJnlsjzHZflBb+Pvj+AIQwi4f0L36LVsLm1Nn4a7w==
+  dependencies:
+    "@rnwonder/simple-datejs" "^1.0.5"
+
+"@rollup/rollup-linux-x64-gnu@4.12.0":
+  version "4.12.0"
+  resolved "https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.12.0.tgz"
+  integrity sha512-TenQhZVOtw/3qKOPa7d+QgkeM6xY0LtwzR8OplmyL5LrgTWIXpTQg2Q2ycBf8jm+SFW2Wt/DTn1gf7nFp3ssVA==
+
+"@rollup/rollup-linux-x64-musl@4.12.0":
+  version "4.12.0"
+  resolved "https://registry.npmjs.org/@rollup/rollup-linux-x64-musl/-/rollup-linux-x64-musl-4.12.0.tgz"
+  integrity sha512-LfFdRhNnW0zdMvdCb5FNuWlls2WbbSridJvxOvYWgSBOYZtgBfW9UGNJG//rwMqTX1xQE9BAodvMH9tAusKDUw==
 
 "@sigstore/bundle@^2.3.2":
   version "2.3.2"

@@ -50,45 +50,44 @@ export const dateRangeSwitch = (value: string): TimeRange | null => {
       return null;
     case "last24h":
       return {
-        gt: Math.floor(
-          new Date(Date.now() - 24 * 60 * 60 * 1000).getTime() / 1000
-        ),
-        lt: Math.floor(new Date().getTime() / 1000),
+        gt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        lt: new Date().toISOString(),
       };
     case "pastWeek":
       return {
-        gt: Math.floor(
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime() / 1000
-        ),
-        lt: Math.floor(new Date().getTime() / 1000),
+        gt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        lt: new Date().toISOString(),
       };
     case "pastMonth":
       return {
-        gt: Math.floor(
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).getTime() / 1000
-        ),
-        lt: Math.floor(new Date().getTime() / 1000),
+        gt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        lt: new Date().toISOString(),
       };
     case "pastYear":
       return {
-        gt: Math.floor(
-          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).getTime() / 1000
-        ),
-        lt: Math.floor(new Date().getTime() / 1000),
+        gt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+        lt: new Date().toISOString(),
       };
-    case "Custom Range":
-      return null;
-    //TODO: Implement custom range
+    case isTimeRange(JSON.parse(value) as object) && value:
+      return JSON.parse(value) as TimeRange;
     default:
       return null;
   }
 };
 
 export interface TimeRange {
-  gt?: number;
-  gte?: number;
-  lt?: number;
-  lte?: number;
+  gt?: string;
+  gte?: string;
+  lt?: string;
+  lte?: string;
+}
+
+export function isTimeRange(value: object): value is TimeRange {
+  return (typeof value === "object" &&
+    ((value as TimeRange).gt ||
+      (value as TimeRange).gte ||
+      (value as TimeRange).lt ||
+      (value as TimeRange).lte)) as boolean;
 }
 
 export const getFilters = (
@@ -106,7 +105,7 @@ export const getFilters = (
     if (dateRange.gt) {
       filters.push({
         field: "time_stamp",
-        range: dateRange,
+        date_range: dateRange,
       });
     }
   }

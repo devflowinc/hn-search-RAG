@@ -26,7 +26,7 @@ export const RagPage = () => {
     setLoadingNewTopic(true);
     const fp = await fpPromise;
     const result = await fp.get();
-    let results = await getTopics(result.visitorId);
+    const results = await getTopics(result.visitorId);
     setTopics(results);
     setLoadingNewTopic(false);
   };

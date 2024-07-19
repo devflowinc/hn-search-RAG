@@ -180,7 +180,7 @@ export const SearchPage = () => {
     if (sortBy() == "Date") {
       sort_by_field = "time_stamp";
     } else if (sortBy() == "Popularity") {
-      sort_by_field = "metadata.score";
+      sort_by_field = "num_value";
     } else {
       sort_by_field = undefined;
     }

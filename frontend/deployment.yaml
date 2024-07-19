@@ -15,14 +15,14 @@ spec:
     spec:
       containers:
       - name: hackernews
-        image: trieve/hn-ui:3
+        image: trieve/hn-ui:5
         ports:
           - containerPort: 80
         env:
           - name: VITE_TRIEVE_DATASET_ID
-            value: b760c57a-71b8-407c-8f92-c65151d9d28d
+            value: b96b60eb-cfd1-42c4-9320-78ebef592cfd
           - name: VITE_TRIEVE_API_KEY
-            value: tr-38iHewci8I84523tQJ26vRMzKDAj68ZD
+            value: tr-IeuEU6Ni7JmT73eynHMjcaRXiNsjosBl
           - name: VITE_TRIEVE_API_URL
             value: https://hackernews.withtrieve.com/api
 ---

@@ -1,7 +1,9 @@
 import { FaSolidChevronDown } from "solid-icons/fa";
-import { Accessor, createSignal, Setter, Show } from "solid-js";
+import { Accessor, createEffect, createSignal, Setter, Show } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 import { SearchOptions } from "../../types";
+import DatePicker, { PickerValue } from "@rnwonder/solid-date-picker";
+import "@rnwonder/solid-date-picker/dist/style.css";
 
 export interface FiltersProps {
   selectedDataset: Accessor<string>;
@@ -19,6 +21,21 @@ export interface FiltersProps {
 
 export default function Filters(props: FiltersProps) {
   const [open, setOpen] = createSignal(false);
+  const [rangeDate, setRangeDate] = createSignal<PickerValue>({
+    label: "",
+    value: {},
+  });
+
+  createEffect(() => {
+    if (rangeDate().value.start) {
+      props.setDateRange(
+        JSON.stringify({
+          gt: rangeDate().value.start?.toString(),
+          lt: rangeDate().value.end?.toString(),
+        })
+      );
+    }
+  });
   return (
     <div class="p-2 flex items-center gap-2">
       <div class="flex flex-wrap gap-2 text-black items-center">
@@ -59,23 +76,41 @@ export default function Filters(props: FiltersProps) {
           </select>
         </div>
         <span>for</span>
-        <div>
+        <div class="flex-col">
           <label for="date-range" class="sr-only">
             Date Range
           </label>
-          <select
-            id="date-range"
-            class="form-select text-zinc-600 p-1 border border-stone-300 bg-hn"
-            onChange={(e) => props.setDateRange(e.currentTarget.value)}
-            value={props.dateRange()}
-          >
-            <option value="all">All Time</option>
-            <option value="last24h">Last 24h</option>
-            <option value="pastWeek">Past Week</option>
-            <option value="pastMonth">Past Month</option>
-            <option value="pastYear">Past Year</option>
-            <option>Custom Range</option>
-          </select>
+          <DatePicker
+            value={rangeDate}
+            setValue={setRangeDate}
+            renderInput={({ value, showDate }) => (
+              <select
+                id="date-range"
+                class="form-select text-zinc-600 p-1 border border-stone-300 bg-hn"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (e.currentTarget.value === "custom") {
+                    showDate();
+                  } else {
+                    props.setDateRange(e.currentTarget.value);
+                  }
+                }}
+                value={
+                  props.dateRange().startsWith("{")
+                    ? "custom"
+                    : props.dateRange()
+                }
+              >
+                <option value="all">All Time</option>
+                <option value="last24h">Last 24h</option>
+                <option value="pastWeek">Past Week</option>
+                <option value="pastMonth">Past Month</option>
+                <option value="pastYear">Past Year</option>
+                <option value="custom">Custom Range</option>
+              </select>
+            )}
+            type="range"
+          />
         </div>
         <span>with</span>
         <div>
