@@ -90,6 +90,7 @@ export default function Filters(props: FiltersProps) {
             </option>
             <option value={"semantic"}>Semantic</option>
             <option value={"fulltext"}>Splade</option>
+            <option value={"bm25"}>BM25</option>
           </select>
         </div>
         <div class="relative">
