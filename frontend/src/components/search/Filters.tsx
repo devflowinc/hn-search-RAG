@@ -97,15 +97,15 @@ export default function Filters(props: FiltersProps) {
             onClick={() => setOpen(!open())}
             class="form-select text-xs w-fit bg-hn flex items-center gap-1"
           >
-            Options
+            Advanced
             <FaSolidChevronDown size={10} />
           </button>
           <Show when={open()}>
             <div
-              class="fixed top-0 left-0 min-h-screen w-full z-5"
+              class="fixed top-1 left-0 min-h-screen w-full z-5"
               onClick={() => setOpen(false)}
             />
-            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-7 p-2 z-10">
+            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10">
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
                 <label>Score Threshold (0.0 to 1.0):</label>
                 <input

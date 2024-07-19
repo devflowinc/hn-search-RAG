@@ -209,6 +209,7 @@ export const SearchPage = () => {
         score_threshold: searchOptions.scoreThreshold,
       }),
       headers: {
+        "X-API-VERSION": "V2",
         "Content-Type": "application/json",
         "TR-Dataset": trieveDatasetId,
         Authorization: trieveApiKey,
@@ -231,11 +232,11 @@ export const SearchPage = () => {
       })
       .then((data: SearchChunkQueryResponseBody) => {
         const stories: Story[] =
-          data.score_chunks.map((chunk): Story => {
-            const story = chunk.metadata[0];
+          data.chunks.map((score_chunk): Story => {
+            const story = score_chunk.chunk;
             return {
               content: story.chunk_html ?? "",
-              score: chunk.score,
+              score: score_chunk.score,
               url: story.link ?? "",
               points: story.metadata?.score ?? 0,
               user: story.metadata?.by ?? "",
