@@ -6,8 +6,8 @@ import DatePicker, { PickerValue } from "@rnwonder/solid-date-picker";
 import "@rnwonder/solid-date-picker/dist/style.css";
 
 export interface FiltersProps {
-  selectedDataset: Accessor<string>;
-  setSelectedDataset: Setter<string>;
+  selectedStoryType: Accessor<string>;
+  setSelectedStoryType: Setter<string>;
   sortBy: Accessor<string>;
   setSortBy: Setter<string>;
   dateRange: Accessor<string>;
@@ -47,8 +47,8 @@ export default function Filters(props: FiltersProps) {
           <select
             id="stories"
             class="form-select text-zinc-600 p-1 border border-stone-300 w-fit bg-hn"
-            onChange={(e) => props.setSelectedDataset(e.currentTarget.value)}
-            value={props.selectedDataset()}
+            onChange={(e) => props.setSelectedStoryType(e.currentTarget.value)}
+            value={props.selectedStoryType()}
           >
             <option value="all">All</option>
             <option selected value="story">
@@ -83,7 +83,7 @@ export default function Filters(props: FiltersProps) {
           <DatePicker
             value={rangeDate}
             setValue={setRangeDate}
-            renderInput={({ value, showDate }) => (
+            renderInput={({ showDate }) => (
               <select
                 id="date-range"
                 class="form-select text-zinc-600 p-1 border border-stone-300 bg-hn"
