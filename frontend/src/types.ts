@@ -90,17 +90,8 @@ export function isTimeRange(value: object): value is TimeRange {
       (value as TimeRange).lte)) as boolean;
 }
 
-export const getFilters = (
-  selectedDataset: string | null,
-  dateRange: TimeRange | null
-) => {
+export const getFilters = (dateRange: TimeRange | null) => {
   const filters = [];
-  if (selectedDataset && selectedDataset !== "all") {
-    filters.push({
-      field: "tag_set",
-      match: [selectedDataset],
-    });
-  }
   if (dateRange) {
     if (dateRange.gt) {
       filters.push({

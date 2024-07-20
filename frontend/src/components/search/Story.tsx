@@ -7,12 +7,16 @@ export interface Story {
   points: number;
   user: string;
   time: string;
+  title?: string;
   commentsCount: number;
   type: string;
   id: string;
 }
 
-export const Story = (props: { story: Story }) => {
+export const Story = (props: {
+  story: Story;
+  onClickRecommend: () => void;
+}) => {
   const articleLink = "https://news.ycombinator.com/item?id=" + props.story.id;
 
   return (
@@ -32,11 +36,6 @@ export const Story = (props: { story: Story }) => {
             >
               ({props.story.url})
             </a>
-            <Show when={props.story.score}>
-              <span class="text-[8pt] text-[#828282] ml-1 rounded-lg">
-                (Score {props.story.score?.toFixed(2)})
-              </span>
-            </Show>
           </div>
         </Show>
         <div class="w-full items-center text-[9pt] sm:text-[7pt] text-[#828282] pt-1 pb-2 sm:pb-0">
@@ -56,13 +55,19 @@ export const Story = (props: { story: Story }) => {
           <a href={articleLink} class="hover:underline">
             {props.story.commentsCount} comments
           </a>
-          <span class="px-1">|</span>
-          <span
-            class="cursor-pointer hover:underline font-semibold"
-            onClick={() => {}}
-          >
-            Get Recommendations
-          </span>
+          <Show when={props.story.score}>
+            <span class="px-1">|</span>
+            <span>Score {props.story.score?.toFixed(4)}</span>
+          </Show>
+          <Show when={props.story.type != "comment"}>
+            <span class="px-1">|</span>
+            <span
+              class="cursor-pointer hover:underline font-semibold"
+              onClick={() => props.onClickRecommend()}
+            >
+              Get Recommendations
+            </span>
+          </Show>
         </div>
         <Show when={props.story.type == "comment"}>
           <div class="w-full mb-[-6px] pl-3">
