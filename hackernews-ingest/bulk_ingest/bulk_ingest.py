@@ -34,6 +34,7 @@ def deserialize_to_dict(item):
             "score": item.get("score"),
             "time": item.get("time"),
             "title": item.get("title"),
+            "parent": item.get("parent"),
             "text": (
                 item.get("text").strip().replace("\n", " ").replace("\r", " ")
                 if item.get("text")
@@ -54,12 +55,16 @@ def deserialize_to_dict(item):
         if not row["title"] and not row["text"]:
             return None
 
+        if row.get("type", "") == "pollopt":
+            return None
+
         data = dict(
             chunk_html=row["title"] if row["title"] else row["text"],
             link=row["url"],
             metadata={
                 "by": row.get("by", ""),
                 "descendants": row.get("descendants", []),
+                "parent": row.get("parent", None),
                 "id": row.get("id"),
                 "kids": row.get("kids", []),
                 "score": row.get("score", 0),
