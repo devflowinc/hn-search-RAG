@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hn-addcomments
+  namespace: hackernews
+spec:
+  template:
+    spec:
+      containers:
+      - name: hn-addcomments
+        image: trieve/hn-addcomments:3
+        imagePullPolicy: Always
+        env:
+          - name: TRIEVE_API_HOST
+            value: https://hackernews.withtrieve.com
+          - name: TRIEVE_API_KEY
+            value: <private-api-key>
+          - name: DATASET_ID
+            value: b96b60eb-cfd1-42c4-9320-78ebef592cfd
+      restartPolicy: Never
+  backoffLimit: 0
+
+
