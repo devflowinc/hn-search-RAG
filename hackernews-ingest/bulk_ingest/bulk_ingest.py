@@ -17,9 +17,7 @@ dataset_id = os.getenv("DATASET_ID")
 api_url = os.getenv("API_BASE_URL") # "https://hackernews.withtrieve.com/api"
 
 comment_distance_factor = float(os.getenv("COMMENT_DISTANCE_FACTOR", 1.3))
-comment_boost_factor = float(os.getenv("COMMENT_BOOST_FACTOR", 1.3))
 
-story_distance_factor = float(os.getenv("STORY_DISTANCE_FACTOR", 1.5))
 story_boost_factor = float(os.getenv("STORY_BOOST_FACTOR", 1.5))
 
 def deserialize_to_dict(item):
@@ -74,21 +72,13 @@ def deserialize_to_dict(item):
                 parent_title = get_parent_title(item.get("id"))
                 if parent_title:
                     distance = {
-                        "boost_factor": comment_distance_factor
-                        "phrase": parent_title
-                    }
-                    boost = {
-                        "boost_factor": comment_boost_factor,
+                        "boost_factor": comment_distance_factor,
                         "phrase": parent_title
                     }
             except:
                 parent_title = None
 
         if row.get("type", "") == "story":
-            distance = {
-                "boost_factor": story_distance_factor,
-                "phrase": row.get("title")
-            }
             boost = {
                 "boost_factor": story_boost_factor,
                 "phrase": row.get("title")
@@ -96,7 +86,7 @@ def deserialize_to_dict(item):
         
         tags = [row.get("type", ""), row.get("by", "")]
 
-        if row.get("title") && row.get("title").startswith("Show HN:"):
+        if row.get("title") and row.get("title").startswith("Show HN:"):
             tags.append("show")
 
         html = ""
