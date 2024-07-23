@@ -25,6 +25,7 @@ export const Search = (props: SearchProps) => {
         <a
           href={props.algoliaLink()}
           class="text-zinc-600 p-1 border border-stone-300 w-fit bg-hn flex items-center gap-x-1 hover:border-stone-900 hover:text-zinc-900"
+          target="_blank"
         >
           Try With Algolia <FiExternalLink class="w-4 h-4" />
         </a>
