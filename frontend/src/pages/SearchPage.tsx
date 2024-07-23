@@ -413,7 +413,7 @@ export const SearchPage = () => {
   return (
     <>
       <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
-        <Header algoliaLink={algoliaLink} />
+        <Header />
         <Filters
           setSearchOptions={setSearchOptions}
           searchOptions={searchOptions}
@@ -427,7 +427,7 @@ export const SearchPage = () => {
           setSearchType={setSearchType}
           latency={latency}
         />
-        <Search query={query} setQuery={setQuery} />
+        <Search query={query} setQuery={setQuery} algoliaLink={algoliaLink} />
         <Switch>
           <Match when={stories().length === 0}>
             <Switch>
