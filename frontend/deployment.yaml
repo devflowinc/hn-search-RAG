@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hackernews
-        image: trieve/hn-ui:6
+        image: trieve/hn-ui:8
         ports:
           - containerPort: 80
         env:
