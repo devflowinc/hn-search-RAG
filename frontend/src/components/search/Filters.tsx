@@ -17,8 +17,8 @@ export interface FiltersProps {
   latency: Accessor<number | null>;
   setSearchOptions: SetStoreFunction<SearchOptions>;
   searchOptions: SearchOptions;
-  setAuthorName: Setter<string>;
-  authorName: Accessor<string>;
+  setAuthorNames: Setter<string[]>;
+  authorNames: Accessor<string[]>;
 }
 
 export default function Filters(props: FiltersProps) {
@@ -34,7 +34,7 @@ export default function Filters(props: FiltersProps) {
         JSON.stringify({
           gt: rangeDate().value.start?.toString(),
           lt: rangeDate().value.end?.toString(),
-        })
+        }),
       );
     }
   });
@@ -157,7 +157,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "scoreThreshold",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
@@ -172,7 +172,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "prefetchAmount",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
@@ -185,7 +185,7 @@ export default function Filters(props: FiltersProps) {
                     const newType = e.currentTarget.value;
                     props.setSearchOptions(
                       "rerankType",
-                      newType === "none" ? undefined : newType
+                      newType === "none" ? undefined : newType,
                     );
                   }}
                   value={props.searchOptions.rerankType ?? "none"}
@@ -208,14 +208,18 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Author</label>
+                <label>Authors</label>
                 <input
                   class="w-20 rounded border border-neutral-400 p-0.5 text-black"
                   type="text"
                   step="any"
-                  value={props.authorName()}
+                  value={props.authorNames().join(",")}
                   onChange={(e) => {
-				  props.setAuthorName(e.target.value)
+                    if (e.target.value.length > 0) {
+                      props.setAuthorNames(e.target.value.split(","));
+                    } else {
+                      props.setAuthorNames([]);
+                    }
                   }}
                 />
               </div>
@@ -229,7 +233,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightDelimiters",
-                      e.target.value.split(",")
+                      e.target.value.split(","),
                     );
                   }}
                 />
@@ -244,7 +248,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightThreshold",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
@@ -259,7 +263,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxLength",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
@@ -274,7 +278,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxNum",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
@@ -288,7 +292,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightResults",
-                      e.target.checked
+                      e.target.checked,
                     );
                   }}
                 />
@@ -302,7 +306,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "useQuoteNegatedTerms",
-                      e.target.checked
+                      e.target.checked,
                     );
                   }}
                 />
@@ -317,7 +321,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "recencyBias",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
