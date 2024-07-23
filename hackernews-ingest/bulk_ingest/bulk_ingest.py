@@ -123,7 +123,6 @@ def deserialize_to_dict(item):
             num_value=row.get("score", 0),
             tracking_id=str(row.get("id")),
             time_stamp=stamp,
-            weight=int(row.get("score") if row.get("score") else 0)
         )
         return data
 
