@@ -93,7 +93,7 @@ export function isTimeRange(value: object): value is TimeRange {
 export const getFilters = (
   selectedStoryType: string | null,
   dateRange: TimeRange | null,
-  authorName: string | null,
+  authorNames: string[] | null,
 ) => {
   const filters = [];
   if (selectedStoryType && selectedStoryType !== "all") {
@@ -103,11 +103,12 @@ export const getFilters = (
     });
   }
 
-  if (authorName && authorName !== "") {
-	  filters.push({
+  let shouldFilters = [];
+  if (authorNames && authorNames.length > 0) {
+	  shouldFilters.push(...authorNames.map((name) => ({
 		  field: "tag_set",
-		  match: [authorName.toLowerCase()]
-	  })
+		  match: [name.toLowerCase()]
+	  })));
   }
 
   if (dateRange) {
@@ -122,6 +123,7 @@ export const getFilters = (
   return {
     jsonb_prefilter: false,
     must: filters,
+	should: shouldFilters,
   };
 };
 
