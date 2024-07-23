@@ -53,6 +53,9 @@ export const SearchPage = () => {
   const defaultHighlightDelimiters = [" ", "-", "_", ".", ","];
 
   let abortController: AbortController | null = null;
+  const [authorName, setAuthorName] = createSignal(
+    urlParams.get("authorName") ?? "" 
+  );
 
   const [selectedStoryType, setSelectedStoryType] = createSignal(
     urlParams.get("storyType") ?? "all"
@@ -180,6 +183,7 @@ export const SearchPage = () => {
 
     urlParams.set("q", query());
     urlParams.set("storyType", selectedStoryType());
+	urlParams.set("authorName", authorName())
     urlParams.set("sortby", sortBy());
     urlParams.set("dateRange", dateRange());
     urlParams.set("searchType", searchType());
@@ -228,7 +232,7 @@ export const SearchPage = () => {
         : undefined,
       slim_chunks: searchOptions.slimChunks,
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
-      filters: getFilters(selectedStoryType(), time_range),
+      filters: getFilters(selectedStoryType(), time_range, authorName()),
       page_size: searchOptions.pageSize,
       score_threshold: searchOptions.scoreThreshold,
     };
@@ -254,7 +258,7 @@ export const SearchPage = () => {
                 order: "desc",
               }
             : undefined,
-          filters: getFilters(selectedStoryType(), time_range),
+          filters: getFilters(selectedStoryType(), time_range, authorName()),
           page_size: 30,
         }),
         headers: {
@@ -325,6 +329,7 @@ export const SearchPage = () => {
         const stories: Story[] =
           data.chunks.map((score_chunk): Story => {
             const chunk = score_chunk.chunk;
+			console.log(chunk);
             return {
               content: chunk.chunk_html ?? "",
               score: score_chunk.score,
@@ -355,7 +360,7 @@ export const SearchPage = () => {
       curRecommendType === "SPLADE" ? "fulltext" : curRecommendType;
 
     const time_range = dateRangeSwitch(dateRange());
-    const filters = getFilters(null, time_range);
+    const filters = getFilters(null, time_range, authorName());
     filters.must.push({
       field: "tag_set",
       match: ["story"],
@@ -425,6 +430,8 @@ export const SearchPage = () => {
           setDateRange={setDateRange}
           searchType={searchType}
           setSearchType={setSearchType}
+		  authorName={authorName}
+		  setAuthorName={setAuthorName}
           latency={latency}
         />
         <Search query={query} setQuery={setQuery} algoliaLink={algoliaLink} />

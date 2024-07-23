@@ -17,6 +17,8 @@ export interface FiltersProps {
   latency: Accessor<number | null>;
   setSearchOptions: SetStoreFunction<SearchOptions>;
   searchOptions: SearchOptions;
+  setAuthorName: Setter<string>;
+  authorName: Accessor<string>;
 }
 
 export default function Filters(props: FiltersProps) {
@@ -202,6 +204,18 @@ export default function Filters(props: FiltersProps) {
                   value={props.searchOptions.pageSize}
                   onChange={(e) => {
                     props.setSearchOptions("pageSize", e.target.valueAsNumber);
+                  }}
+                />
+              </div>
+              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+                <label>Author</label>
+                <input
+                  class="w-20 rounded border border-neutral-400 p-0.5 text-black"
+                  type="text"
+                  step="any"
+                  value={props.authorName()}
+                  onChange={(e) => {
+				  props.setAuthorName(e.target.value)
                   }}
                 />
               </div>

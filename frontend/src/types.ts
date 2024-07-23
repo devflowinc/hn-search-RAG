@@ -92,7 +92,8 @@ export function isTimeRange(value: object): value is TimeRange {
 
 export const getFilters = (
   selectedStoryType: string | null,
-  dateRange: TimeRange | null
+  dateRange: TimeRange | null,
+  authorName: string | null,
 ) => {
   const filters = [];
   if (selectedStoryType && selectedStoryType !== "all") {
@@ -100,6 +101,13 @@ export const getFilters = (
       field: "tag_set",
       match: [selectedStoryType.toLowerCase()],
     });
+  }
+
+  if (authorName && authorName !== "") {
+	  filters.push({
+		  field: "tag_set",
+		  match: [authorName.toLowerCase()]
+	  })
   }
 
   if (dateRange) {
