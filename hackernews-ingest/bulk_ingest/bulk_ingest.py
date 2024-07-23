@@ -93,9 +93,25 @@ def deserialize_to_dict(item):
                 "boost_factor": story_boost_factor,
                 "phrase": row.get("title")
             }
+        
+        tags = [row.get("type", ""), row.get("by", "")]
+
+        if row.get("title") && row.get("title").startswith("Show HN:"):
+            tags.append("show")
+
+        html = ""
+
+        if row.get("url"):
+            html += row.get("url") + "\n\n"
+
+        if row.get("title"):
+            html += row.get("title") + "\n\n"
+
+        if row.get("text"):
+            html += row.get("text") + "\n\n"
 
         data = dict(
-            chunk_html=row["title"] if row["title"] else row["text"],
+            chunk_html=html,
             link=row["url"],
             metadata={
                 "by": row.get("by", ""),
@@ -109,10 +125,11 @@ def deserialize_to_dict(item):
                 "text": row.get("text", ""),
                 "parent_title": parent_title,
                 "type": row.get("type", ""),
+                "url": row.get("url")
             },
             boost_phrase=boost,
             distance_phrase=distance,
-            tag_set=[row.get("type", ""), row.get("by", "")],
+            tag_set=tags,
             num_value=row.get("score", 0),
             tracking_id=str(row.get("id")),
             time_stamp=stamp,
