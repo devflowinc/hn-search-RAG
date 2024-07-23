@@ -8,7 +8,7 @@ redis_client = redis.Redis(
 )
 
 while True:
-    start = redis_client.blpop("tovisit")
+    start = redis_client.brpop("tovisit")
     start = int(start[1])
     fail = False
     try:
@@ -20,4 +20,8 @@ while True:
     print(item)
     if (not fail and (item is not None) and ("deleted" not in item) and ("dead" not in item)):
         print(start)
-        redis_client.lpush("hn", str(item))
+        if ("text" in item) and item["text"] == "[delayed]":
+            # Add this back in the queue, as the text is not ready to be parsed
+            redis_client.lpush("tovisit", str(start))
+        else: 
+            redis_client.lpush("hn", str(item))

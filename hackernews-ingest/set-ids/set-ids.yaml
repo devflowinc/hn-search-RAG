@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: set-ids
-  namespace: 
+  namespace: hackernews
   labels:
     app.kubernetes.io/name: set-ids
 spec:

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: get-datasets
-  namespace: 
+  namespace: hackernews
   labels:
     app.kubernetes.io/name: get-datasets
 spec:
