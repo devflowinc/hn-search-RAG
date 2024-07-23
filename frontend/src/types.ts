@@ -130,6 +130,7 @@ export interface SearchOptions {
   recencyBias: number;
   slimChunks: boolean;
   highlightResults: boolean;
+  useQuoteNegatedTerms: boolean;
 }
 
 export interface HNStory {

@@ -266,6 +266,34 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+                <label>Highlight results (Latency Penalty)</label>
+                <input
+                  class="h-4 w-4"
+                  type="checkbox"
+                  checked={props.searchOptions.highlightResults}
+                  onChange={(e) => {
+                    props.setSearchOptions(
+                      "highlightResults",
+                      e.target.checked
+                    );
+                  }}
+                />
+              </div>
+              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+                <label>Use Quote Negated Terms (Latency Penalty)</label>
+                <input
+                  class="h-4 w-4"
+                  type="checkbox"
+                  checked={props.searchOptions.useQuoteNegatedTerms}
+                  onChange={(e) => {
+                    props.setSearchOptions(
+                      "useQuoteNegatedTerms",
+                      e.target.checked
+                    );
+                  }}
+                />
+              </div>
+              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
                 <label>Recency bias (0.0) to (1.0)</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -276,20 +304,6 @@ export default function Filters(props: FiltersProps) {
                     props.setSearchOptions(
                       "recencyBias",
                       e.target.valueAsNumber
-                    );
-                  }}
-                />
-              </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Highlight results (Latency Penalty)</label>
-                <input
-                  class="h-4 w-4"
-                  type="checkbox"
-                  checked={props.searchOptions.highlightResults}
-                  onChange={(e) => {
-                    props.setSearchOptions(
-                      "highlightResults",
-                      e.target.checked
                     );
                   }}
                 />

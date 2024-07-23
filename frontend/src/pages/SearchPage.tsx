@@ -79,10 +79,10 @@ export const SearchPage = () => {
   const [showRecModal, setShowRecModal] = createSignal(false);
 
   const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
-    prefetchAmount: parseInt(urlParams.get("prefetch_amount") ?? "100"),
+    prefetchAmount: parseInt(urlParams.get("prefetch_amount") ?? "30"),
     rerankType: urlParams.get("rerank_type") ?? undefined,
     scoreThreshold: parseFloatOrNull(urlParams.get("score_threshold")),
-    pageSize: parseInt(urlParams.get("page_size") ?? "20"),
+    pageSize: parseInt(urlParams.get("page_size") ?? "30"),
     highlightDelimiters:
       urlParams.get("highlight_delimiters")?.split(",") ??
       defaultHighlightDelimiters,
@@ -95,6 +95,8 @@ export const SearchPage = () => {
     recencyBias: parseFloatOrNull(urlParams.get("recency_bias")) ?? 0,
     slimChunks: urlParams.get("slim_chunks") === "true",
     highlightResults: (urlParams.get("highlight_results") ?? "true") === "true",
+    useQuoteNegatedTerms:
+      (urlParams.get("use_quote_negated_terms") ?? "true") === "true",
   });
 
   const recommendType = createMemo(() => {
@@ -139,10 +141,8 @@ export const SearchPage = () => {
       );
 
     urlParams.set("page_size", searchOptions.pageSize.toString());
-    if (searchOptions.prefetchAmount && searchOptions.rerankType) {
-      urlParams.set("prefetch_amount", searchOptions.prefetchAmount.toString());
-      urlParams.set("rerank_type", searchOptions.rerankType ?? "");
-    }
+    urlParams.set("prefetch_amount", searchOptions.prefetchAmount.toString());
+    urlParams.set("rerank_type", searchOptions.rerankType ?? "none");
     urlParams.set(
       "highlight_delimiters",
       searchOptions.highlightDelimiters.join(",")
@@ -165,6 +165,10 @@ export const SearchPage = () => {
     urlParams.set(
       "highlight_results",
       searchOptions.highlightResults ? "true" : "false"
+    );
+    urlParams.set(
+      "use_quote_negated_terms",
+      searchOptions.useQuoteNegatedTerms ? "true" : "false"
     );
 
     if (abortController) {
@@ -223,17 +227,17 @@ export const SearchPage = () => {
           }
         : undefined,
       slim_chunks: searchOptions.slimChunks,
+      use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
       filters: getFilters(selectedStoryType(), time_range),
-      page_size: 30,
+      page_size: searchOptions.pageSize,
       score_threshold: searchOptions.scoreThreshold,
     };
 
-    if (searchOptions.rerankType && searchOptions.prefetchAmount) {
-      console.log("Setting sort_by: ", {
-        prefetch_amount: searchOptions.prefetchAmount,
-        rerank_type: searchOptions.rerankType,
-      });
-
+    if (
+      searchOptions.rerankType &&
+      searchOptions.rerankType != "none" &&
+      searchOptions.prefetchAmount
+    ) {
       reqBody["sort_by"] = {
         prefetch_amount: searchOptions.prefetchAmount,
         rerank_type: searchOptions.rerankType,
