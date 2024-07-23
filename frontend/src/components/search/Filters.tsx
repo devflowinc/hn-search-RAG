@@ -117,7 +117,10 @@ export default function Filters(props: FiltersProps) {
           <select
             id="stories"
             class="form-select text-zinc-600 p-1 border border-stone-300 w-fit bg-hn"
-            onChange={(e) => props.setSearchType(e.currentTarget.value)}
+            onChange={(e) => {
+              props.setSearchType(e.currentTarget.value);
+              props.setSearchOptions("rerankType", undefined);
+            }}
             value={props.searchType()}
           >
             <option selected value={"hybrid"}>
@@ -141,7 +144,7 @@ export default function Filters(props: FiltersProps) {
               class="fixed top-1 left-0 min-h-screen w-full z-5"
               onClick={() => setOpen(false)}
             />
-            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10">
+            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10 right-0">
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
                 <label>Score Threshold (0.0 to 1.0):</label>
                 <input
@@ -156,6 +159,39 @@ export default function Filters(props: FiltersProps) {
                     );
                   }}
                 />
+              </div>
+              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+                <label>Prefetch Amount:</label>
+                <input
+                  class="w-16 rounded border border-neutral-400 p-0.5 text-black"
+                  type="number"
+                  step="1"
+                  value={props.searchOptions.prefetchAmount ?? 0}
+                  onChange={(e) => {
+                    props.setSearchOptions(
+                      "prefetchAmount",
+                      e.target.valueAsNumber
+                    );
+                  }}
+                />
+              </div>
+              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+                <label>Rerank type:</label>
+                <select
+                  class="rounded border border-neutral-400 p-1 bg-white text-black"
+                  onChange={(e) => {
+                    const newType = e.currentTarget.value;
+                    props.setSearchOptions(
+                      "rerankType",
+                      newType === "none" ? undefined : newType
+                    );
+                  }}
+                  value={props.searchOptions.rerankType ?? "none"}
+                >
+                  <option>none</option>
+                  <option>semantic</option>
+                  <option>fulltext</option>
+                </select>
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
                 <label>Page size</label>
@@ -180,6 +216,21 @@ export default function Filters(props: FiltersProps) {
                     props.setSearchOptions(
                       "highlightDelimiters",
                       e.target.value.split(",")
+                    );
+                  }}
+                />
+              </div>
+              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+                <label>Highlight Threshold</label>
+                <input
+                  class="w-16 rounded border border-neutral-400 p-0.5 text-black"
+                  type="number"
+                  step="any"
+                  value={props.searchOptions.highlightThreshold}
+                  onChange={(e) => {
+                    props.setSearchOptions(
+                      "highlightThreshold",
+                      e.target.valueAsNumber
                     );
                   }}
                 />

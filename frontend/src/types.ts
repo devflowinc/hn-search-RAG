@@ -90,8 +90,18 @@ export function isTimeRange(value: object): value is TimeRange {
       (value as TimeRange).lte)) as boolean;
 }
 
-export const getFilters = (dateRange: TimeRange | null) => {
+export const getFilters = (
+  selectedStoryType: string | null,
+  dateRange: TimeRange | null
+) => {
   const filters = [];
+  if (selectedStoryType && selectedStoryType !== "all") {
+    filters.push({
+      field: "tag_set",
+      match: [selectedStoryType.toLowerCase()],
+    });
+  }
+
   if (dateRange) {
     if (dateRange.gt) {
       filters.push({
@@ -108,9 +118,12 @@ export const getFilters = (dateRange: TimeRange | null) => {
 };
 
 export interface SearchOptions {
+  prefetchAmount: number;
+  rerankType?: string;
   scoreThreshold: number | null;
   pageSize: number;
   highlightDelimiters: string[];
+  highlightThreshold: number;
   highlightMaxLength: number;
   highlightMaxNum: number;
   highlightWindow: number;

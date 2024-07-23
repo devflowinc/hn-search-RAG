@@ -26,19 +26,19 @@ export const Story = (props: {
           <div class="w-full mb-[-6px] text-[#828282] text-wrap break-word leading-[14pt]">
             <a
               href={articleLink}
-              class="mr-1 text-[11pt] sm:text-[10pt] text-black"
+              class="mr-1 text-[11pt] sm:text-[10pt] text-black text-wrap"
               // eslint-disable-next-line solid/no-innerhtml
               innerHTML={props.story.content}
             />
             <a
               href={props.story.url}
-              class="hover:underline text-[8pt] text-[#828282]"
+              class="hover:underline text-[8pt] text-[#828282] break-all"
             >
               ({props.story.url})
             </a>
           </div>
         </Show>
-        <div class="w-full items-center text-[9pt] sm:text-[7pt] text-[#828282] pt-1 pb-2 sm:pb-0">
+        <div class="w-full items-center text-[9pt] sm:text-[7pt] text-[#828282] pt-1">
           <span>
             {props.story.points} points by{" "}
             <a
@@ -70,9 +70,10 @@ export const Story = (props: {
           </Show>
         </div>
         <Show when={props.story.type == "comment"}>
-          <div class="w-full mb-[-6px] pl-3">
+          <div class="w-full text-[#828282] text-wrap break-word leading-[normal] pt-1">
             <div
-              class="transition duration-150 ease-in-out mr-1 text-md text-[12px] text-wrap space-y-2"
+              class="mr-1 text-[10pt] sm:text-[10pt] text-black text-wrap"
+              id="comment-parent"
               // eslint-disable-next-line solid/no-innerhtml
               innerHTML={props.story.content}
             />

@@ -2,12 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
- code {
-    color: #1c709b;
-    background-color: #edf7fc;
-    padding: 3px 8px;
-    border-radius: 3px;
-    white-space: pre-wrap;
-    display: inline-block;
-    margin: 3px 0
+code {
+  color: #1c709b;
+  background-color: #edf7fc;
+  padding: 3px 8px;
+  border-radius: 3px;
+  white-space: pre-wrap;
+  display: inline-block;
+  margin: 3px 0;
+}
+
+#comment-parent > p {
+  margin-top: 8px;
+}
+
+#comment-parent > a {
+  color: rgb(105, 105, 105);
+  text-decoration: underline;
 }

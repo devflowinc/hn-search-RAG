@@ -79,11 +79,16 @@ export const SearchPage = () => {
   const [showRecModal, setShowRecModal] = createSignal(false);
 
   const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
+    prefetchAmount: parseInt(urlParams.get("prefetch_amount") ?? "100"),
+    rerankType: urlParams.get("rerank_type") ?? undefined,
     scoreThreshold: parseFloatOrNull(urlParams.get("score_threshold")),
     pageSize: parseInt(urlParams.get("page_size") ?? "20"),
     highlightDelimiters:
       urlParams.get("highlight_delimiters")?.split(",") ??
       defaultHighlightDelimiters,
+    highlightThreshold: parseFloat(
+      urlParams.get("highlight_threshold") ?? "0.85"
+    ),
     highlightMaxLength: parseInt(urlParams.get("highlight_max_length") ?? "50"),
     highlightMaxNum: parseInt(urlParams.get("highlight_max_num") ?? "50"),
     highlightWindow: parseInt(urlParams.get("highlight_window") ?? "0"),
@@ -134,9 +139,17 @@ export const SearchPage = () => {
       );
 
     urlParams.set("page_size", searchOptions.pageSize.toString());
+    if (searchOptions.prefetchAmount && searchOptions.rerankType) {
+      urlParams.set("prefetch_amount", searchOptions.prefetchAmount.toString());
+      urlParams.set("rerank_type", searchOptions.rerankType ?? "");
+    }
     urlParams.set(
       "highlight_delimiters",
       searchOptions.highlightDelimiters.join(",")
+    );
+    urlParams.set(
+      "highlight_threshold",
+      searchOptions.highlightThreshold.toString()
     );
     urlParams.set(
       "highlight_max_length",
@@ -192,29 +205,53 @@ export const SearchPage = () => {
       sort_by_field = undefined;
     }
 
+    const reqBody = {
+      query: query(),
+      search_type: searchType(),
+      page: page(),
+      highlight_results: searchOptions.highlightResults,
+      highlight_delimiters: searchOptions.highlightDelimiters,
+      highlight_threshold: searchOptions.highlightThreshold,
+      highlight_max_num: searchOptions.highlightMaxNum,
+      highlight_window: searchOptions.highlightWindow,
+      highlight_max_length: searchOptions.highlightMaxLength,
+      use_weights: false,
+      sort_by: sort_by_field
+        ? {
+            field: sort_by_field,
+            order: "desc",
+          }
+        : undefined,
+      slim_chunks: searchOptions.slimChunks,
+      filters: getFilters(selectedStoryType(), time_range),
+      page_size: 30,
+      score_threshold: searchOptions.scoreThreshold,
+    };
+
+    if (searchOptions.rerankType && searchOptions.prefetchAmount) {
+      console.log("Setting sort_by: ", {
+        prefetch_amount: searchOptions.prefetchAmount,
+        rerank_type: searchOptions.rerankType,
+      });
+
+      reqBody["sort_by"] = {
+        prefetch_amount: searchOptions.prefetchAmount,
+        rerank_type: searchOptions.rerankType,
+      } as any;
+    }
+
     if (query() === "") {
       fetch(`${trieveBaseURL}/chunks/scroll`, {
         method: "POST",
         body: JSON.stringify({
-          query: query(),
-          search_type: searchType(),
-          page: page(),
-          highlight_results: searchOptions.highlightResults,
-          highlight_delimiters: searchOptions.highlightDelimiters,
-          highlight_max_num: searchOptions.highlightMaxNum,
-          highlight_window: searchOptions.highlightWindow,
-          highlight_max_length: searchOptions.highlightMaxLength,
-          use_weights: sortBy() != "Relevance",
           sort_by: sort_by_field
             ? {
                 field: sort_by_field,
                 order: "desc",
               }
             : undefined,
-          slim_chunks: searchOptions.slimChunks,
-          filters: getFilters(time_range),
+          filters: getFilters(selectedStoryType(), time_range),
           page_size: 30,
-          score_threshold: searchOptions.scoreThreshold,
         }),
         headers: {
           "X-API-VERSION": "V2",
@@ -257,27 +294,7 @@ export const SearchPage = () => {
 
     fetch(`${trieveBaseURL}/chunk/search`, {
       method: "POST",
-      body: JSON.stringify({
-        query: query(),
-        search_type: searchType(),
-        page: page(),
-        highlight_results: searchOptions.highlightResults,
-        highlight_delimiters: searchOptions.highlightDelimiters,
-        highlight_max_num: searchOptions.highlightMaxNum,
-        highlight_window: searchOptions.highlightWindow,
-        highlight_max_length: searchOptions.highlightMaxLength,
-        use_weights: sortBy() != "Relevance",
-        sort_by: sort_by_field
-          ? {
-              field: sort_by_field,
-              order: "desc",
-            }
-          : undefined,
-        slim_chunks: searchOptions.slimChunks,
-        filters: getFilters(time_range),
-        page_size: searchOptions.pageSize,
-        score_threshold: searchOptions.scoreThreshold,
-      }),
+      body: JSON.stringify(reqBody),
       headers: {
         "X-API-VERSION": "V2",
         "Content-Type": "application/json",
@@ -334,7 +351,7 @@ export const SearchPage = () => {
       curRecommendType === "SPLADE" ? "fulltext" : curRecommendType;
 
     const time_range = dateRangeSwitch(dateRange());
-    const filters = getFilters(time_range);
+    const filters = getFilters(null, time_range);
     filters.must.push({
       field: "tag_set",
       match: ["story"],
