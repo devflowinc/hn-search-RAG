@@ -27,3 +27,12 @@ spec:
             value: "<dataset-id>"
           - name: API_BASE_URL
             value: "https://hackernews.withtrieve.com/api"
+          - name: "COMMENT_DISTANCE_FACTOR"
+            value: 1.3
+          - name: "COMMENT_BOOST_FACTOR"
+            value: 1.3
+          - name: "STORY_DISTANCE_FACTOR"
+            value: 1.5
+          - name: "STORY_BOOST_FACTOR"
+            value: 1.5
+

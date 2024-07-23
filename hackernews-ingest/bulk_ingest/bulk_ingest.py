@@ -16,6 +16,12 @@ api_key = os.getenv("API_KEY")
 dataset_id = os.getenv("DATASET_ID")
 api_url = os.getenv("API_BASE_URL") # "https://hackernews.withtrieve.com/api"
 
+comment_distance_factor = float(os.getenv("COMMENT_DISTANCE_FACTOR", 1.3))
+comment_boost_factor = float(os.getenv("COMMENT_BOOST_FACTOR", 1.3))
+
+story_distance_factor = float(os.getenv("STORY_DISTANCE_FACTOR", 1.5))
+story_boost_factor = float(os.getenv("STORY_BOOST_FACTOR", 1.5))
+
 def deserialize_to_dict(item):
     item = item.decode("utf-8")
     print(item)
@@ -58,6 +64,36 @@ def deserialize_to_dict(item):
         if row.get("type", "") == "pollopt":
             return None
 
+        parent_title = None
+
+        distance = None
+        boost = None
+        if row.get("type", "") == "comment":
+            # Get Parent
+            try:
+                parent_title = get_parent_title(item.get("id"))
+                if parent_title:
+                    distance = {
+                        "boost_factor": comment_distance_factor
+                        "phrase": parent_title
+                    }
+                    boost = {
+                        "boost_factor": comment_boost_factor,
+                        "phrase": parent_title
+                    }
+            except:
+                parent_title = None
+
+        if row.get("type", "") == "story":
+            distance = {
+                "boost_factor": story_distance_factor,
+                "phrase": row.get("title")
+            }
+            boost = {
+                "boost_factor": story_boost_factor,
+                "phrase": row.get("title")
+            }
+
         data = dict(
             chunk_html=row["title"] if row["title"] else row["text"],
             link=row["url"],
@@ -71,8 +107,11 @@ def deserialize_to_dict(item):
                 "time": row.get("time"),
                 "title": row.get("title", ""),
                 "text": row.get("text", ""),
+                "parent_title": parent_title,
                 "type": row.get("type", ""),
             },
+            boost_phrase=boost,
+            distance_phrase=distance,
             tag_set=[row.get("type", ""), row.get("by", "")],
             num_value=row.get("score", 0),
             tracking_id=str(row.get("id")),
@@ -82,6 +121,15 @@ def deserialize_to_dict(item):
         return data
 
     return None
+
+def get_parent_title(i):
+    it = get_item(i)
+    if it.get("parent", None):
+        return get_parent_title(it.get("parent"))
+    return it.get("title", None)
+
+def get_item(i):
+    return requests.get(f"https://hacker-news.firebaseio.com/v0/item/{i}.json").json()
 
 while True:
     redis_resp = redis_client.lpop("hn", num_to_pop)
