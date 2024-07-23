@@ -276,18 +276,19 @@ export const SearchPage = () => {
           const stories: Story[] =
             data.chunks.map((score_chunk): Story => {
               const story = score_chunk;
+              let date = new Date(story.time_stamp + "Z" ?? "");
               return {
                 content: story.chunk_html ?? "",
                 url: story.link ?? "",
                 points: story.metadata?.score ?? 0,
                 user: story.metadata?.by ?? "",
-                time: story.time_stamp ?? "",
+                time: date,
                 title: story.metadata?.title ?? "",
                 commentsCount: story.metadata?.descendants ?? 0,
                 type: story.metadata?.type ?? "",
                 id: story.tracking_id ?? "0",
               };
-            }) ?? [];
+            }).sort((a,b) => b.time.getTime() - a.time.getTime()) ?? [];
           setStories(stories);
           setLoading(false);
         })
@@ -329,20 +330,21 @@ export const SearchPage = () => {
         const stories: Story[] =
           data.chunks.map((score_chunk): Story => {
             const chunk = score_chunk.chunk;
-            console.log(chunk);
+            let date = new Date(chunk.time_stamp + "Z" ?? "");
+
             return {
               content: chunk.chunk_html ?? "",
               score: score_chunk.score,
               url: chunk.link ?? "",
               points: chunk.metadata?.score ?? 0,
               user: chunk.metadata?.by ?? "",
-              time: chunk.time_stamp ?? "",
+              time: date ?? "",
               title: chunk.metadata?.title ?? "",
               commentsCount: chunk.metadata?.descendants ?? 0,
               type: chunk.metadata?.type ?? "",
               id: chunk.tracking_id ?? "0",
             };
-          }) ?? [];
+          }).sort((a,b) => b.time.getTime() - a.time.getTime()) ?? [];
         setStories(stories);
         setLoading(false);
       })

@@ -6,7 +6,7 @@ export interface Story {
   url: string;
   points: number;
   user: string;
-  time: string;
+  time: Date;
   title?: string;
   commentsCount: number;
   type: string;
@@ -48,7 +48,9 @@ export const Story = (props: {
               {props.story.user}
             </a>{" "}
             <a href={articleLink} class="hover:underline">
-              {formatDistanceToNowStrict(props.story.time)} ago
+              {formatDistanceToNowStrict(props.story.time, {
+                addSuffix: true,
+              })}
             </a>
           </span>
           <span class="px-1">|</span>
