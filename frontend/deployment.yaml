@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hackernews
+  namespace: hackernews
   labels:
     app.kubernetes.io/name: hackernews
 spec:
@@ -15,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hackernews
-        image: trieve/hn-ui:5
+        image: trieve/hn-ui:6
         ports:
           - containerPort: 80
         env:
@@ -30,6 +31,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: hackernews
+  namespace: hackernews
   labels:
     app.kubernetes.io/name: hackernews
 spec:
@@ -46,6 +48,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-hackernews
+  namespace: hackernews
   annotations:
     kubernetes.io/ingress.class: gce
     external-dns.alpha.kubernetes.io/hostname: "hn.withtrieve.com"
