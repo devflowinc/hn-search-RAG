@@ -437,7 +437,7 @@ export const SearchPage = () => {
   return (
     <>
       <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
-        <Header />
+        <Header setQuery={setQuery} />
         <Filters
           setSearchOptions={setSearchOptions}
           searchOptions={searchOptions}

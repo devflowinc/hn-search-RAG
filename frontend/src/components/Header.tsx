@@ -1,11 +1,15 @@
 import { FiGithub } from "solid-icons/fi";
-import { Match, Switch } from "solid-js";
+import { Match, Setter, Switch } from "solid-js";
 
-export default function Header() {
+export interface HeaderProps {
+  setQuery: Setter<string>;
+}
+
+export default function Header(props: HeaderProps) {
   return (
     <header class="flex py-[2px] px-2 min-h-[24px] items-center justify-between bg-[#ff6600]">
       <div class="flex">
-        <a class="flex items-center" href="/">
+        <a class="flex items-center" href="/" onClick={() => props.setQuery("")}>
           <span class="pr-2">
             <img
               src="https://cdn.trieve.ai/trieve-logo.png"
