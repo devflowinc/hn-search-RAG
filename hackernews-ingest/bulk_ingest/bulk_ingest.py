@@ -7,29 +7,23 @@ from datetime import datetime
 redis_host = os.getenv("REDIS_URL")
 
 # Connect to Redis
-redis_client = redis.Redis(
-    host=redis_host
-)
+redis_client = redis.Redis(host=redis_host)
 
 num_to_pop = 120
 api_key = os.getenv("API_KEY")
 dataset_id = os.getenv("DATASET_ID")
-api_url = os.getenv("API_BASE_URL") # "https://hackernews.withtrieve.com/api"
+api_url = os.getenv("API_BASE_URL")  # "https://hackernews.withtrieve.com/api"
 
 comment_distance_factor = float(os.getenv("COMMENT_DISTANCE_FACTOR", 1.3))
 
 story_boost_factor = float(os.getenv("STORY_BOOST_FACTOR", 1.5))
 
+
 def deserialize_to_dict(item):
     item = item.decode("utf-8")
     print(item)
     item = ast.literal_eval(item)
-    if (
-        item
-        and "type" in item
-        and "deleted" not in item
-        and "dead" not in item
-    ):
+    if item and "type" in item and "deleted" not in item and "dead" not in item:
         row = {
             "by": item.get("by"),
             "descendants": item.get("descendants"),
@@ -50,8 +44,10 @@ def deserialize_to_dict(item):
 
         maybe_time = row.get("time")
         try:
-            stamp = None if maybe_time is None else datetime.fromtimestamp(maybe_time).strftime(
-                "%Y-%m-%d %H:%M:%S"
+            stamp = (
+                None
+                if maybe_time is None
+                else datetime.fromtimestamp(maybe_time).strftime("%Y-%m-%d %H:%M:%S")
             )
         except:
             stamp = None
@@ -73,21 +69,21 @@ def deserialize_to_dict(item):
                 if parent_title:
                     distance = {
                         "boost_factor": comment_distance_factor,
-                        "phrase": parent_title
+                        "phrase": parent_title,
                     }
             except:
                 parent_title = None
 
         if row.get("type", "") == "story":
-            boost = {
-                "boost_factor": story_boost_factor,
-                "phrase": row.get("title")
-            }
-        
+            boost = {"boost_factor": story_boost_factor, "phrase": row.get("title")}
+
         tags = [row.get("type", ""), row.get("by", "")]
 
         if row.get("title") and row.get("title").startswith("Show HN:"):
             tags.append("show")
+
+        if row.get("title") and row.get("title").startswith("Ask HN:"):
+            tags.append("ask")
 
         html = ""
 
@@ -115,7 +111,7 @@ def deserialize_to_dict(item):
                 "text": row.get("text", ""),
                 "parent_title": parent_title,
                 "type": row.get("type", ""),
-                "url": row.get("url")
+                "url": row.get("url"),
             },
             boost_phrase=boost,
             distance_phrase=distance,
@@ -128,14 +124,17 @@ def deserialize_to_dict(item):
 
     return None
 
+
 def get_parent_title(i):
     it = get_item(i)
     if it.get("parent", None):
         return get_parent_title(it.get("parent"))
     return it.get("title", None)
 
+
 def get_item(i):
     return requests.get(f"https://hacker-news.firebaseio.com/v0/item/{i}.json").json()
+
 
 while True:
     redis_resp = redis_client.lpop("hn", num_to_pop)
@@ -151,10 +150,13 @@ while True:
     url = f"{api_url}/chunk"
     chunk_response = requests.post(
         url,
-        headers={ "Content-Type": "application/json","TR-Dataset": dataset_id, "Authorization": api_key },
-        json=chunks
+        headers={
+            "Content-Type": "application/json",
+            "TR-Dataset": dataset_id,
+            "Authorization": api_key,
+        },
+        json=chunks,
     )
 
     if len(chunks) > 0:
         redis_client.lpush("sent", *[str(chunk) for chunk in chunks])
-
