@@ -30,12 +30,14 @@ export const Story = (props: {
               // eslint-disable-next-line solid/no-innerhtml
               innerHTML={props.story.content}
             />
-            <a
-              href={props.story.url}
-              class="hover:underline text-[8pt] text-[#828282] break-all"
-            >
-              ({props.story.url})
-            </a>
+            <Show when={props.story.url}>
+              <a
+                href={props.story.url}
+                class="hover:underline text-[8pt] text-[#828282] break-all"
+              >
+                ({props.story.url})
+              </a>
+            </Show>
           </div>
         </Show>
         <div class="w-full items-center text-[9pt] sm:text-[7pt] text-[#828282] pt-1">
@@ -48,9 +50,16 @@ export const Story = (props: {
               {props.story.user}
             </a>{" "}
             <a href={articleLink} class="hover:underline">
-              {formatDistanceToNowStrict(props.story.time, {
-                addSuffix: true,
-              })}
+              {/* if story over 1 year ago show mmmm DD, YYYY */}
+              {props.story.time.getTime() > new Date().getTime() - 31536000000
+                ? formatDistanceToNowStrict(props.story.time, {
+                    addSuffix: true,
+                  })
+                : new Date(props.story.time).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
             </a>
           </span>
           <span class="px-1">|</span>

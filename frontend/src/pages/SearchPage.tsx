@@ -54,29 +54,29 @@ export const SearchPage = () => {
 
   let abortController: AbortController | null = null;
   const [authorNames, setAuthorNames] = createSignal(
-    urlParams.get("authorNames")?.split(",") ?? [],
+    urlParams.get("authorNames")?.split(",") ?? []
   );
 
   const [selectedStoryType, setSelectedStoryType] = createSignal(
-    urlParams.get("storyType") ?? "all",
+    urlParams.get("storyType") ?? "all"
   );
   const [sortBy, setSortBy] = createSignal(
-    urlParams.get("sortby") ?? "Relevance",
+    urlParams.get("sortby") ?? "Relevance"
   );
   const [dateRange, setDateRange] = createSignal<string>(
-    urlParams.get("dateRange") ?? "all",
+    urlParams.get("dateRange") ?? "all"
   );
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
-    urlParams.get("searchType") ?? "fulltext",
+    urlParams.get("searchType") ?? "fulltext"
   );
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
   const [positiveRecStory, setPositiveRecStory] = createSignal<Story | null>(
-    null,
+    null
   );
   const [recommendedStories, setRecommendedStories] = createSignal<Story[]>([]);
   const [showRecModal, setShowRecModal] = createSignal(false);
@@ -90,7 +90,7 @@ export const SearchPage = () => {
       urlParams.get("highlight_delimiters")?.split(",") ??
       defaultHighlightDelimiters,
     highlightThreshold: parseFloat(
-      urlParams.get("highlight_threshold") ?? "0.85",
+      urlParams.get("highlight_threshold") ?? "0.85"
     ),
     highlightMaxLength: parseInt(urlParams.get("highlight_max_length") ?? "50"),
     highlightMaxNum: parseInt(urlParams.get("highlight_max_num") ?? "50"),
@@ -140,7 +140,7 @@ export const SearchPage = () => {
     searchOptions.scoreThreshold &&
       urlParams.set(
         "score_threshold",
-        searchOptions.scoreThreshold?.toString(),
+        searchOptions.scoreThreshold?.toString()
       );
 
     urlParams.set("page_size", searchOptions.pageSize.toString());
@@ -148,30 +148,30 @@ export const SearchPage = () => {
     urlParams.set("rerank_type", searchOptions.rerankType ?? "none");
     urlParams.set(
       "highlight_delimiters",
-      searchOptions.highlightDelimiters.join(","),
+      searchOptions.highlightDelimiters.join(",")
     );
     urlParams.set(
       "highlight_threshold",
-      searchOptions.highlightThreshold.toString(),
+      searchOptions.highlightThreshold.toString()
     );
     urlParams.set(
       "highlight_max_length",
-      searchOptions.highlightMaxLength.toString(),
+      searchOptions.highlightMaxLength.toString()
     );
     urlParams.set(
       "highlight_max_num",
-      searchOptions.highlightMaxNum.toString(),
+      searchOptions.highlightMaxNum.toString()
     );
     urlParams.set("highlight_window", searchOptions.highlightWindow.toString());
     urlParams.set("recency_bias", searchOptions.recencyBias.toString());
     urlParams.set("slim_chunks", searchOptions.slimChunks ? "true" : "false");
     urlParams.set(
       "highlight_results",
-      searchOptions.highlightResults ? "true" : "false",
+      searchOptions.highlightResults ? "true" : "false"
     );
     urlParams.set(
       "use_quote_negated_terms",
-      searchOptions.useQuoteNegatedTerms ? "true" : "false",
+      searchOptions.useQuoteNegatedTerms ? "true" : "false"
     );
 
     if (abortController) {
@@ -190,16 +190,16 @@ export const SearchPage = () => {
     urlParams.set("page", page().toString());
     setAlgoliaLink(
       `https://hn.algolia.com/?q=${encodeURIComponent(
-        query(),
+        query()
       )}&dateRange=${dateRange()}&sort=by${
         sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&type=${selectedStoryType()}&page=0&prefix=false`,
+      }&type=${selectedStoryType()}&page=0&prefix=false`
     );
 
     window.history.replaceState(
       {},
       "",
-      `${window.location.pathname}?${urlParams.toString()}`,
+      `${window.location.pathname}?${urlParams.toString()}`
     );
 
     const time_range = dateRangeSwitch(dateRange());
@@ -254,10 +254,14 @@ export const SearchPage = () => {
         body: JSON.stringify({
           sort_by: sort_by_field
             ? {
-                field: sort_by_field,
+                field:
+                  sort_by_field === "relevance" ? "time_stamp" : sort_by_field,
                 order: "desc",
               }
-            : undefined,
+            : {
+                field: "time_stamp",
+                order: "desc",
+              },
           filters: getFilters(selectedStoryType(), time_range, authorNames()),
           page_size: 30,
         }),
@@ -273,22 +277,28 @@ export const SearchPage = () => {
           return response.json();
         })
         .then((data: { chunks: ChunkMetadataStringTagSet[] }) => {
-          const stories: Story[] =
-            data.chunks.map((score_chunk): Story => {
-              const story = score_chunk;
-              let date = new Date(story.time_stamp + "Z" ?? "");
-              return {
-                content: story.chunk_html ?? "",
-                url: story.link ?? "",
-                points: story.metadata?.score ?? 0,
-                user: story.metadata?.by ?? "",
-                time: date,
-                title: story.metadata?.title ?? "",
-                commentsCount: story.metadata?.descendants ?? 0,
-                type: story.metadata?.type ?? "",
-                id: story.tracking_id ?? "0",
-              };
-            }).sort((a,b) => b.time.getTime() - a.time.getTime()) ?? [];
+          const stories: Story[] = data.chunks.map((score_chunk): Story => {
+            const story = score_chunk;
+            let date = new Date(story.time_stamp + "Z" ?? "");
+            return {
+              content: story.chunk_html ?? "",
+              url: story.link ?? "",
+              points: story.metadata?.score ?? 0,
+              user: story.metadata?.by ?? "",
+              time: date,
+              title: story.metadata?.title ?? "",
+              commentsCount: story.metadata?.descendants ?? 0,
+              type: story.metadata?.type ?? "",
+              id: story.tracking_id ?? "0",
+            };
+          });
+
+          if (!sort_by_field || sort_by_field === "time_stamp") {
+            stories.sort((a, b) => {
+              return b.time.getTime() - a.time.getTime();
+            });
+          }
+
           setStories(stories);
           setLoading(false);
         })
@@ -344,7 +354,14 @@ export const SearchPage = () => {
               type: chunk.metadata?.type ?? "",
               id: chunk.tracking_id ?? "0",
             };
-          }).sort((a,b) => b.time.getTime() - a.time.getTime()) ?? [];
+          }) ?? [];
+
+        if (sort_by_field === "time_stamp") {
+          stories.sort((a, b) => {
+            return b.time.getTime() - a.time.getTime();
+          });
+        }
+
         setStories(stories);
         setLoading(false);
       })
