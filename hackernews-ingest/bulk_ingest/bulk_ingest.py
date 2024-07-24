@@ -25,21 +25,21 @@ def deserialize_to_dict(item):
     item = ast.literal_eval(item)
     if item and "type" in item and "deleted" not in item and "dead" not in item:
         row = {
-            "by": item.get("by"),
-            "descendants": item.get("descendants"),
-            "id": item.get("id"),
-            "kids": item.get("kids"),
-            "score": item.get("score"),
-            "time": item.get("time"),
-            "title": item.get("title"),
-            "parent": item.get("parent"),
+            "by": item.get("by", ""),
+            "descendants": item.get("descendants", []),
+            "id": item.get("id", ""),
+            "kids": item.get("kids", []),
+            "score": item.get("score", 0),
+            "time": item.get("time", 0),
+            "title": item.get("title", ""),
+            "parent": item.get("parent", ""),
             "text": (
                 item.get("text").strip().replace("\n", " ").replace("\r", " ")
                 if item.get("text")
-                else None
+                else ""
             ),
-            "type": item.get("type"),
-            "url": item.get("url"),
+            "type": item.get("type", ""),
+            "url": item.get("url", ""),
         }
 
         maybe_time = row.get("time")
@@ -120,6 +120,13 @@ def deserialize_to_dict(item):
             tracking_id=str(row.get("id")),
             time_stamp=stamp,
         )
+
+        if boost == None and "boost_phrase" in data:
+            data.pop("boost_phrase")
+
+        if boost == None and "distance_phrase" in data:
+            data.pop("distance_phrase")
+
         return data
 
     return None
