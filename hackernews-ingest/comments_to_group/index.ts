@@ -1,3 +1,5 @@
+import { createClient } from 'redis';
+
 async function getItem(i: Number) {
     return await (await fetch(`https://hacker-news.firebaseio.com/v0/item/${i}.json?print=pretty`)).json()
 }
@@ -14,6 +16,7 @@ async function getRootParent(i: Number) {
 let apiHost = process.env.TRIEVE_API_HOST;
 let apiKey = process.env.TRIEVE_API_KEY;
 let datasetid = process.env.DATASET_ID;
+let redisUri = process.env.REDIS_URI;
 
 async function upsertGroup(parent: Number) {
     console.log("Creating group ", parent);
@@ -49,20 +52,24 @@ async function addToGroup(parent: Number, child: Number) {
     console.log(await resp.text());
 }
 
-// Get past 10,0000 ids
-let maxitem = Number.parseInt(await (await fetch("https://hacker-news.firebaseio.com/v0/maxitem.json")).text());
 
-let i = 0;
-while (i < 10000) {
-    let currentId = maxitem - i;
+
+const client = await createClient({
+    url: redisUri
+}).on('error', err => console.log('Redis Client Error', err)).connect();
+
+while (true) {
+    let currentId = await client.BRPOP("comments_to_visit", 0.0);
+    currentId = currentId.element;
+
+    console.log("processing", currentId);
     let item = await getItem(currentId);
 
-    if (item.type && item.type == "comment") {
+    if (item && item.type && item.type == "comment") {
         let p = await getRootParent(currentId);
         await upsertGroup(p.id);
         await addToGroup(p.id, item.id);
     }
-    console.log(i);
-    i++;
 }
 
+await client.disconnect();
