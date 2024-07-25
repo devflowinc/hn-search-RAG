@@ -5,8 +5,10 @@ use redis::Commands;
 
 fn main() -> Result<(), ureq::Error> {
     loop {
+        let redis_url = std::env::var("REDIS_URL").expect("REDIS_URL env should be set");
+
         let client =
-            redis::Client::open("redis://10.255.232.11")
+            redis::Client::open(redis_url)
                 .expect("client");
         let mut con = client.get_connection().expect("connection");
 
