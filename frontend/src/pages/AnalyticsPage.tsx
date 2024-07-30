@@ -36,7 +36,7 @@ export const AnalyticsPage = () => {
         analyticsType={analyticsType}
         setAnalyticsType={setAnalyticsType}
       />
-      <div class="grid grid-cols-2 items-start gap-2 p-8">
+      <div class="grid grid-cols-2 items-start gap-2 p-3">
         <Show when={analyticsType() === "search"}>
           <ChartCard class="flex flex-col justify-between px-4" width={2}>
             <QueryCounts

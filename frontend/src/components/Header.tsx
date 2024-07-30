@@ -2,7 +2,7 @@ import { FiGithub } from "solid-icons/fi";
 import { Setter } from "solid-js";
 
 export interface HeaderProps {
-  setQuery: Setter<string>;
+  setQuery?: Setter<string>;
 }
 
 export default function Header(props: HeaderProps) {
@@ -12,7 +12,7 @@ export default function Header(props: HeaderProps) {
         <a
           class="flex items-center"
           href="/"
-          onClick={() => props.setQuery("")}
+          onClick={() => props.setQuery?.("")}
         >
           <span class="pr-2">
             <img

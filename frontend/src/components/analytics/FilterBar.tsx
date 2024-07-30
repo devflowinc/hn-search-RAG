@@ -52,17 +52,22 @@ export const FilterBar = (props: FilterBarProps) => {
   return (
     <div class="flex justify-between border-neutral-400 px-3 py-2">
       <div class="flex items-center gap-2">
-        <div class="pl-5 pt-3 text-base">
+        <div class="pt-3 text-base">
           <button
-            class="pr-1 text-md"
-            classList={{ "font-semibold": props.analyticsType() == "search" }}
+            classList={{
+              "pr-1 text-md underline": true,
+              "font-semibold": props.analyticsType() == "search",
+            }}
             onClick={() => props.setAnalyticsType("search")}
           >
             Search Analytics
           </button>
           <span class="pr-1">|</span>
           <button
-            classList={{ "font-semibold": props.analyticsType() == "rag" }}
+            classList={{
+              "text-md underline": true,
+              "font-semibold": props.analyticsType() == "rag",
+            }}
             onClick={() => props.setAnalyticsType("rag")}
           >
             RAG Analytics
