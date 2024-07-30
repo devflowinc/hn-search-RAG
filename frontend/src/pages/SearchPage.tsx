@@ -373,7 +373,7 @@ export const SearchPage = () => {
       });
   });
 
-  const getRecommendations = async (story_id: string) => {
+  const getRecommendations = (story_id: string) => {
     let curRecommendType = recommendType();
     curRecommendType =
       curRecommendType === "SPLADE" ? "fulltext" : curRecommendType;
@@ -385,7 +385,7 @@ export const SearchPage = () => {
       match: ["story"],
     } as any);
 
-    fetch(trieveBaseURL + `/chunk/recommend`, {
+    void fetch(trieveBaseURL + `/chunk/recommend`, {
       method: "POST",
       body: JSON.stringify({
         positive_tracking_ids: [story_id.toString()],
@@ -410,13 +410,14 @@ export const SearchPage = () => {
             url: chunk.link ?? "",
             points: chunk.metadata?.score ?? 0,
             user: chunk.metadata?.by ?? "",
-            time: chunk.time_stamp ?? "",
+            time: new Date(chunk.time_stamp + "Z"),
             title: chunk.metadata?.title ?? "",
             commentsCount: chunk.metadata?.descendants ?? 0,
             type: chunk.metadata?.type ?? "",
             id: chunk.tracking_id ?? "0",
           };
         });
+        console.log("setting recs to: ", stories);
         setRecommendedStories(stories);
       })
       .catch((error) => {
@@ -504,7 +505,7 @@ export const SearchPage = () => {
               <p class="animate-pulse">
                 Loading stories similar by {recommendType()} for{" "}
                 {recommendDateRangeDisplay()} to:{" "}
-                <span class="font-semibold">{positiveRecStory()?.content}</span>
+                <span class="font-semibold">{positiveRecStory()?.title}</span>
                 ...
               </p>
             </Match>

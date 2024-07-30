@@ -210,7 +210,7 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Authors</label>
+                <label>Authors (separated by ',')</label>
                 <input
                   class="w-20 rounded border border-neutral-400 p-0.5 text-black"
                   type="text"
