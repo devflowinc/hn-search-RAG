@@ -34,11 +34,11 @@ const parseFloatOrNull = (val: string | null): number | null => {
 const defaultScoreThreshold = (searchType: string): number => {
   switch (searchType) {
     case "semantic":
-      return 0.7;
+      return 0.5;
     case "hybrid":
       return 0.01;
     case "fulltext":
-      return 7;
+      return 5;
     default:
       return 0.3;
   }
@@ -216,7 +216,7 @@ export const SearchPage = () => {
       query: query(),
       search_type: searchType(),
       page: page(),
-      highlight_options : {
+      highlight_options: {
         highlight_results: searchOptions.highlightResults,
         highlight_delimiters: searchOptions.highlightDelimiters,
         highlight_threshold: searchOptions.highlightThreshold,
@@ -231,7 +231,7 @@ export const SearchPage = () => {
               field: sort_by_field,
               order: "desc",
             }
-          : undefined
+          : undefined,
       },
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
       filters: getFilters(selectedStoryType(), time_range, authorNames()),
@@ -279,19 +279,41 @@ export const SearchPage = () => {
           return response.json();
         })
         .then((data: { chunks: ChunkMetadataStringTagSet[] }) => {
-          const stories: Story[] = data.chunks.map((score_chunk): Story => {
-            const story = score_chunk;
-            let date = new Date(story.time_stamp + "Z");
+          const stories: Story[] = data.chunks.map((chunk): Story => {
+            let title_html = undefined;
+            let body_html = undefined;
+            if (!chunk.tag_set?.includes("story")) {
+              body_html = chunk.chunk_html
+                ?.replaceAll("\n\n", "<br>")
+                .trim()
+                .replace(/<br>$/, "");
+            } else {
+              const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
+              let title_split = 0;
+              if (chunk.link) {
+                title_split = 1;
+              }
+
+              title_html = html_split_by_newlines?.[title_split];
+              body_html = html_split_by_newlines
+                ?.slice(title_split + 1)
+                .join("<br>")
+                .trim()
+                .replace(/<br>$/, "");
+            }
+
             return {
-              content: story.chunk_html ?? "",
-              url: story.link ?? "",
-              points: story.metadata?.score ?? 0,
-              user: story.metadata?.by ?? "",
-              time: date,
-              title: story.metadata?.title ?? "",
-              commentsCount: story.metadata?.descendants ?? 0,
-              type: story.metadata?.type ?? "",
-              id: story.tracking_id ?? "0",
+              title_html,
+              body_html,
+              parent_title: chunk.metadata?.parent_title ?? "",
+              url: chunk.link ?? "",
+              points: chunk.metadata?.score ?? 0,
+              user: chunk.metadata?.by ?? "",
+              time: new Date(chunk.time_stamp + "Z"),
+              title: chunk.metadata?.title ?? "",
+              kids: chunk.metadata?.kids ?? [],
+              type: chunk.metadata?.type ?? "",
+              id: chunk.tracking_id ?? "0",
             };
           });
 
@@ -342,17 +364,38 @@ export const SearchPage = () => {
         const stories: Story[] =
           data.chunks.map((score_chunk): Story => {
             const chunk = score_chunk.chunk;
-            let date = new Date(chunk.time_stamp + "Z");
+            let title_html = undefined;
+            let body_html = undefined;
+            if (!chunk.tag_set?.includes("story")) {
+              body_html = chunk.chunk_html
+                ?.replaceAll("\n\n", "<br>")
+                .trim()
+                .replace(/<br>$/, "");
+            } else {
+              const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
+              let title_split = 0;
+              if (chunk.link) {
+                title_split = 1;
+              }
+
+              title_html = html_split_by_newlines?.[title_split];
+              body_html = html_split_by_newlines
+                ?.slice(title_split + 1)
+                .join("<br>")
+                .trim()
+                .replace(/<br>$/, "");
+            }
 
             return {
-              content: chunk.chunk_html ?? "",
+              title_html,
+              body_html,
               score: score_chunk.score,
               url: chunk.link ?? "",
               points: chunk.metadata?.score ?? 0,
               user: chunk.metadata?.by ?? "",
-              time: date ?? "",
+              time: new Date(chunk.time_stamp + "Z") ?? "",
               title: chunk.metadata?.title ?? "",
-              commentsCount: chunk.metadata?.descendants ?? 0,
+              kids: chunk.metadata?.kids ?? [],
               type: chunk.metadata?.type ?? "",
               id: chunk.tracking_id ?? "0",
             };
@@ -408,20 +451,44 @@ export const SearchPage = () => {
       .then((data: any) => {
         const stories: Story[] = data.chunks.map((score_chunk: any): Story => {
           const chunk = score_chunk.chunk;
+          let title_html = undefined;
+          let body_html = undefined;
+          if (!chunk.tag_set?.includes("story")) {
+            body_html = chunk.chunk_html
+              ?.replaceAll("\n\n", "<br>")
+              .trim()
+              .replace(/<br>$/, "");
+          } else {
+            const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
+            let title_split = 0;
+            if (chunk.link) {
+              title_split = 1;
+            }
+
+            title_html = html_split_by_newlines?.[title_split];
+            body_html = html_split_by_newlines
+              ?.slice(title_split + 1)
+              .join("<br>")
+              .trim()
+              .replace(/<br>$/, "");
+          }
+
           return {
-            content: chunk.chunk_html ?? "",
+            title_html,
+            body_html,
+            parent_title: chunk.metadata?.parent_title ?? "",
             score: score_chunk.score,
             url: chunk.link ?? "",
             points: chunk.metadata?.score ?? 0,
             user: chunk.metadata?.by ?? "",
             time: new Date(chunk.time_stamp + "Z"),
             title: chunk.metadata?.title ?? "",
-            commentsCount: chunk.metadata?.descendants ?? 0,
+            kids: chunk.metadata?.kids ?? [],
             type: chunk.metadata?.type ?? "",
             id: chunk.tracking_id ?? "0",
           };
         });
-        
+
         setRecommendedStories(stories);
       })
       .catch((error) => {
@@ -487,7 +554,7 @@ export const SearchPage = () => {
                           request_id: searchID(),
                           clicked_chunk_tracking_id: story.id,
                           position: i() + 1,
-                          ctr_type: "search"
+                          ctr_type: "search",
                         }),
                         headers: {
                           "Content-Type": "application/json",
