@@ -31,6 +31,7 @@ export interface ScoreChunkDTO {
 }
 
 export interface SearchChunkQueryResponseBody {
+  id: string;
   chunks: ScoreChunkDTO[];
   total_chunk_pages: number;
 }
