@@ -72,6 +72,7 @@ export const SearchPage = () => {
   const [searchType, setSearchType] = createSignal(
     urlParams.get("searchType") ?? "fulltext"
   );
+  const [recommendType, setRecommendType] = createSignal("semantic");
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
@@ -100,17 +101,6 @@ export const SearchPage = () => {
     highlightResults: (urlParams.get("highlight_results") ?? "true") === "true",
     useQuoteNegatedTerms:
       (urlParams.get("use_quote_negated_terms") ?? "true") === "true",
-  });
-
-  const recommendType = createMemo(() => {
-    const curSearchType = searchType();
-    if (curSearchType === "fulltext") {
-      return "SPLADE";
-    } else if (curSearchType === "semantic") {
-      return "semantic";
-    } else {
-      return "semantic";
-    }
   });
 
   const recommendDateRangeDisplay = createMemo(() => {
@@ -500,8 +490,9 @@ export const SearchPage = () => {
 
   createEffect(() => {
     const curPositiveRecStory = positiveRecStory();
+    const recModalOpen = showRecModal();
 
-    if (curPositiveRecStory) {
+    if (curPositiveRecStory && recModalOpen) {
       getRecommendations(curPositiveRecStory.id);
     }
   });
@@ -597,12 +588,25 @@ export const SearchPage = () => {
               </p>
             </Match>
             <Match when={recommendedStories().length > 0}>
-              <p>
-                Showing stories similar by {recommendType()} for{" "}
-                {recommendDateRangeDisplay()} to:{" "}
+              <p class="pb-2">
+                Showing stories similar by{" "}
+                <span class="inline">
+                  <select
+                    id="stories"
+                    class="form-select text-zinc-600 p-1 border border-stone-300 w-fit bg-hn"
+                    onChange={(e) => {
+                      setRecommendType(e.currentTarget.value);
+                    }}
+                    value={recommendType()}
+                  >
+                    <option value={"semantic"}>Semantic</option>
+                    <option value={"fulltext"}>Splade</option>
+                  </select>
+                </span>{" "}
+                for {recommendDateRangeDisplay()} to:{" "}
                 <span class="font-semibold">{positiveRecStory()?.title}</span>
               </p>
-              <div class="pt-5 border-t">
+              <div class="pt-2 border-t">
                 <For each={recommendedStories()}>
                   {(story) => (
                     <Story

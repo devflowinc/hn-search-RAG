@@ -1,4 +1,4 @@
-import { Accessor, Show } from "solid-js";
+import { Accessor, onCleanup, onMount, Show } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 import { Portal } from "solid-js/web";
 import {
@@ -19,6 +19,19 @@ interface FullScreenModalProps {
 }
 
 export const FullScreenModal = (props: FullScreenModalProps) => {
+  onMount(() => {
+    const closeOnEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && props.show()) {
+        props.setShow(false);
+      }
+    };
+    document.addEventListener("keydown", closeOnEscape);
+
+    onCleanup(() => {
+      document.removeEventListener("keydown", closeOnEscape);
+    });
+  });
+
   return (
     <Portal>
       <Transition
