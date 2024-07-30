@@ -34,7 +34,7 @@ export default function Filters(props: FiltersProps) {
         JSON.stringify({
           gt: rangeDate().value.start?.toString(),
           lt: rangeDate().value.end?.toString(),
-        }),
+        })
       );
     }
   });
@@ -57,6 +57,8 @@ export default function Filters(props: FiltersProps) {
               Stories
             </option>
             <option value="comment">Comments</option>
+            <option value="ask">Ask HN</option>
+            <option value="show">Show HN</option>
             <option value="job">Jobs</option>
             <option value="poll">Polls</option>
           </select>
@@ -157,7 +159,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "scoreThreshold",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -172,7 +174,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "prefetchAmount",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -185,7 +187,7 @@ export default function Filters(props: FiltersProps) {
                     const newType = e.currentTarget.value;
                     props.setSearchOptions(
                       "rerankType",
-                      newType === "none" ? undefined : newType,
+                      newType === "none" ? undefined : newType
                     );
                   }}
                   value={props.searchOptions.rerankType ?? "none"}
@@ -233,7 +235,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightDelimiters",
-                      e.target.value.split(","),
+                      e.target.value.split(",")
                     );
                   }}
                 />
@@ -248,7 +250,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightThreshold",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -263,7 +265,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxLength",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -278,7 +280,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxNum",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />
@@ -292,7 +294,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightResults",
-                      e.target.checked,
+                      e.target.checked
                     );
                   }}
                 />
@@ -306,7 +308,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "useQuoteNegatedTerms",
-                      e.target.checked,
+                      e.target.checked
                     );
                   }}
                 />
@@ -321,7 +323,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "recencyBias",
-                      e.target.valueAsNumber,
+                      e.target.valueAsNumber
                     );
                   }}
                 />

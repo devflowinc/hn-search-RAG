@@ -58,7 +58,7 @@ export const SearchPage = () => {
   );
 
   const [selectedStoryType, setSelectedStoryType] = createSignal(
-    urlParams.get("storyType") ?? "all"
+    urlParams.get("storyType") ?? "story"
   );
   const [sortBy, setSortBy] = createSignal(
     urlParams.get("sortby") ?? "Relevance"
