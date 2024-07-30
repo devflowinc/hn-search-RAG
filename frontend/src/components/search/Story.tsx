@@ -1,14 +1,37 @@
 import { Show } from "solid-js";
 import { formatDistanceToNowStrict } from "date-fns";
+
+const formatLink = (url: string) => {
+  try {
+    const parsedUrl = new URL(url);
+    const hostname = parsedUrl.hostname;
+
+    if (hostname === "github.com") {
+      const pathParts = parsedUrl.pathname.split("/").filter(Boolean);
+      if (pathParts.length > 0) {
+        return `${hostname}/${pathParts[0]}`;
+      }
+      return hostname;
+    }
+
+    return hostname;
+  } catch (e) {
+    console.error("Invalid URL:", e);
+    return url;
+  }
+};
+
 export interface Story {
   score?: number;
-  content: string;
+  title_html?: string;
+  body_html?: string;
+  parent_title?: string;
   url: string;
   points: number;
   user: string;
   time: Date;
   title?: string;
-  commentsCount: number;
+  kids: string[];
   type: string;
   id: string;
 }
@@ -23,22 +46,23 @@ export const Story = (props: {
   return (
     <div class="px-2 rounded-md pb-3">
       <div class="flex items-center flex-wrap">
-        <Show when={props.story.type != "comment"}>
-          <div class="w-full mb-[-6px] text-[#828282] text-wrap break-word leading-[14pt]"
+        <Show when={props.story.title_html}>
+          <div
+            class="w-full mb-[-6px] text-[#828282] text-wrap break-word leading-[14pt]"
             onClick={() => props.sendCTR()}
           >
             <a
               href={articleLink}
               class="mr-1 text-[11pt] sm:text-[10pt] text-black text-wrap"
               // eslint-disable-next-line solid/no-innerhtml
-              innerHTML={props.story.content}
+              innerHTML={props.story.title_html}
             />
             <Show when={props.story.url}>
               <a
                 href={props.story.url}
                 class="hover:underline text-[8pt] text-[#828282] break-all"
               >
-                ({props.story.url})
+                ({formatLink(props.story.url)})
               </a>
             </Show>
           </div>
@@ -67,7 +91,9 @@ export const Story = (props: {
           </span>
           <span class="px-1">|</span>
           <a href={articleLink} class="hover:underline">
-            {props.story.commentsCount} comments
+            {props.story.kids.length
+              ? `${props.story.kids.length} comments`
+              : "context"}
           </a>
           <Show when={props.story.score}>
             <span class="px-1">|</span>
@@ -83,13 +109,17 @@ export const Story = (props: {
             </span>
           </Show>
         </div>
-        <Show when={props.story.type == "comment"}>
+        <Show when={props.story.body_html}>
           <div class="w-full text-[#828282] text-wrap break-word leading-[normal] pt-1">
             <div
-              class="mr-1 text-[10pt] sm:text-[10pt] text-black text-wrap"
+              classList={{
+                "mr-1 text-[10pt] sm:text-[10pt] text-wrap": true,
+                "pl-2 text-[#828282]": props.story.title_html ? true : false,
+                "text-black": !props.story.title_html,
+              }}
               id="comment-parent"
               // eslint-disable-next-line solid/no-innerhtml
-              innerHTML={props.story.content}
+              innerHTML={props.story.body_html}
             />
           </div>
         </Show>
