@@ -1,5 +1,5 @@
 import { FiGithub } from "solid-icons/fi";
-import { Match, Setter, Switch } from "solid-js";
+import { Setter } from "solid-js";
 
 export interface HeaderProps {
   setQuery: Setter<string>;
@@ -9,7 +9,11 @@ export default function Header(props: HeaderProps) {
   return (
     <header class="flex py-[2px] px-2 min-h-[24px] items-center justify-between bg-[#ff6600]">
       <div class="flex">
-        <a class="flex items-center" href="/" onClick={() => props.setQuery("")}>
+        <a
+          class="flex items-center"
+          href="/"
+          onClick={() => props.setQuery("")}
+        >
           <span class="pr-2">
             <img
               src="https://cdn.trieve.ai/trieve-logo.png"
@@ -23,35 +27,17 @@ export default function Header(props: HeaderProps) {
         </a>
       </div>
       <div class="flex items-center flex-wrap">
-        <Switch>
-          <Match when={window.location.pathname == "/"}>
-            <a href="/chat" class="pr-1 hover:text-white hover:underline">
-              RAG Chat
-            </a>
-            <span class="pr-1">|</span>
-            <a href="/analytics" class="pr-1 hover:text-white hover:underline">
-              View Analytics
-            </a>
-          </Match>
-          <Match when={window.location.pathname == "/analytics"}>
-            <a href="/chat" class="pr-1 hover:text-white hover:underline">
-              RAG Chat
-            </a>
-            <span class="pr-1">|</span>
-            <a href="/" class="pr-1 hover:text-white hover:underline">
-              Back to Search
-            </a>
-          </Match>
-          <Match when={window.location.pathname == "/chat"}>
-            <a href="/analytics" class="pr-1 hover:text-white hover:underline">
-              View Analytics
-            </a>
-            <span class="pr-1">|</span>
-            <a href="/" class="pr-1 hover:text-white hover:underline">
-              Back to Search
-            </a>
-          </Match>
-        </Switch>
+        <a href="/" class="pr-1 hover:text-white hover:underline">
+          Search
+        </a>
+        <span class="pr-1">|</span>
+        <a href="/chat" class="pr-1 hover:text-white hover:underline">
+          RAG Chat
+        </a>
+        <span class="pr-1">|</span>
+        <a href="/analytics" class="pr-1 hover:text-white hover:underline">
+          Analytics
+        </a>
         <span class="pr-1">|</span>
         <a
           class="flex items-center hover:text-white hover:underline"
