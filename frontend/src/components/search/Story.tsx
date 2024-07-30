@@ -15,6 +15,7 @@ export interface Story {
 
 export const Story = (props: {
   story: Story;
+  sendCTR: () => void;
   onClickRecommend: () => void;
 }) => {
   const articleLink = "https://news.ycombinator.com/item?id=" + props.story.id;
@@ -23,7 +24,9 @@ export const Story = (props: {
     <div class="px-2 rounded-md pb-3">
       <div class="flex items-center flex-wrap">
         <Show when={props.story.type != "comment"}>
-          <div class="w-full mb-[-6px] text-[#828282] text-wrap break-word leading-[14pt]">
+          <div class="w-full mb-[-6px] text-[#828282] text-wrap break-word leading-[14pt]"
+            onClick={() => props.sendCTR()}
+          >
             <a
               href={articleLink}
               class="mr-1 text-[11pt] sm:text-[10pt] text-black text-wrap"

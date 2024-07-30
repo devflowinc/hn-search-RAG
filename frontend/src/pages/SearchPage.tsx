@@ -80,6 +80,7 @@ export const SearchPage = () => {
   );
   const [recommendedStories, setRecommendedStories] = createSignal<Story[]>([]);
   const [showRecModal, setShowRecModal] = createSignal(false);
+  const [searchID, setSearchID] = createSignal("");
 
   const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
     prefetchAmount: parseInt(urlParams.get("prefetch_amount") ?? "30"),
@@ -363,6 +364,8 @@ export const SearchPage = () => {
           });
         }
 
+        setSearchID(data.id);
+
         setStories(stories);
         setLoading(false);
       })
@@ -418,7 +421,7 @@ export const SearchPage = () => {
             id: chunk.tracking_id ?? "0",
           };
         });
-        console.log("setting recs to: ", stories);
+        
         setRecommendedStories(stories);
       })
       .catch((error) => {
@@ -474,9 +477,25 @@ export const SearchPage = () => {
           <Match when={stories().length > 0}>
             <div class="pb-2">
               <For each={stories()}>
-                {(story) => (
+                {(story, i) => (
                   <Story
                     story={story}
+                    sendCTR={() => {
+                      void fetch(trieveBaseURL + `/analytics/ctr`, {
+                        method: "PUT",
+                        body: JSON.stringify({
+                          request_id: searchID(),
+                          clicked_chunk_tracking_id: story.id,
+                          position: i() + 1,
+                          ctr_type: "search"
+                        }),
+                        headers: {
+                          "Content-Type": "application/json",
+                          "TR-Dataset": trieveDatasetId,
+                          Authorization: trieveApiKey,
+                        },
+                      });
+                    }}
                     onClickRecommend={() => {
                       setRecommendedStories([]);
                       setPositiveRecStory(story);
@@ -521,6 +540,7 @@ export const SearchPage = () => {
                   {(story) => (
                     <Story
                       story={story}
+                      sendCTR={() => {}}
                       onClickRecommend={() => {
                         setRecommendedStories([]);
                         setPositiveRecStory(story);
