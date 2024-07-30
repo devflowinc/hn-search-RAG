@@ -92,7 +92,9 @@ export const Story = (props: {
           <span class="px-1">|</span>
           <a href={articleLink} class="hover:underline">
             {props.story.kids.length
-              ? `${props.story.kids.length} comments`
+              ? `${props.story.kids.length} ${
+                  props.story.kids.length > 1 ? "comments" : "comment"
+                }`
               : "context"}
           </a>
           <Show when={props.story.score}>
