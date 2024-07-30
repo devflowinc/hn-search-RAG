@@ -1,5 +1,5 @@
 import { FaSolidChevronDown } from "solid-icons/fa";
-import { Accessor, createEffect, createSignal, Setter, Show } from "solid-js";
+import { Accessor, createEffect, createSignal, onMount, Setter, Show } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 import { SearchOptions } from "../../types";
 import DatePicker, { PickerValue } from "@rnwonder/solid-date-picker";
@@ -26,6 +26,29 @@ export default function Filters(props: FiltersProps) {
   const [rangeDate, setRangeDate] = createSignal<PickerValue>({
     label: "",
     value: {},
+  });
+
+  onMount(() => {
+    if (props.dateRange().startsWith("{")) {
+      const date_range = JSON.parse(props.dateRange());
+      setRangeDate({
+        label: "Custom Range",
+        value: {
+          start: new Date(date_range.gt).toISOString(),
+          end: new Date(date_range.lt).toISOString(),
+        },
+      });
+    }
+  });
+
+  createEffect(() => {
+    if (!props.dateRange().startsWith("{")) {
+      setRangeDate({
+        label: "",
+        value: {
+        },
+      });
+    }
   });
 
   createEffect(() => {
@@ -110,7 +133,7 @@ export default function Filters(props: FiltersProps) {
                 <option value="pastWeek">Past Week</option>
                 <option value="pastMonth">Past Month</option>
                 <option value="pastYear">Past Year</option>
-                <option value="custom">Custom Range</option>
+                <option value="custom">{rangeDate().value.start ? rangeDate().value.start?.replace("T07:00:00.000Z", "") + " - " + rangeDate().value.end?.replace("T07:00:00.000Z", "") : "Custom Range"}</option>
               </select>
             )}
             type="range"
@@ -192,9 +215,9 @@ export default function Filters(props: FiltersProps) {
                   }}
                   value={props.searchOptions.rerankType ?? "none"}
                 >
-                  <option>none</option>
-                  <option>semantic</option>
-                  <option>fulltext</option>
+                  <option>None</option>
+                  <option>Semantic</option>
+                  <option>Full Text</option>
                 </select>
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
@@ -256,7 +279,7 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Highlight max length</label>
+                <label>Highlight Max Length</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
                   type="number"
@@ -271,7 +294,7 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Highlight max number</label>
+                <label>Highlight Max Number</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
                   type="number"
@@ -286,7 +309,7 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Highlight results (Latency Penalty)</label>
+                <label>Highlight Results (Latency Penalty)</label>
                 <input
                   class="h-4 w-4"
                   type="checkbox"
@@ -325,17 +348,6 @@ export default function Filters(props: FiltersProps) {
                       "recencyBias",
                       e.target.valueAsNumber
                     );
-                  }}
-                />
-              </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Slim chunks (Latency Improvement)</label>
-                <input
-                  class="h-4 w-4"
-                  type="checkbox"
-                  checked={props.searchOptions.slimChunks}
-                  onChange={(e) => {
-                    props.setSearchOptions("slimChunks", e.target.checked);
                   }}
                 />
               </div>

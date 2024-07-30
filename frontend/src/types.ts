@@ -142,7 +142,6 @@ export interface SearchOptions {
   highlightMaxNum: number;
   highlightWindow: number;
   recencyBias: number;
-  slimChunks: boolean;
   highlightResults: boolean;
   useQuoteNegatedTerms: boolean;
 }
