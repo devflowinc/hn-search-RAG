@@ -96,7 +96,6 @@ export const SearchPage = () => {
     highlightMaxNum: parseInt(urlParams.get("highlight_max_num") ?? "50"),
     highlightWindow: parseInt(urlParams.get("highlight_window") ?? "0"),
     recencyBias: parseFloatOrNull(urlParams.get("recency_bias")) ?? 0,
-    slimChunks: urlParams.get("slim_chunks") === "true",
     highlightResults: (urlParams.get("highlight_results") ?? "true") === "true",
     useQuoteNegatedTerms:
       (urlParams.get("use_quote_negated_terms") ?? "true") === "true",
@@ -164,7 +163,6 @@ export const SearchPage = () => {
     );
     urlParams.set("highlight_window", searchOptions.highlightWindow.toString());
     urlParams.set("recency_bias", searchOptions.recencyBias.toString());
-    urlParams.set("slim_chunks", searchOptions.slimChunks ? "true" : "false");
     urlParams.set(
       "highlight_results",
       searchOptions.highlightResults ? "true" : "false"
@@ -217,20 +215,23 @@ export const SearchPage = () => {
       query: query(),
       search_type: searchType(),
       page: page(),
-      highlight_results: searchOptions.highlightResults,
-      highlight_delimiters: searchOptions.highlightDelimiters,
-      highlight_threshold: searchOptions.highlightThreshold,
-      highlight_max_num: searchOptions.highlightMaxNum,
-      highlight_window: searchOptions.highlightWindow,
-      highlight_max_length: searchOptions.highlightMaxLength,
+      highlight_options : {
+        highlight_results: searchOptions.highlightResults,
+        highlight_delimiters: searchOptions.highlightDelimiters,
+        highlight_threshold: searchOptions.highlightThreshold,
+        highlight_max_num: searchOptions.highlightMaxNum,
+        highlight_window: searchOptions.highlightWindow,
+        highlight_max_length: searchOptions.highlightMaxLength,
+      },
       use_weights: false,
-      sort_by: sort_by_field
-        ? {
-            field: sort_by_field,
-            order: "desc",
-          }
-        : undefined,
-      slim_chunks: searchOptions.slimChunks,
+      sort_options: {
+        sort_by: sort_by_field
+          ? {
+              field: sort_by_field,
+              order: "desc",
+            }
+          : undefined
+      },
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
       filters: getFilters(selectedStoryType(), time_range, authorNames()),
       page_size: searchOptions.pageSize,
@@ -242,7 +243,7 @@ export const SearchPage = () => {
       searchOptions.rerankType != "none" &&
       searchOptions.prefetchAmount
     ) {
-      reqBody["sort_by"] = {
+      reqBody["sort_options"]["sort_by"] = {
         prefetch_amount: searchOptions.prefetchAmount,
         rerank_type: searchOptions.rerankType,
       } as any;
