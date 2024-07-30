@@ -279,7 +279,7 @@ export const SearchPage = () => {
         .then((data: { chunks: ChunkMetadataStringTagSet[] }) => {
           const stories: Story[] = data.chunks.map((score_chunk): Story => {
             const story = score_chunk;
-            let date = new Date(story.time_stamp + "Z" ?? "");
+            let date = new Date(story.time_stamp + "Z");
             return {
               content: story.chunk_html ?? "",
               url: story.link ?? "",
@@ -340,7 +340,7 @@ export const SearchPage = () => {
         const stories: Story[] =
           data.chunks.map((score_chunk): Story => {
             const chunk = score_chunk.chunk;
-            let date = new Date(chunk.time_stamp + "Z" ?? "");
+            let date = new Date(chunk.time_stamp + "Z");
 
             return {
               content: chunk.chunk_html ?? "",
