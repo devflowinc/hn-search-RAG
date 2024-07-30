@@ -25,6 +25,7 @@ export interface Story {
   score?: number;
   title_html?: string;
   body_html?: string;
+  parent_id?: string;
   parent_title?: string;
   url: string;
   points: number;
@@ -108,6 +109,18 @@ export const Story = (props: {
               onClick={() => props.onClickRecommend()}
             >
               Get Recommendations
+            </span>
+          </Show>
+          <Show when={props.story.parent_title}>
+            <span class="px-1">|</span>
+            <span>
+              on:{" "}
+              <a
+                href={`https://news.ycombinator.com/item?id=${props.story.parent_id}`}
+                class="hover:underline"
+              >
+                {props.story.parent_title}
+              </a>
             </span>
           </Show>
         </div>

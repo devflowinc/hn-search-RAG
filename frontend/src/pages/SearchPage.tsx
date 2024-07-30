@@ -56,7 +56,6 @@ export const SearchPage = () => {
   const [authorNames, setAuthorNames] = createSignal(
     urlParams.get("authorNames")?.split(",") ?? []
   );
-
   const [selectedStoryType, setSelectedStoryType] = createSignal(
     urlParams.get("storyType") ?? "story"
   );
@@ -295,6 +294,7 @@ export const SearchPage = () => {
             return {
               title_html,
               body_html,
+              parent_id: chunk.metadata?.parent ?? "",
               parent_title: chunk.metadata?.parent_title ?? "",
               url: chunk.link ?? "",
               points: chunk.metadata?.score ?? 0,
@@ -466,6 +466,7 @@ export const SearchPage = () => {
           return {
             title_html,
             body_html,
+            parent_id: chunk.metadata?.parent ?? "",
             parent_title: chunk.metadata?.parent_title ?? "",
             score: score_chunk.score,
             url: chunk.link ?? "",
