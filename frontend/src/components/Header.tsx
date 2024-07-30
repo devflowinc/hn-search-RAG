@@ -22,7 +22,7 @@ export default function Header(props: HeaderProps) {
             />
           </span>
           <div class="text-wrap">
-            <span class="font-bold mr-[5px]">Trieve HN Search</span>
+            <span class="font-bold mr-[5px]">Trieve HN Discovery</span>
           </div>
         </a>
       </div>
