@@ -100,7 +100,7 @@ export const Story = (props: {
           </a>
           <Show when={props.story.score}>
             <span class="px-1">|</span>
-            <span>Score {props.story.score?.toFixed(4)}</span>
+            <span>Score {props.story.score?.toFixed(3)}</span>
           </Show>
           <Show when={props.story.type != "comment"}>
             <span class="px-1">|</span>

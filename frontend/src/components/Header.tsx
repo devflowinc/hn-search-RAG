@@ -39,6 +39,10 @@ export default function Header(props: HeaderProps) {
           Analytics
         </a>
         <span class="pr-1">|</span>
+        <a href="/about" class="pr-1 hover:text-white hover:underline">
+          About
+        </a>
+        <span class="pr-1">|</span>
         <a
           class="flex items-center hover:text-white hover:underline"
           href="https://github.com/devflowinc/trieve"
