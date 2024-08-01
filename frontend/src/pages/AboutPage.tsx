@@ -16,10 +16,12 @@ export const AboutPage = () => {
                 RAG, and analytics offered via API.
               </p>
               <p>
-                Access to the latest SOTA search tech is typically blocked by
-                multiple services (vector inference, re-ranking, ingest workers,
-                delete workers, playgrounds, analytics, etc.) built around a
-                search database. Trieve makes SOTA search an API request away.
+                Using SOTA search tech requires architecting and maintaining a
+                large stack (vector inference, re-ranking, ingest workers,
+                delete workers, playgrounds, OLAP analytics db, etc.) around a
+                search db. Trieve consolidates all of this into a SaaS-style API
+                or licenseable code with terraform and helm depending on your
+                preference and security requirements.
               </p>
             </>
           }
