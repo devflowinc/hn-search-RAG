@@ -206,6 +206,7 @@ export const SearchPage = () => {
       search_type: searchType(),
       page: page(),
       highlight_options: {
+        highlight_strategy: "exactmatch",
         highlight_results: searchOptions.highlightResults,
         highlight_delimiters: searchOptions.highlightDelimiters,
         highlight_threshold: searchOptions.highlightThreshold,
