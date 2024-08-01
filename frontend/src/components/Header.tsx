@@ -32,7 +32,7 @@ export default function Header(props: HeaderProps) {
         </a>
         <span class="pr-1">|</span>
         <a href="/chat" class="pr-1 hover:text-white hover:underline">
-          RAG Chat
+          AI Chat
         </a>
         <span class="pr-1">|</span>
         <a href="/analytics" class="pr-1 hover:text-white hover:underline">
