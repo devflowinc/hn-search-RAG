@@ -1,5 +1,6 @@
 import { FiGithub } from "solid-icons/fi";
 import { Setter } from "solid-js";
+import ShowToast from "./ShowToast";
 
 export interface HeaderProps {
   setQuery?: Setter<string>;
@@ -50,6 +51,7 @@ export default function Header(props: HeaderProps) {
           <FiGithub class="h-3 w-3 mr-0.5" /> Star Us
         </a>
       </div>
+      <ShowToast />
     </header>
   );
 }

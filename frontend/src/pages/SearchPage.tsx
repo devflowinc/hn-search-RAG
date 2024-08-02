@@ -22,6 +22,7 @@ import { Search } from "../components/search/Search";
 import { Footer } from "../components/Footer";
 import { createStore } from "solid-js/store";
 import { FullScreenModal } from "../components/FullScreenModal";
+import { createToast } from "../components/ShowToast";
 
 const parseFloatOrNull = (val: string | null): number | null => {
   const num = parseFloat(val ?? "NaN");
@@ -81,6 +82,8 @@ export const SearchPage = () => {
   const [recommendedStories, setRecommendedStories] = createSignal<Story[]>([]);
   const [showRecModal, setShowRecModal] = createSignal(false);
   const [searchID, setSearchID] = createSignal("");
+  const [openRateQueryModal, setOpenRateQueryModal] = createSignal(false);
+  const [rating, setRating] = createSignal({ rating: 5, note: "" });
 
   const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
     prefetchAmount: parseInt(urlParams.get("prefetch_amount") ?? "30"),
@@ -501,6 +504,45 @@ export const SearchPage = () => {
     }
   });
 
+  const rateQuery = () => {
+    void fetch(`${trieveBaseURL}/analytics/search`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "X-API-version": "2.0",
+        "Content-Type": "application/json",
+        "TR-Dataset": trieveDatasetId,
+      },
+      body: JSON.stringify({
+        query_id: searchID(),
+        rating: rating().rating,
+        note: rating().note,
+      }),
+    }).then((response) => {
+      if (response.ok) {
+        createToast({
+          type: "success",
+          message: "Query rated successfully",
+        });
+      } else {
+        void response
+          .json()
+          .then((data) => {
+            createToast({
+              type: "error",
+              message: data.message,
+            });
+          })
+          .catch((_) => {
+            createToast({
+              type: "error",
+              message: "Error rating query",
+            });
+          });
+      }
+    });
+  };
+
   return (
     <>
       <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
@@ -520,7 +562,12 @@ export const SearchPage = () => {
           setAuthorNames={setAuthorNames}
           latency={latency}
         />
-        <Search query={query} setQuery={setQuery} algoliaLink={algoliaLink} />
+        <Search
+          query={query}
+          setQuery={setQuery}
+          algoliaLink={algoliaLink}
+          setOpenRateQueryModal={setOpenRateQueryModal}
+        />
         <Switch>
           <Match when={stories().length === 0}>
             <Switch>
@@ -627,6 +674,61 @@ export const SearchPage = () => {
               </div>
             </Match>
           </Switch>
+        </div>
+      </FullScreenModal>
+      <FullScreenModal
+        show={openRateQueryModal}
+        setShow={setOpenRateQueryModal}
+      >
+        <div class="min-w-[250px] sm:min-w-[300px]">
+          <div class="mb-4 text-center text-xl">Rate query:</div>
+          <div>
+            <label class="block text-lg">Rating: {rating().rating}</label>
+            <input
+              type="range"
+              class="text-[#ff6600] min-w-full accent-[#ff6600] focus:outline-none"
+              value={rating().rating}
+              min="0"
+              max="10"
+              onInput={(e) => {
+                setRating({
+                  rating: parseInt(e.target.value),
+                  note: rating().note,
+                });
+              }}
+            />
+            <div class="flex justify-between space-x-1">
+              <label class="block text-sm">0</label>
+              <label class="block items-end text-sm">10</label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-lg mt-2">
+              Optional Explanation of Rating (contact info if willing):
+            </label>
+            <textarea
+              class="p-1 mt-2 min-w-full rounded-md border border-stone-300 active:border-stone-500 focus-within:border-stone-500"
+              placeholder="Enter written feedback about search ..."
+              value={rating().note}
+              onInput={(e) => {
+                setRating({
+                  rating: rating().rating,
+                  note: (e.target as HTMLTextAreaElement).value,
+                });
+              }}
+            />
+          </div>
+          <div class="mx-auto flex w-fit flex-col space-y-3 pt-2 mt-3">
+            <button
+              class="text-zinc-600 p-1 border border-stone-300 w-fit bg-hn flex items-center gap-x-1 hover:border-stone-900 hover:text-zinc-900"
+              onClick={() => {
+                rateQuery();
+                setOpenRateQueryModal(false);
+              }}
+            >
+              Submit Rating
+            </button>
+          </div>
         </div>
       </FullScreenModal>
     </>
