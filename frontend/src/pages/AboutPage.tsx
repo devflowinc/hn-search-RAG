@@ -36,8 +36,8 @@ export const AboutPage = () => {
               <p>2. Get feedback from HN users</p>
               <p>
                 3. Make exploring the HN archive better with additional features
-                relative to Algolia's like submitter filters, recommendations,
-                boolean operators, RAG, and analytics
+                relative to Algolia's (i.e. submitter filters, recommendations,
+                boolean operators, RAG, and analytics)
               </p>
             </>
           }
@@ -61,7 +61,7 @@ export const AboutPage = () => {
               <p>
                 The painful portion was that unique one-off work was required
                 for the frontend and ingest of this demo; it took 100+ commits.
-                The RAG bit could be higher quality, but for now we we just
+                The RAG bit could be higher quality, but for now we just
                 copied the code from our RAG playground at{" "}
                 <a class="underline" href="https://chat.trieve.ai">
                   chat.trieve.ai
