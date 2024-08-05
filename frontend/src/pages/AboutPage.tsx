@@ -143,8 +143,8 @@ export const AboutPage = () => {
               <p>
                 The painful portion was that unique one-off work was required
                 for the frontend and ingest of this demo; it took 100+ commits.
-                The RAG bit could be higher quality, but for now we just copied
-                the code from our RAG playground at{" "}
+                The AI Chat RAG bit could be higher quality, but for now we just
+                copied the code from our RAG playground at{" "}
                 <a class="underline" href="https://chat.trieve.ai">
                   chat.trieve.ai
                 </a>
