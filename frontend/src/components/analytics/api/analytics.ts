@@ -133,7 +133,7 @@ export const getRps = async (
     body: JSON.stringify({
       filter: transformAnalyticsFilter(filters),
       granularity,
-      type: "rps_graph",
+      type: "search_usage_graph",
     }),
     headers: {
       "TR-Dataset": trieveDatasetId,
