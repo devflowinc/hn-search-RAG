@@ -30,7 +30,7 @@ export const displaySearchMethod = (type: SearchTypeCount["search_method"]) => {
     case "bm25":
       return "BM25";
     default:
-      return type;
+      return null;
   }
 };
 
@@ -63,21 +63,23 @@ export const QueryCounts = (props: QueryCountsProps) => {
           <div class="flex justify-around gap-2 py-2">
             <For each={data()}>
               {(search) => {
-                return (
-                  <div class="text-center">
-                    <div>{displaySearchType(search.search_type)}</div>
-                    <Show when={search.search_method}>
-                      {(method) => (
-                        <div class="opacity-50">
-                          {displaySearchMethod(method())}
-                        </div>
-                      )}
-                    </Show>
-                    <div class="text-lg font-semibold">
-                      {search.search_count}
+                if (search.search_method) {
+                  return (
+                    <div class="text-center">
+                      <div>{displaySearchType(search.search_type)}</div>
+                      <Show when={search.search_method}>
+                        {(method) => (
+                          <div class="opacity-50">
+                            {displaySearchMethod(method())}
+                          </div>
+                        )}
+                      </Show>
+                      <div class="text-lg font-semibold">
+                        {search.search_count}
+                      </div>
                     </div>
-                  </div>
-                );
+                  );
+                }
               }}
             </For>
           </div>
