@@ -202,7 +202,7 @@ export interface SearchQueryEvent {
   id: string;
   search_type: string;
   query: string;
-  request_params: string;
+  request_params: Record<string, unknown> | null;
   latency: number;
   top_score: number;
   results: string[];
@@ -374,4 +374,13 @@ export interface SlimCollection {
 export interface ChunkBookmarksDTO {
   chunk_uuid: string;
   slim_collections: [SlimCollection];
+}
+
+export interface UsageDatapoint {
+  requests: number;
+  time_stamp: string;
+}
+
+export interface UsageGraphResponse {
+  usage_points: UsageDatapoint[];
 }

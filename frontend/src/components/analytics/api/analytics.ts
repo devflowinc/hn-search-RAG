@@ -19,6 +19,8 @@ import {
   RagQueryEvent,
   RagQueryResponse,
   RAGUsageResponse,
+  UsageDatapoint,
+  UsageGraphResponse,
 } from "../../../types";
 
 const apiHost = import.meta.env.VITE_TRIEVE_API_URL as string;
@@ -123,10 +125,10 @@ export const getLatency = async (
   return data.latency_points;
 };
 
-export const getRps = async (
+export const getRpsUsageGraph = async (
   filters: AnalyticsFilter,
-  granularity: AnalyticsParams["granularity"]
-): Promise<RpsDatapoint[]> => {
+  granularity: AnalyticsParams["granularity"],
+): Promise<UsageDatapoint[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
     method: "POST",
@@ -146,8 +148,8 @@ export const getRps = async (
     throw new Error(`Failed to fetch trends bubbles: ${response.statusText}`);
   }
 
-  const data = (await response.json()) as unknown as RPSGraphResponse;
-  return data.rps_points;
+  const data = (await response.json()) as unknown as UsageGraphResponse;
+  return data.usage_points;
 };
 
 export const getHeadQueries = async (
@@ -294,6 +296,7 @@ export const getSearchQueries = async (
   const data = (await response.json()) as unknown as SearchQueryResponse;
   return data.queries;
 };
+
 
 export const getRAGQueries = async ({
   page,

@@ -1,5 +1,5 @@
 import { enUS } from "date-fns/locale";
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
 import { Chart } from "chart.js/auto";
 import { parseCustomDateString } from "./LatencyGraph";
 
@@ -11,33 +11,29 @@ interface RpsGraphProps {
 }
 
 import "chartjs-adapter-date-fns";
-import { AnalyticsFilter, AnalyticsParams, RpsDatapoint } from "../../../types";
-import { getRps } from "../api/analytics";
+import { AnalyticsFilter, AnalyticsParams, UsageDatapoint } from "../../../types";
+import { getRpsUsageGraph } from "../api/analytics";
 
 export const RpsGraph = (props: RpsGraphProps) => {
   const [canvasElement, setCanvasElement] = createSignal<HTMLCanvasElement>();
-  const [rpsGraphPoints, setRpsGraphPoints] = createSignal<RpsDatapoint[]>([]);
+  const [usageQuery, setUsage] = createSignal<UsageDatapoint[]>([]);
   let chartInstance: Chart | null = null;
 
   createEffect(async () => {
-    let results = await getRps(props.params.filter, props.params.granularity);
-    setRpsGraphPoints(results);
+    let results = await getRpsUsageGraph(props.params.filter, props.params.granularity);
+    setUsage(results);
   });
 
-  createEffect(() => {
-    if (chartInstance) {
-      chartInstance.destroy();
-      chartInstance = null;
-    }
-
+createEffect(() => {
     const canvas = canvasElement();
-    const data = rpsGraphPoints();
+    const data = usageQuery();
+
     if (!canvas || !data) return;
 
     if (!chartInstance) {
       // Create the chart only if it doesn't exist
       chartInstance = new Chart(canvas, {
-        type: "line",
+        type: "bar",
         data: {
           labels: [],
           datasets: [
@@ -45,9 +41,8 @@ export const RpsGraph = (props: RpsGraphProps) => {
               label: "Requests",
               data: [],
               borderColor: "purple",
-              pointBackgroundColor: "purple",
-              backgroundColor: "rgba(128, 0, 128, 0.1)", // Light purple background
-              borderWidth: 1,
+              backgroundColor: "rgba(128, 0, 128, 0.9)", // Light purple background
+              barThickness: data.length === 1 ? 40 : undefined,
             },
           ],
         },
@@ -59,7 +54,7 @@ export const RpsGraph = (props: RpsGraphProps) => {
             y: {
               grid: { color: "rgba(128, 0, 128, 0.1)" }, // Light purple grid
               title: {
-                text: "Rps",
+                text: "Requests",
                 display: true,
               },
               beginAtZero: true,
@@ -75,12 +70,7 @@ export const RpsGraph = (props: RpsGraphProps) => {
                 text: "Timestamp",
                 display: true,
               },
-              offset: data.length <= 3,
-              ticks: {
-                source: "auto",
-              },
-              min: props.params.filter.date_range.gt?.toISOString(),
-              max: props.params.filter.date_range.lt?.toISOString(),
+              offset: false,
             },
           },
           animation: {
@@ -90,17 +80,44 @@ export const RpsGraph = (props: RpsGraphProps) => {
       });
     }
 
-    // @ts-expect-error library types not updated
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    chartInstance.options.scales["x"].time.minUnit = props.params.granularity;
+    if (data.length <= 1) {
+      // @ts-expect-error library types not updated
+      chartInstance.options.scales["x"].offset = true;
+      // Set the bar thickness to 40 if there is only one data point
+      // @ts-expect-error library types not updated
+      chartInstance.data.datasets[0].barThickness = 40;
+    } else {
+      // @ts-expect-error library types not updated
+      chartInstance.data.datasets[0].barThickness = undefined;
+    }
+
+    if (props.params.granularity === "day") {
+      // @ts-expect-error library types not updated
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      chartInstance.options.scales["x"].time.unit = "day";
+    } else if (props.params.granularity === "minute") {
+      // @ts-expect-error library types not updated
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      chartInstance.options.scales["x"].time.unit = "minute";
+    } else {
+      // @ts-expect-error library types not updated
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      chartInstance.options.scales["x"].time.unit = undefined;
+    }
+
     // Update the chart data;
     chartInstance.data.labels = data.map(
-      (point) => new Date(parseCustomDateString(point.time_stamp))
+      (point) => new Date(parseCustomDateString(point.time_stamp)),
     );
-    chartInstance.data.datasets[0].data = data.map(
-      (point) => point.average_rps
-    );
+    chartInstance.data.datasets[0].data = data.map((point) => point.requests);
     chartInstance.update();
+  });
+
+  onCleanup(() => {
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
   });
 
   return <canvas ref={setCanvasElement} class="h-full w-full" />;
