@@ -145,6 +145,7 @@ export const AboutPage = () => {
                 <thead>
                   <tr>
                     <th class="text-left">Machine Type</th>
+                    <th class="text-left">vCPUs/ RAM (GB)</th>
                     <th class="text-left">Cost/Month</th>
                     <th class="text-left">Purpose</th>
                   </tr>
@@ -152,32 +153,37 @@ export const AboutPage = () => {
                 <tbody>
                   <tr>
                     <td>1x g2-standard-4</td>
+                    <td>32cpu  256GB + T4 GPU</td>
                     <td>$508.90</td>
                     <td>Text-Embeddings-Inference Servers</td>
                   </tr>
                   <tr>
                     <td>4x c2d-highmem-32</td>
+                    <td>32cpu  256GB</td>
                     <td>$5,643.36</td>
-                    <td>Qdrant Search Server</td>
+                    <td>4 node Qdrant Cluster (2x Replication)</td>
                   </tr>
                   <tr>
-                    <td>3x e2-standard-8</td>
-                    <td>$578.88</td>
+                    <td>1x e2-highcpu-4</td>
+                    <td>4cpu 4GB</td>
+                    <td>$72.23</td>
                     <td>Trieve Services</td>
                   </tr>
                   <tr>
                     <td>100gb Enterprise Plus Cloud SQL</td>
+                    <td>2cpu 16GB</td>
                     <td>$513.90</td>
                     <td>Postgres OLTP Server</td>
                   </tr>
                   <tr>
                     <td>5gb Redis</td>
+                    <td>2cpu 16GB</td>
                     <td>$97.20</td>
                     <td>Redis Cache</td>
                   </tr>
                 </tbody>
               </table>
-              <p class="mt-0.5 font-semibold">Total: $7,342.24/month.</p>
+              <p class="mt-0.5 font-semibold">Total: $6835.39/month.</p>
               <p>
                 Most of the cost is from storing the dense text embeddings in
                 Qdrant. SPLADE is typically better for search, but the dense
