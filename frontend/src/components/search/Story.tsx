@@ -42,7 +42,9 @@ export const Story = (props: {
   sendCTR: () => void;
   onClickRecommend: () => void;
 }) => {
-  const articleLink = "https://news.ycombinator.com/item?id=" + props.story.id;
+  const articleLink =
+    "https://news.ycombinator.com/item?id=" +
+    props.story.id.replaceAll("<mark><b>", "").replaceAll("</b></mark>", "");
 
   return (
     <div class="px-2 rounded-md pb-3">
@@ -60,7 +62,9 @@ export const Story = (props: {
             />
             <Show when={props.story.url}>
               <a
-                href={props.story.url}
+                href={props.story.url
+                  .replaceAll("<mark><b>", "")
+                  .replaceAll("</b></mark>", "")}
                 class="hover:underline text-[8pt] text-[#828282] break-all"
               >
                 ({formatLink(props.story.url)})
@@ -72,7 +76,9 @@ export const Story = (props: {
           <span>
             {props.story.points} points by{" "}
             <a
-              href={`https://news.ycombinator.com/user?id=${props.story.user}`}
+              href={`https://news.ycombinator.com/user?id=${props.story.user
+                .replaceAll("<mark><b>", "")
+                .replaceAll("</b></mark>", "")}`}
               class="hover:underline"
             >
               {props.story.user}
@@ -116,7 +122,9 @@ export const Story = (props: {
             <span>
               on:{" "}
               <a
-                href={`https://news.ycombinator.com/item?id=${props.story.parent_id}`}
+                href={`https://news.ycombinator.com/item?id=${props.story.parent_id
+                  ?.replaceAll("<mark><b>", "")
+                  .replaceAll("</b></mark>", "")}`}
                 class="hover:underline"
               >
                 {props.story.parent_title}
