@@ -54,8 +54,11 @@ export const SearchPage = () => {
   const defaultHighlightDelimiters = [" ", "-", "_", ".", ","];
 
   let abortController: AbortController | null = null;
-  const [authorNames, setAuthorNames] = createSignal(
-    urlParams.get("authorNames")?.split(",") ?? []
+  const [matchAnyAuthorNames, setMatchAnyAuthorNames] = createSignal(
+    urlParams.get("matchAnyAuthorNames")?.split(",") ?? []
+  );
+  const [matchNoneAuthorNames, setMatchNoneAuthorNames] = createSignal(
+    urlParams.get("matchNoneAuthorNames")?.split(",") ?? []
   );
   const [selectedStoryType, setSelectedStoryType] = createSignal(
     urlParams.get("storyType") ?? "story"
@@ -174,7 +177,8 @@ export const SearchPage = () => {
 
     urlParams.set("q", query());
     urlParams.set("storyType", selectedStoryType());
-    urlParams.set("authorNames", authorNames().join(","));
+    urlParams.set("matchAnyAuthorNames", matchAnyAuthorNames().join(","));
+    urlParams.set("matchNoneAuthorNames", matchNoneAuthorNames().join(","));
     urlParams.set("sortby", sortBy());
     urlParams.set("dateRange", dateRange());
     urlParams.set("searchType", searchType());
@@ -227,7 +231,12 @@ export const SearchPage = () => {
           : undefined,
       },
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
-      filters: getFilters(selectedStoryType(), time_range, authorNames()),
+      filters: getFilters(
+        selectedStoryType(),
+        time_range,
+        matchAnyAuthorNames(),
+        matchNoneAuthorNames()
+      ),
       page_size: searchOptions.pageSize,
       score_threshold: searchOptions.scoreThreshold,
     };
@@ -257,7 +266,12 @@ export const SearchPage = () => {
                 field: "time_stamp",
                 order: "desc",
               },
-          filters: getFilters(selectedStoryType(), time_range, authorNames()),
+          filters: getFilters(
+            selectedStoryType(),
+            time_range,
+            matchAnyAuthorNames(),
+            matchNoneAuthorNames()
+          ),
           page_size: 30,
         }),
         headers: {
@@ -422,11 +436,12 @@ export const SearchPage = () => {
       curRecommendType === "SPLADE" ? "fulltext" : curRecommendType;
 
     const time_range = dateRangeSwitch(dateRange());
-    const filters = getFilters(null, time_range, authorNames());
-    filters.must.push({
-      field: "tag_set",
-      match: ["story"],
-    } as any);
+    const filters = getFilters(
+      "story",
+      time_range,
+      matchAnyAuthorNames(),
+      matchNoneAuthorNames()
+    );
 
     void fetch(trieveBaseURL + `/chunk/recommend`, {
       method: "POST",
@@ -558,8 +573,10 @@ export const SearchPage = () => {
           setDateRange={setDateRange}
           searchType={searchType}
           setSearchType={setSearchType}
-          authorNames={authorNames}
-          setAuthorNames={setAuthorNames}
+          matchAnyAuthorNames={matchAnyAuthorNames}
+          setMatchAnyAuthorNames={setMatchAnyAuthorNames}
+          matchNoneAuthorNames={matchNoneAuthorNames}
+          setMatchNoneAuthorNames={setMatchNoneAuthorNames}
           latency={latency}
         />
         <Search
@@ -650,8 +667,8 @@ export const SearchPage = () => {
                     }}
                     value={recommendType()}
                   >
-                    <option value={"semantic"}>Semantic</option>
-                    <option value={"fulltext"}>Splade</option>
+                    <option value="semantic">Semantic</option>
+                    <option value="fulltext">Fulltext</option>
                   </select>
                 </span>{" "}
                 for {recommendDateRangeDisplay()} to:{" "}
