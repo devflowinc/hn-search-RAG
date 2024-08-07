@@ -80,7 +80,7 @@ export const AnalyticsPage = () => {
             />
           </ChartCard>
           <ChartCard
-            title="Requests Per Second"
+            title="Requests Per Time Period"
             class="flex flex-col justify-between px-4"
             width={1}
           >

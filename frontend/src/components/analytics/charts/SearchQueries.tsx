@@ -1,4 +1,12 @@
-import { createEffect, createMemo, createSignal, JSX, Match, Show, Switch } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  JSX,
+  Match,
+  Show,
+  Switch,
+} from "solid-js";
 import { PaginationButtons } from "../PaginationButtons";
 import { ChartCard } from "./ChartCard";
 import { usePagination } from "../usePagination";
@@ -14,6 +22,7 @@ import { AiFillCaretDown } from "solid-icons/ai";
 import { Table, Tr, Th, Td } from "../Table";
 import { format } from "date-fns";
 import { parseCustomDateString } from "./LatencyGraph";
+import { FullScreenModal } from "../../FullScreenModal";
 
 interface SearchQueriesProps {
   params: { filter: AnalyticsFilter };
@@ -74,11 +83,7 @@ export const SearchQueries = (props: SearchQueriesProps) => {
   };
 
   return (
-    <ChartCard
-      title="All Search Queries"
-      class="flex flex-col px-4"
-      width={2}
-    >
+    <ChartCard title="All Search Queries" class="flex flex-col px-4" width={2}>
       <div>
         <Show when={searchQueries().length === 0}>
           <div class="py-8 text-center opacity-80">No Data.</div>
@@ -100,7 +105,9 @@ export const SearchQueries = (props: SearchQueriesProps) => {
                       </SortableHeader>
                     </Th>
                     <Show
-                      when={typeof props.params.filter.search_method === "undefined"}
+                      when={
+                        typeof props.params.filter.search_method === "undefined"
+                      }
                     >
                       <Th class="w-[10vw]">Search Method</Th>
                     </Show>
@@ -112,12 +119,15 @@ export const SearchQueries = (props: SearchQueriesProps) => {
                         Top Score
                       </SortableHeader>
                     </Th>
+                    <Th class="w-[10vw]">View Params and Results</Th>
                   </Tr>
                 }
                 fallback={<div class="py-8 text-center">No Data</div>}
                 data={data()}
               >
-                {(row) => <SearchRow event={row} filter={props.params.filter} />}
+                {(row) => (
+                  <SearchRow event={row} filter={props.params.filter} />
+                )}
               </Table>
               <div class="flex justify-end px-2 py-1">
                 <PaginationButtons size={14} pages={pages} />
@@ -135,24 +145,91 @@ interface SearchRowProps {
   filter: AnalyticsParams["filter"];
 }
 const SearchRow = (props: SearchRowProps) => {
+  const [openParamResults, setOpenParamResults] = createSignal(false);
   const searchMethod = createMemo(() => {
-
     return typeof (props.event.request_params ?? {})["search_type"] === "string"
-      ? formatSearchMethod((props.event.request_params ?? {})["search_type"] as string)
+      ? formatSearchMethod(
+          (props.event.request_params ?? {})["search_type"] as string
+        )
       : "All";
   });
   return (
-    <Tr>
-      <Td class="truncate">{props.event.query}</Td>
-      <Td>
-        {format(parseCustomDateString(props.event.created_at), "M/d/yy h:mm a")}
-      </Td>
-      <Show when={typeof props.filter.search_method === "undefined"}>
-        <Td>{searchMethod()}</Td>
-      </Show>
-      <Td class="text-left">{props.event.latency} ms</Td>
-      <Td class="truncate text-left">{props.event.top_score}</Td>
-    </Tr>
+    <>
+      <Tr>
+        <Td class="truncate">{props.event.query}</Td>
+        <Td>
+          {format(
+            parseCustomDateString(props.event.created_at),
+            "M/d/yy h:mm a"
+          )}
+        </Td>
+        <Show when={typeof props.filter.search_method === "undefined"}>
+          <Td>{searchMethod()}</Td>
+        </Show>
+        <Td class="text-left">{props.event.latency} ms</Td>
+        <Td class="truncate text-left">
+          {props.event.top_score
+            ? props.event.top_score.toFixed(2)
+            : "N/A due to sort"}
+        </Td>
+        <Td class="truncate">
+          <button
+            class="text-[#ff6600]"
+            onClick={() => setOpenParamResults(true)}
+          >
+            View
+          </button>
+        </Td>
+      </Tr>
+      <FullScreenModal show={openParamResults} setShow={setOpenParamResults}>
+        <div class="flex flex-col gap-4 w-[60vw]">
+          <div class="flex space-x-2">
+            <h2 class="text-xl font-bold">Request Params</h2>
+            <button
+              class="text-[#ff6600] text-sm"
+              onClick={(e) => {
+                navigator.clipboard.writeText(
+                  JSON.stringify(props.event.request_params, null, 2)
+                );
+
+                const target = e.target as HTMLButtonElement;
+                target.textContent = "Copied";
+                setTimeout(() => {
+                  target.textContent = "Copy";
+                }, 500);
+              }}
+            >
+              Copy
+            </button>
+          </div>
+          <pre class="text-sm">
+            {JSON.stringify(props.event.request_params, null, 2)}
+          </pre>
+          <div class="flex space-x-2">
+            <h2 class="text-xl font-bold">Results</h2>
+            <button
+              class="text-[#ff6600] text-sm"
+              onClick={(e) => {
+                navigator.clipboard.writeText(
+                  JSON.stringify(props.event.request_params, null, 2)
+                );
+
+                const target = e.target as HTMLButtonElement;
+                target.textContent = "Copied";
+                setTimeout(() => {
+                  target.textContent = "Copy";
+                }, 500);
+              }}
+            >
+              Copy
+            </button>
+          </div>
+          <pre class="text-sm">
+            {JSON.stringify(props.event.results, null, 2)}
+          </pre>
+        </div>
+      </FullScreenModal>
+    </>
   );
 };
 

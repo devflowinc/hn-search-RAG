@@ -1,5 +1,5 @@
 import { enUS } from "date-fns/locale";
-import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 import { Chart } from "chart.js/auto";
 import { parseCustomDateString } from "./LatencyGraph";
 
@@ -11,7 +11,11 @@ interface RpsGraphProps {
 }
 
 import "chartjs-adapter-date-fns";
-import { AnalyticsFilter, AnalyticsParams, UsageDatapoint } from "../../../types";
+import {
+  AnalyticsFilter,
+  AnalyticsParams,
+  UsageDatapoint,
+} from "../../../types";
 import { getRpsUsageGraph } from "../api/analytics";
 
 export const RpsGraph = (props: RpsGraphProps) => {
@@ -20,13 +24,19 @@ export const RpsGraph = (props: RpsGraphProps) => {
   let chartInstance: Chart | null = null;
 
   createEffect(async () => {
-    let results = await getRpsUsageGraph(props.params.filter, props.params.granularity);
+    let results = await getRpsUsageGraph(
+      props.params.filter,
+      props.params.granularity
+    );
     setUsage(results);
   });
 
-createEffect(() => {
+  createEffect(() => {
     const canvas = canvasElement();
-    const data = usageQuery();
+    let data = usageQuery();
+    if (data.length > 7) {
+      data = data.slice(data.length - 7);
+    }
 
     if (!canvas || !data) return;
 
@@ -41,7 +51,7 @@ createEffect(() => {
               label: "Requests",
               data: [],
               borderColor: "purple",
-              backgroundColor: "rgba(128, 0, 128, 0.9)", // Light purple background
+              backgroundColor: "rgba(255, 102, 0, 0.9)", // Light purple background
               barThickness: data.length === 1 ? 40 : undefined,
             },
           ],
@@ -107,7 +117,7 @@ createEffect(() => {
 
     // Update the chart data;
     chartInstance.data.labels = data.map(
-      (point) => new Date(parseCustomDateString(point.time_stamp)),
+      (point) => new Date(parseCustomDateString(point.time_stamp, true))
     );
     chartInstance.data.datasets[0].data = data.map((point) => point.requests);
     chartInstance.update();

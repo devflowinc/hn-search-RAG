@@ -3,14 +3,12 @@ import {
   AnalyticsParams,
   HeadQuery,
   LatencyDatapoint,
-  RpsDatapoint,
   SearchQueryEvent,
   SearchTypeCount,
   LatencyGraphResponse,
   HeadQueryResponse,
   SearchQueryResponse,
   QueryCountResponse,
-  RPSGraphResponse,
   AnalyticsFilter,
   DateRangeFilter,
   SortBy,
@@ -127,7 +125,7 @@ export const getLatency = async (
 
 export const getRpsUsageGraph = async (
   filters: AnalyticsFilter,
-  granularity: AnalyticsParams["granularity"],
+  granularity: AnalyticsParams["granularity"]
 ): Promise<UsageDatapoint[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -296,7 +294,6 @@ export const getSearchQueries = async (
   const data = (await response.json()) as unknown as SearchQueryResponse;
   return data.queries;
 };
-
 
 export const getRAGQueries = async ({
   page,
