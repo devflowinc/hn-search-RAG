@@ -21,7 +21,7 @@ const displaySearchType = (type: SearchTypeCount["search_type"]) => {
 
 export const displaySearchMethod = (type: SearchTypeCount["search_method"]) => {
   switch (type) {
-    case "full_text":
+    case "fulltext":
       return "Full Text";
     case "hybrid":
       return "Hybrid";
@@ -63,17 +63,14 @@ export const QueryCounts = (props: QueryCountsProps) => {
           <div class="flex justify-around gap-2 py-2">
             <For each={data()}>
               {(search) => {
+                console.log(search);
                 if (search.search_method) {
                   return (
                     <div class="text-center">
                       <div>{displaySearchType(search.search_type)}</div>
-                      <Show when={search.search_method}>
-                        {(method) => (
                           <div class="opacity-50">
-                            {displaySearchMethod(method())}
+                            {displaySearchMethod(search.search_method)}
                           </div>
-                        )}
-                      </Show>
                       <div class="text-lg font-semibold">
                         {search.search_count}
                       </div>
