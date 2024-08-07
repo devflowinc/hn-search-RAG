@@ -1,5 +1,13 @@
 import { FaSolidChevronDown } from "solid-icons/fa";
-import { Accessor, createEffect, createSignal, onMount, Setter, Show } from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createSignal,
+  For,
+  onMount,
+  Setter,
+  Show,
+} from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 import { SearchOptions } from "../../types";
 import DatePicker, { PickerValue } from "@rnwonder/solid-date-picker";
@@ -17,12 +25,15 @@ export interface FiltersProps {
   latency: Accessor<number | null>;
   setSearchOptions: SetStoreFunction<SearchOptions>;
   searchOptions: SearchOptions;
-  setAuthorNames: Setter<string[]>;
-  authorNames: Accessor<string[]>;
+  setMatchAnyAuthorNames: Setter<string[]>;
+  matchAnyAuthorNames: Accessor<string[]>;
+  matchNoneAuthorNames: Accessor<string[]>;
+  setMatchNoneAuthorNames: Setter<string[]>;
 }
 
 export default function Filters(props: FiltersProps) {
-  const [open, setOpen] = createSignal(false);
+  const [openAuthorFilterModal, setOpenAuthorFilterModal] = createSignal(false);
+  const [openAdvancedOptions, setOpenAdvancedOptions] = createSignal(false);
   const [rangeDate, setRangeDate] = createSignal<PickerValue>({
     label: "",
     value: {},
@@ -45,8 +56,7 @@ export default function Filters(props: FiltersProps) {
     if (!props.dateRange().startsWith("{")) {
       setRangeDate({
         label: "",
-        value: {
-        },
+        value: {},
       });
     }
   });
@@ -133,7 +143,13 @@ export default function Filters(props: FiltersProps) {
                 <option value="pastWeek">Past Week</option>
                 <option value="pastMonth">Past Month</option>
                 <option value="pastYear">Past Year</option>
-                <option value="custom">{rangeDate().value.start ? rangeDate().value.start?.replace("T07:00:00.000Z", "") + " - " + rangeDate().value.end?.replace("T07:00:00.000Z", "") : "Custom Range"}</option>
+                <option value="custom">
+                  {rangeDate().value.start
+                    ? rangeDate().value.start?.replace("T07:00:00.000Z", "") +
+                      " - " +
+                      rangeDate().value.end?.replace("T07:00:00.000Z", "")
+                    : "Custom"}
+                </option>
               </select>
             )}
             type="range"
@@ -153,23 +169,109 @@ export default function Filters(props: FiltersProps) {
             <option selected value={"hybrid"}>
               Hybrid
             </option>
-            <option value={"semantic"}>Semantic</option>
-            <option value={"fulltext"}>Splade</option>
-            <option value={"bm25"}>BM25</option>
+            <option value="semantic">Semantic</option>
+            <option value="fulltext">Fulltext</option>
+            <option value="bm25">BM25</option>
+            <option value="autocomplete">Autocomplete</option>
           </select>
+        </div>
+        <span>by</span>
+        <div class="relative">
+          <button
+            onClick={() => setOpenAuthorFilterModal((prev) => !prev)}
+            class="form-select text-xs w-fit bg-hn flex items-center gap-1"
+          >
+            Author Filters
+            <FaSolidChevronDown size={10} />
+          </button>
+
+          <Show when={openAuthorFilterModal()}>
+            <div
+              class="fixed top-1 left-0 min-h-screen w-full z-5"
+              onClick={() => setOpenAuthorFilterModal(false)}
+            />
+            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10 right-0">
+              <label for="matchAnyAuthors">Any of the following authors:</label>
+              <div class="flex items-center gap-2 border border-stone-300 px-1 py-0.5 bg-hn focus:border-black">
+                <input
+                  id="matchAnyAuthors"
+                  class="form-input text-zinc-600 border-none focus:border-none focus:ring-0 bg-transparent focus:outline-none"
+                  type="text"
+                  onFocus={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid black";
+
+                    window.addEventListener("keydown", (keydown_e) => {
+                      if (keydown_e.key === "Enter") {
+                        props.setMatchAnyAuthorNames((prev) => [
+                          ...prev,
+                          document.getElementById("matchAnyAuthors")!.innerHTML,
+                        ]);
+                        document.getElementById("matchAnyAuthors")!.innerText =
+                          "";
+                      }
+                    });
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid #d2d6dc";
+
+                    window.removeEventListener("keydown", (keydown_e) => {
+                      if (keydown_e.key === "Enter") {
+                        props.setMatchAnyAuthorNames((prev) => [
+                          ...prev,
+                          e.currentTarget.value,
+                        ]);
+                        e.currentTarget.value = "";
+                      }
+                    });
+                  }}
+                />
+                <button
+                  class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
+                  onClick={(e) => {
+                    props.setMatchAnyAuthorNames((prev) => [
+                      ...prev,
+                      e.currentTarget.previousElementSibling?.innerHTML ?? "",
+                    ]);
+                    e.currentTarget.previousElementSibling!.innerHTML = "";
+                  }}
+                >
+                  +
+                </button>
+              </div>
+              <For each={props.matchAnyAuthorNames()}>
+                {(author) => (
+                  <div class="flex items-center gap-2">
+                    <p>{author}</p>
+                    <button
+                      class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
+                      onClick={() => {
+                        props.setMatchAnyAuthorNames((prev) =>
+                          prev.filter((a) => a !== author)
+                        );
+                      }}
+                    >
+                      -
+                    </button>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
         </div>
         <div class="relative">
           <button
-            onClick={() => setOpen(!open())}
+            onClick={() => setOpenAdvancedOptions((prev) => !prev)}
             class="form-select text-xs w-fit bg-hn flex items-center gap-1"
           >
             Advanced
             <FaSolidChevronDown size={10} />
           </button>
-          <Show when={open()}>
+          <Show when={openAdvancedOptions()}>
             <div
               class="fixed top-1 left-0 min-h-screen w-full z-5"
-              onClick={() => setOpen(false)}
+              onClick={() => setOpenAdvancedOptions(false)}
             />
             <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10 right-0">
               <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
@@ -238,12 +340,12 @@ export default function Filters(props: FiltersProps) {
                   class="w-20 rounded border border-neutral-400 p-0.5 text-black"
                   type="text"
                   step="any"
-                  value={props.authorNames().join(",")}
+                  value={props.matchAnyAuthorNames().join(",")}
                   onChange={(e) => {
                     if (e.target.value.length > 0) {
-                      props.setAuthorNames(e.target.value.split(","));
+                      props.setMatchAnyAuthorNames(e.target.value.split(","));
                     } else {
-                      props.setAuthorNames([]);
+                      props.setMatchAnyAuthorNames([]);
                     }
                   }}
                 />

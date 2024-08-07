@@ -94,43 +94,44 @@ export function isTimeRange(value: object): value is TimeRange {
 export const getFilters = (
   selectedStoryType: string | null,
   dateRange: TimeRange | null,
-  authorNames: string[] | null
+  matchAnyAuthorNames: string[] | null,
+  matchNoneAuthorNames: string[] | null
 ) => {
-  const filters = [];
-  if (selectedStoryType && selectedStoryType !== "all") {
-    filters.push({
+  const mustFilters = [];
+  if (matchAnyAuthorNames && matchAnyAuthorNames.length > 0 && matchAnyAuthorNames[0] !== "") {
+    mustFilters.push({
       field: "tag_set",
-      match: [selectedStoryType.toLowerCase()],
+      match_any: matchAnyAuthorNames,
+    });
+  }
+  if (dateRange) {
+    mustFilters.push({
+      field: "time_stamp",
+      date_range: dateRange,
+    });
+  }
+  if (selectedStoryType) {
+    mustFilters.push({
+      field: "tag_set",
+      match_all: [selectedStoryType.toLowerCase()],
     });
   }
 
-  let shouldFilters = [];
-  if (authorNames && authorNames.length > 0) {
-    shouldFilters.push(
-      ...authorNames
-        .filter((name) => name !== "")
-        .map((name) => ({
-          field: "tag_set",
-          match: [name.toLowerCase()],
-        }))
-    );
+  const mustNotFilters = [];
+  if (matchNoneAuthorNames && matchNoneAuthorNames.length > 0 && matchNoneAuthorNames[0] !== "") {
+    mustNotFilters.push({
+      field: "tag_set",
+      match_any: matchNoneAuthorNames,
+    });
   }
 
-  if (dateRange) {
-    if (dateRange.gt) {
-      filters.push({
-        field: "time_stamp",
-        date_range: dateRange,
-      });
-    }
-  }
 
   return {
     jsonb_prefilter: false,
-    must: filters,
-    should: shouldFilters,
+    must: mustFilters.length > 0 ? mustFilters : undefined,
+    must_not: mustNotFilters.length > 0 ? mustNotFilters : undefined,
   };
-};
+}
 
 export interface SearchOptions {
   prefetchAmount: number;
@@ -169,11 +170,11 @@ export interface AnalyticsFilter {
   date_range: DateRangeFilter;
   search_method?: "fulltext" | "hybrid" | "semantic" | "bm25";
   search_type?:
-    | "search"
-    | "autocomplete"
-    | "rag"
-    | "search_over_groups"
-    | "search_within_groups";
+  | "search"
+  | "autocomplete"
+  | "rag"
+  | "search_over_groups"
+  | "search_within_groups";
 }
 
 export interface RequiredAnalyticsFilter {
