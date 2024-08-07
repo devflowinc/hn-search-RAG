@@ -28,13 +28,6 @@ export default function Header(props: HeaderProps) {
         </a>
       </div>
       <div class="flex items-center flex-wrap">
-        <a
-          href="https://news.ycombinator.com/"
-          class="pr-1 hover:text-white hover:underline"
-        >
-          Front Page
-        </a>
-        <span class="pr-1">|</span>
         <a href="/" class="pr-1 hover:text-white hover:underline">
           Search
         </a>
@@ -49,6 +42,13 @@ export default function Header(props: HeaderProps) {
         <span class="pr-1">|</span>
         <a href="/about" class="pr-1 hover:text-white hover:underline">
           About
+        </a>
+        <span class="pr-1">|</span>
+        <a
+          href="https://news.ycombinator.com/"
+          class="pr-1 hover:text-white hover:underline"
+        >
+          Front Page
         </a>
         <span class="pr-1">|</span>
         <a
