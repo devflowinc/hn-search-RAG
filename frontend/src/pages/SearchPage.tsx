@@ -298,7 +298,7 @@ export const SearchPage = () => {
             return {
               title_html,
               body_html,
-              parent_id: chunk.metadata?.parent ?? "",
+              parent_id: (chunk.metadata?.parent ?? "").toString(),
               parent_title: chunk.metadata?.parent_title ?? "",
               url: chunk.link ?? "",
               points: chunk.metadata?.score ?? 0,
@@ -383,7 +383,7 @@ export const SearchPage = () => {
             return {
               title_html,
               body_html,
-              parent_id: chunk.metadata?.parent ?? "",
+              parent_id: (chunk.metadata?.parent ?? "").toString(),
               parent_title: chunk.metadata?.parent_title ?? "",
               score: score_chunk.score,
               url: chunk.link ?? "",
