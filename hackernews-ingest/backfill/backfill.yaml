@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backfill-recent
+  namespace: hackernews
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: clustering-task
+              image: trieve/hn-backfill:2
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: REDIS_URL
+                  value: redis://<your-redis-port>
