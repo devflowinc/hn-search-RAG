@@ -2,8 +2,10 @@ import { FaSolidChevronDown } from "solid-icons/fa";
 import {
   Accessor,
   createEffect,
+  createMemo,
   createSignal,
   For,
+  onCleanup,
   onMount,
   Setter,
   Show,
@@ -26,9 +28,9 @@ export interface FiltersProps {
   setSearchOptions: SetStoreFunction<SearchOptions>;
   searchOptions: SearchOptions;
   setMatchAnyAuthorNames: Setter<string[]>;
+  setMatchNoneAuthorNames: Setter<string[]>;
   matchAnyAuthorNames: Accessor<string[]>;
   matchNoneAuthorNames: Accessor<string[]>;
-  setMatchNoneAuthorNames: Setter<string[]>;
 }
 
 export default function Filters(props: FiltersProps) {
@@ -38,6 +40,8 @@ export default function Filters(props: FiltersProps) {
     label: "",
     value: {},
   });
+  const [currentAnyAuthor, setCurrentAnyAuthor] = createSignal("");
+  const [currentNoneAuthor, setCurrentNoneAuthor] = createSignal("");
 
   onMount(() => {
     if (props.dateRange().startsWith("{")) {
@@ -50,6 +54,37 @@ export default function Filters(props: FiltersProps) {
         },
       });
     }
+  });
+
+  createEffect(() => {
+    const onEnterCallback = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        if (document.activeElement?.id === "matchAnyAuthors") {
+          const curAnyAuthor = currentAnyAuthor();
+          if (!curAnyAuthor) return;
+
+          props.setMatchAnyAuthorNames((prev) => [
+            ...prev.filter((a) => a !== curAnyAuthor),
+            curAnyAuthor,
+          ]);
+          setCurrentAnyAuthor("");
+        } else if (document.activeElement?.id === "matchNoneAuthorNames") {
+          const curNoneAuthor = currentNoneAuthor();
+          if (!curNoneAuthor) return;
+
+          props.setMatchNoneAuthorNames((prev) => [
+            ...prev.filter((a) => a !== curNoneAuthor),
+            curNoneAuthor,
+          ]);
+          setCurrentNoneAuthor("");
+        }
+      }
+    };
+    window.addEventListener("keydown", onEnterCallback);
+
+    onCleanup(() => {
+      window.removeEventListener("keydown", onEnterCallback);
+    });
   });
 
   createEffect(() => {
@@ -71,6 +106,13 @@ export default function Filters(props: FiltersProps) {
       );
     }
   });
+
+  const combinedAuthorFiltersLength = createMemo(() => {
+    return (
+      props.matchAnyAuthorNames().length + props.matchNoneAuthorNames().length
+    );
+  });
+
   return (
     <div class="p-2 flex items-center gap-2">
       <div class="flex flex-wrap gap-2 text-black items-center">
@@ -155,7 +197,7 @@ export default function Filters(props: FiltersProps) {
             type="range"
           />
         </div>
-        <span>with</span>
+        <span>using</span>
         <div>
           <select
             id="stories"
@@ -177,13 +219,26 @@ export default function Filters(props: FiltersProps) {
         </div>
         <span>by</span>
         <div class="relative">
-          <button
-            onClick={() => setOpenAuthorFilterModal((prev) => !prev)}
-            class="form-select text-xs w-fit bg-hn flex items-center gap-1"
-          >
-            Author Filters
-            <FaSolidChevronDown size={10} />
-          </button>
+          <div class="flex items-center gap-1">
+            <div
+              classList={{
+                "rounded-full w-3 h-3 text-[8px] text-center leading-[10px] pt-[1px]":
+                  true,
+                "bg-[#ff6600] text-white": combinedAuthorFiltersLength() > 0,
+                "bg-stone-200 text-neutral-500":
+                  combinedAuthorFiltersLength() === 0,
+              }}
+            >
+              {combinedAuthorFiltersLength()}
+            </div>
+            <button
+              onClick={() => setOpenAuthorFilterModal((prev) => !prev)}
+              class="form-select text-xs w-fit bg-hn flex items-center gap-1"
+            >
+              Author Filters
+              <FaSolidChevronDown size={10} />
+            </button>
+          </div>
 
           <Show when={openAuthorFilterModal()}>
             <div
@@ -197,44 +252,28 @@ export default function Filters(props: FiltersProps) {
                   id="matchAnyAuthors"
                   class="form-input text-zinc-600 border-none focus:border-none focus:ring-0 bg-transparent focus:outline-none"
                   type="text"
+                  placeholder="Author Name"
+                  value={currentAnyAuthor()}
+                  onInput={(e) => setCurrentAnyAuthor(e.currentTarget.value)}
                   onFocus={(e) => {
                     e.currentTarget.parentElement!.style.border =
                       "1px solid black";
-
-                    window.addEventListener("keydown", (keydown_e) => {
-                      if (keydown_e.key === "Enter") {
-                        props.setMatchAnyAuthorNames((prev) => [
-                          ...prev,
-                          document.getElementById("matchAnyAuthors")!.innerHTML,
-                        ]);
-                        document.getElementById("matchAnyAuthors")!.innerText =
-                          "";
-                      }
-                    });
                   }}
                   onBlur={(e) => {
                     e.currentTarget.parentElement!.style.border =
                       "1px solid #d2d6dc";
-
-                    window.removeEventListener("keydown", (keydown_e) => {
-                      if (keydown_e.key === "Enter") {
-                        props.setMatchAnyAuthorNames((prev) => [
-                          ...prev,
-                          e.currentTarget.value,
-                        ]);
-                        e.currentTarget.value = "";
-                      }
-                    });
                   }}
                 />
                 <button
                   class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
-                  onClick={(e) => {
+                  onClick={() => {
+                    const curAnyAuthor = currentAnyAuthor();
+                    if (!curAnyAuthor) return;
                     props.setMatchAnyAuthorNames((prev) => [
-                      ...prev,
-                      e.currentTarget.previousElementSibling?.innerHTML ?? "",
+                      ...prev.filter((a) => a !== curAnyAuthor),
+                      curAnyAuthor,
                     ]);
-                    e.currentTarget.previousElementSibling!.innerHTML = "";
+                    setCurrentAnyAuthor("");
                   }}
                 >
                   +
@@ -248,6 +287,59 @@ export default function Filters(props: FiltersProps) {
                       class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
                       onClick={() => {
                         props.setMatchAnyAuthorNames((prev) =>
+                          prev.filter((a) => a !== author)
+                        );
+                      }}
+                    >
+                      -
+                    </button>
+                  </div>
+                )}
+              </For>
+              <div class="h-0.5 bg-stone-300" />
+              <label for="matchNoneAuthorNames">
+                None of the following authors:
+              </label>
+              <div class="flex items-center gap-2 border border-stone-300 px-1 py-0.5 bg-hn focus:border-black">
+                <input
+                  id="matchNoneAuthorNames"
+                  class="form-input text-zinc-600 border-none focus:border-none focus:ring-0 bg-transparent focus:outline-none"
+                  type="text"
+                  placeholder="Author Name"
+                  value={currentNoneAuthor()}
+                  onInput={(e) => setCurrentNoneAuthor(e.currentTarget.value)}
+                  onFocus={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid black";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid #d2d6dc";
+                  }}
+                />
+                <button
+                  class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
+                  onClick={() => {
+                    const curNoneAuthor = currentNoneAuthor();
+                    if (!curNoneAuthor) return;
+                    props.setMatchNoneAuthorNames((prev) => [
+                      ...prev.filter((a) => a !== curNoneAuthor),
+                      curNoneAuthor,
+                    ]);
+                    setCurrentNoneAuthor("");
+                  }}
+                >
+                  +
+                </button>
+              </div>
+              <For each={props.matchNoneAuthorNames()}>
+                {(author) => (
+                  <div class="flex items-center gap-2">
+                    <p>{author}</p>
+                    <button
+                      class="bg-hn py-[1px] px-2 border border-stone-300 rounded-full hover:border-black"
+                      onClick={() => {
+                        props.setMatchNoneAuthorNames((prev) =>
                           prev.filter((a) => a !== author)
                         );
                       }}
@@ -331,22 +423,6 @@ export default function Filters(props: FiltersProps) {
                   value={props.searchOptions.pageSize}
                   onChange={(e) => {
                     props.setSearchOptions("pageSize", e.target.valueAsNumber);
-                  }}
-                />
-              </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
-                <label>Authors (separated by ',')</label>
-                <input
-                  class="w-20 rounded border border-neutral-400 p-0.5 text-black"
-                  type="text"
-                  step="any"
-                  value={props.matchAnyAuthorNames().join(",")}
-                  onChange={(e) => {
-                    if (e.target.value.length > 0) {
-                      props.setMatchAnyAuthorNames(e.target.value.split(","));
-                    } else {
-                      props.setMatchAnyAuthorNames([]);
-                    }
                   }}
                 />
               </div>

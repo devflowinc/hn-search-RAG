@@ -55,10 +55,18 @@ export const SearchPage = () => {
 
   let abortController: AbortController | null = null;
   const [matchAnyAuthorNames, setMatchAnyAuthorNames] = createSignal(
-    urlParams.get("matchAnyAuthorNames")?.split(",") ?? []
+    urlParams
+      .get("matchAnyAuthorNames")
+      ?.split(",")
+      .map((name) => name.trim())
+      .filter((name) => name !== "") ?? []
   );
   const [matchNoneAuthorNames, setMatchNoneAuthorNames] = createSignal(
-    urlParams.get("matchNoneAuthorNames")?.split(",") ?? []
+    urlParams
+      .get("matchNoneAuthorNames")
+      ?.split(",")
+      .map((name) => name.trim())
+      .filter((name) => name !== "") ?? []
   );
   const [selectedStoryType, setSelectedStoryType] = createSignal(
     urlParams.get("storyType") ?? "story"
@@ -125,6 +133,15 @@ export const SearchPage = () => {
     }
   });
 
+  const queryFiltersRemoved = createMemo(() => {
+    return query()
+      .replace(/author:-\w+/g, "")
+      .replace(/author:\w+/g, "")
+      .replace(/by:-\w+/g, "")
+      .replace(/by:\w+/g, "")
+      .trimStart();
+  });
+
   createEffect(() => {
     setSearchOptions("scoreThreshold", defaultScoreThreshold(searchType()));
   });
@@ -175,7 +192,7 @@ export const SearchPage = () => {
     abortController = new AbortController();
     const { signal } = abortController;
 
-    urlParams.set("q", query());
+    urlParams.set("q", queryFiltersRemoved());
     urlParams.set("storyType", selectedStoryType());
     urlParams.set("matchAnyAuthorNames", matchAnyAuthorNames().join(","));
     urlParams.set("matchNoneAuthorNames", matchNoneAuthorNames().join(","));
@@ -185,7 +202,7 @@ export const SearchPage = () => {
     urlParams.set("page", page().toString());
     setAlgoliaLink(
       `https://hn.algolia.com/?q=${encodeURIComponent(
-        query()
+        queryFiltersRemoved()
       )}&dateRange=${dateRange()}&sort=by${
         sortBy() == "Relevance" ? "Popularity" : sortBy()
       }&type=${selectedStoryType()}&page=0&prefix=false`
@@ -209,7 +226,7 @@ export const SearchPage = () => {
     }
 
     const reqBody = {
-      query: query(),
+      query: queryFiltersRemoved(),
       search_type: searchType(),
       page: page(),
       highlight_options: {
@@ -252,7 +269,7 @@ export const SearchPage = () => {
       } as any;
     }
 
-    if (query() === "") {
+    if (queryFiltersRemoved() === "") {
       fetch(`${trieveBaseURL}/chunks/scroll`, {
         method: "POST",
         body: JSON.stringify({
@@ -582,6 +599,8 @@ export const SearchPage = () => {
         <Search
           query={query}
           setQuery={setQuery}
+          setMatchAnyAuthorNames={setMatchAnyAuthorNames}
+          setMatchNoneAuthorNames={setMatchNoneAuthorNames}
           algoliaLink={algoliaLink}
           setOpenRateQueryModal={setOpenRateQueryModal}
         />
@@ -590,7 +609,9 @@ export const SearchPage = () => {
             <Switch>
               <Match when={loading()}>
                 <div class="flex justify-center items-center py-2">
-                  <span class="text-xl animate-pulse">Scrolling...</span>
+                  <span class="text-xl animate-pulse">
+                    {queryFiltersRemoved() === "" ? "Scrolling" : "Searching"}{" "}
+                  </span>
                 </div>
               </Match>
               <Match when={!loading()}>
@@ -633,7 +654,7 @@ export const SearchPage = () => {
             </div>
           </Match>
         </Switch>
-        <Show when={stories().length > 0 && query() != ""}>
+        <Show when={stories().length > 0 && queryFiltersRemoved() != ""}>
           <div class="mx-auto py-3 flex items-center space-x-2 justify-center">
             <PaginationController
               page={page()}

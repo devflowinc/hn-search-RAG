@@ -98,7 +98,11 @@ export const getFilters = (
   matchNoneAuthorNames: string[] | null
 ) => {
   const mustFilters = [];
-  if (matchAnyAuthorNames && matchAnyAuthorNames.length > 0 && matchAnyAuthorNames[0] !== "") {
+  if (
+    matchAnyAuthorNames &&
+    matchAnyAuthorNames.length > 0 &&
+    matchAnyAuthorNames[0] !== ""
+  ) {
     mustFilters.push({
       field: "tag_set",
       match_any: matchAnyAuthorNames,
@@ -110,7 +114,7 @@ export const getFilters = (
       date_range: dateRange,
     });
   }
-  if (selectedStoryType) {
+  if (selectedStoryType && selectedStoryType !== "all") {
     mustFilters.push({
       field: "tag_set",
       match_all: [selectedStoryType.toLowerCase()],
@@ -118,20 +122,23 @@ export const getFilters = (
   }
 
   const mustNotFilters = [];
-  if (matchNoneAuthorNames && matchNoneAuthorNames.length > 0 && matchNoneAuthorNames[0] !== "") {
+  if (
+    matchNoneAuthorNames &&
+    matchNoneAuthorNames.length > 0 &&
+    matchNoneAuthorNames[0] !== ""
+  ) {
     mustNotFilters.push({
       field: "tag_set",
       match_any: matchNoneAuthorNames,
     });
   }
 
-
   return {
     jsonb_prefilter: false,
     must: mustFilters.length > 0 ? mustFilters : undefined,
     must_not: mustNotFilters.length > 0 ? mustNotFilters : undefined,
   };
-}
+};
 
 export interface SearchOptions {
   prefetchAmount: number;
@@ -170,11 +177,11 @@ export interface AnalyticsFilter {
   date_range: DateRangeFilter;
   search_method?: "fulltext" | "hybrid" | "semantic" | "bm25";
   search_type?:
-  | "search"
-  | "autocomplete"
-  | "rag"
-  | "search_over_groups"
-  | "search_within_groups";
+    | "search"
+    | "autocomplete"
+    | "rag"
+    | "search_over_groups"
+    | "search_within_groups";
 }
 
 export interface RequiredAnalyticsFilter {

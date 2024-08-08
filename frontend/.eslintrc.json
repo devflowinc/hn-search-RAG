@@ -29,6 +29,7 @@
     "dist",
     "tailwind.config.cjs",
     "prettier.config.cjs",
+    "prettier-config.mjs",
     "vite.config.ts",
     "postcss.config.cjs"
   ]
