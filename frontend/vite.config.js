@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
 import runtimeEnv from "vite-plugin-runtime-env";
-import solidPlugin from 'vite-plugin-solid';
+import solidPlugin from "vite-plugin-solid";
 // import devtools from 'solid-devtools/vite';
 
 export default defineConfig({
@@ -17,6 +17,6 @@ export default defineConfig({
     port: 3000,
   },
   build: {
-    target: 'esnext',
+    target: "esnext",
   },
 });
