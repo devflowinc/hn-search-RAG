@@ -225,6 +225,56 @@ export const SearchPage = () => {
       sort_by_field = undefined;
     }
 
+    let uncleanedQuery = query();
+    let curAnyAuthorNames = matchAnyAuthorNames();
+    let curNoneAuthorNames = matchNoneAuthorNames();
+    const byNegatedMatches =
+      (uncleanedQuery.match(/by:-\w+/g) as string[]) ?? [];
+    const byNonNegatedMatches =
+      (uncleanedQuery.match(/by:\w+/g) as string[]) ?? [];
+    const authorNegatedMatches =
+      (uncleanedQuery.match(/author:-\w+/g) as string[]) ?? [];
+    const authorNonNegatedMatches =
+      (uncleanedQuery.match(/author:\w+/g) as string[]) ?? [];
+
+    if (byNegatedMatches.length > 0) {
+      curNoneAuthorNames = [
+        ...new Set(
+          [...curNoneAuthorNames, ...byNegatedMatches].map((a) =>
+            a.replace("by:-", "").replace("by:", "").trim()
+          )
+        ),
+      ];
+    }
+    if (authorNegatedMatches.length > 0) {
+      curNoneAuthorNames = [
+        ...new Set(
+          [...curNoneAuthorNames, ...authorNegatedMatches].map((a) =>
+            a.replace("author:-", "").replace("author:", "").trim()
+          )
+        ),
+      ];
+    }
+
+    if (byNonNegatedMatches.length > 0) {
+      curAnyAuthorNames = [
+        ...new Set(
+          [...curAnyAuthorNames, ...byNonNegatedMatches].map((a) =>
+            a.replace("by:-", "").replace("by:", "").trim()
+          )
+        ),
+      ];
+    }
+    if (authorNonNegatedMatches.length > 0) {
+      curAnyAuthorNames = [
+        ...new Set(
+          [...curAnyAuthorNames, ...authorNonNegatedMatches].map((a) =>
+            a.replace("author:-", "").replace("author:", "").trim()
+          )
+        ),
+      ];
+    }
+
     const reqBody = {
       query: queryFiltersRemoved(),
       search_type: searchType(),
@@ -251,8 +301,8 @@ export const SearchPage = () => {
       filters: getFilters(
         selectedStoryType(),
         time_range,
-        matchAnyAuthorNames(),
-        matchNoneAuthorNames()
+        curAnyAuthorNames,
+        curNoneAuthorNames
       ),
       page_size: searchOptions.pageSize,
       score_threshold: searchOptions.scoreThreshold,

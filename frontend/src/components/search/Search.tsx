@@ -22,48 +22,6 @@ export const Search = (props: SearchProps) => {
           placeholder="Search"
           value={props.query()}
           onInput={(e) => {
-            const byNegatedMatches =
-              (e.currentTarget.value.match(/by:-\w+/g) as string[]) ?? [];
-            const byNonNegatedMatches =
-              (e.currentTarget.value.match(/by:\w+/g) as string[]) ?? [];
-            const authorNegatedMatches =
-              (e.currentTarget.value.match(/author:-\w+/g) as string[]) ?? [];
-            const authorNonNegatedMatches =
-              (e.currentTarget.value.match(/author:\w+/g) as string[]) ?? [];
-
-            const negatedMatches = [
-              ...new Set(
-                [...byNegatedMatches, ...authorNegatedMatches].map((a) =>
-                  a
-                    .replace("author:-", "")
-                    .replace("by:-", "")
-                    .replace("author:", "")
-                    .replace("by:", "")
-                    .trim()
-                )
-              ),
-            ];
-            const nonNegatedMatches = [
-              ...new Set(
-                [...byNonNegatedMatches, ...authorNonNegatedMatches].map((a) =>
-                  a
-                    .replace("author:-", "")
-                    .replace("by:-", "")
-                    .replace("author:", "")
-                    .replace("by:", "")
-                    .trim()
-                )
-              ),
-            ];
-
-            if (nonNegatedMatches.length > 0) {
-              props.setMatchAnyAuthorNames(nonNegatedMatches);
-            }
-
-            if (negatedMatches.length > 0) {
-              props.setMatchNoneAuthorNames(negatedMatches);
-            }
-
             props.setQuery(e.currentTarget.value);
           }}
         />
