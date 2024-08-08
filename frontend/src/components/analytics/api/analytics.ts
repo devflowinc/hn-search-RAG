@@ -64,7 +64,7 @@ export const transformDateParams = (params: DateRangeFilter) => {
 
 export const formatSensibleTimestamp = (
   date: Date,
-  range: AnalyticsFilter["date_range"]
+  range: AnalyticsFilter["date_range"],
 ): string => {
   const highTime = range.lt || range.lte || new Date();
   if (!highTime) {
@@ -96,7 +96,7 @@ export const formatSensibleTimestamp = (
 
 export const getLatency = async (
   filters: AnalyticsFilter,
-  granularity: AnalyticsParams["granularity"]
+  granularity: AnalyticsParams["granularity"],
 ): Promise<LatencyDatapoint[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -125,7 +125,7 @@ export const getLatency = async (
 
 export const getRpsUsageGraph = async (
   filters: AnalyticsFilter,
-  granularity: AnalyticsParams["granularity"]
+  granularity: AnalyticsParams["granularity"],
 ): Promise<UsageDatapoint[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -152,7 +152,7 @@ export const getRpsUsageGraph = async (
 
 export const getHeadQueries = async (
   filters: AnalyticsFilter,
-  page: number
+  page: number,
 ): Promise<HeadQuery[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -180,7 +180,7 @@ export const getHeadQueries = async (
 export const getLowConfidenceQueries = async (
   filters: AnalyticsFilter,
   page: number,
-  threshold?: number
+  threshold?: number,
 ): Promise<SearchQueryEvent[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -200,7 +200,7 @@ export const getLowConfidenceQueries = async (
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch low confidence queries: ${response.statusText}`
+      `Failed to fetch low confidence queries: ${response.statusText}`,
     );
   }
 
@@ -210,7 +210,7 @@ export const getLowConfidenceQueries = async (
 
 export const getNoResultQueries = async (
   filters: AnalyticsFilter,
-  page: number
+  page: number,
 ): Promise<SearchQueryEvent[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -229,7 +229,7 @@ export const getNoResultQueries = async (
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch no result queries: ${response.statusText}`
+      `Failed to fetch no result queries: ${response.statusText}`,
     );
   }
 
@@ -238,7 +238,7 @@ export const getNoResultQueries = async (
 };
 
 export const getQueryCounts = async (
-  filters: AnalyticsFilter
+  filters: AnalyticsFilter,
 ): Promise<SearchTypeCount[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -256,7 +256,7 @@ export const getQueryCounts = async (
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch no result queries: ${response.statusText}`
+      `Failed to fetch no result queries: ${response.statusText}`,
     );
   }
 
@@ -268,7 +268,7 @@ export const getSearchQueries = async (
   filter: AnalyticsFilter,
   sort_by: SortBy,
   sort_order: SortOrder,
-  page: number
+  page: number,
 ): Promise<SearchQueryEvent[]> => {
   const response = await fetch(`${apiHost}/analytics/search`, {
     credentials: "include",
@@ -332,7 +332,7 @@ export const getRAGQueries = async ({
 };
 
 export const getRAGUsage = async (
-  filter?: RAGAnalyticsFilter
+  filter?: RAGAnalyticsFilter,
 ): Promise<RAGUsageResponse> => {
   const response = await fetch(`${apiHost}/analytics/rag`, {
     method: "POST",

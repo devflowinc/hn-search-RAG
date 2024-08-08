@@ -49,10 +49,10 @@ export const AfMessage = (props: AfMessageProps) => {
   // Used to syncrhonize the response height with the citations height
   // CSS is not enough
   const [leftColumnRef, setLeftColumnRef] = createSignal<HTMLElement | null>(
-    null
+    null,
   );
   const [rightColumnRef, setRightColumnRef] = createSignal<HTMLElement | null>(
-    null
+    null,
   );
 
   const [screenWidth, setScreenWidth] = createSignal(window.innerWidth);
@@ -109,7 +109,7 @@ export const AfMessage = (props: AfMessageProps) => {
             return `<span>[<button onclick='document.getElementById("doc_${curOrder}${match[0]}").scrollIntoView({"behavior": "smooth", "block": "center"});' style='color: #3b82f6; text-decoration: underline;'>${content}</button></span>`;
           }
           return `[${content}]`;
-        }
+        },
       );
     } else if (props.content.length > 25) {
       return {
@@ -318,7 +318,7 @@ export const AfMessage = (props: AfMessageProps) => {
                                 },
                                 (err) => {
                                   console.error("failed to copy", err);
-                                }
+                                },
                               );
                             }}
                           >

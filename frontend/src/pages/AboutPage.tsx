@@ -5,7 +5,7 @@ import { FiLinkedin } from "solid-icons/fi";
 
 export const AboutPage = () => {
   return (
-    <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
+    <main class="mx-auto bg-[#F6F6F0] font-verdana text-[13.33px] sm:bg-hn md:m-2 md:mx-auto md:w-[85%]">
       <Header />
       <div class="my-6 flex flex-col gap-y-5">
         <FAQCard
@@ -212,7 +212,7 @@ export const AboutPage = () => {
                 </a>
               </p>
               <p>
-                <FiLinkedin class="w-4 h-4 inline-block" />:{" "}
+                <FiLinkedin class="inline-block h-4 w-4" />:{" "}
                 <a
                   class="underline"
                   href="https://www.linkedin.com/company/trieveai"
@@ -246,7 +246,7 @@ export const AboutPage = () => {
 
 export const HelpPage = () => {
   return (
-    <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
+    <main class="mx-auto bg-[#F6F6F0] font-verdana text-[13.33px] sm:bg-hn md:m-2 md:mx-auto md:w-[85%]">
       <Header />
       <div class="my-6 flex flex-col gap-y-5">
         <FAQCard
@@ -299,7 +299,7 @@ export const HelpPage = () => {
                 </a>
               </p>
               <p>
-                <FiLinkedin class="w-4 h-4 inline-block" />:{" "}
+                <FiLinkedin class="inline-block h-4 w-4" />:{" "}
                 <a
                   class="underline"
                   href="https://www.linkedin.com/company/trieveai"
@@ -335,13 +335,13 @@ export const FAQCard = (props: { question: string; answer: JSX.Element }) => {
   const [open, setOpen] = createSignal(true);
 
   return (
-    <div class="w-full text-[#828282] text-wrap break-word leading-[14pt] px-2 flex flex-col space-y-1">
+    <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
       <h3>
         <button
-          class="text-[13pt] sm:text-[12pt] text-black text-wrap cursor-pointer font-semibold flex items-center"
+          class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]"
           onClick={() => setOpen((prev) => !prev)}
         >
-          <p class="w-3 block">
+          <p class="block w-3">
             <Switch>
               <Match when={open()}>{`- `}</Match>
               <Match when={!open()}>{`+ `} </Match>
@@ -351,7 +351,7 @@ export const FAQCard = (props: { question: string; answer: JSX.Element }) => {
         </button>
       </h3>
       <Show when={open()}>
-        <div class="text-[11pt] sm:text-[10pt] text-black text-wrap ml-3 flex flex-col gap-y-1">
+        <div class="ml-3 flex flex-col gap-y-1 text-wrap text-[11pt] text-black sm:text-[10pt]">
           {props.answer}
         </div>
       </Show>

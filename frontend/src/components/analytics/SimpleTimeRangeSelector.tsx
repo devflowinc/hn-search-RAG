@@ -3,7 +3,7 @@ import { DateRangeOption, AnalyticsParams, dateRanges } from "../../types";
 import { Select } from "./Select";
 
 const getReasonableGranularityFromDateRange = (
-  dateRange: DateRangeOption
+  dateRange: DateRangeOption,
 ): AnalyticsParams["granularity"] => {
   switch (dateRange.label) {
     case "Past Hour":
@@ -19,7 +19,7 @@ const getReasonableGranularityFromDateRange = (
 
 export const useSimpleTimeRange = () => {
   const [dateOption, setDateOption] = createSignal<DateRangeOption>(
-    dateRanges[2]
+    dateRanges[2],
   );
 
   const granularity = createMemo(() => {
@@ -44,7 +44,7 @@ interface SimpleTimeRangeSelectorProps {
 }
 
 export const SimpleTimeRangeSelector = (
-  props: SimpleTimeRangeSelectorProps
+  props: SimpleTimeRangeSelectorProps,
 ) => {
   return (
     <Select

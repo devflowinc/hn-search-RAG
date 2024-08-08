@@ -11,12 +11,12 @@ export interface SearchProps {
 
 export const Search = (props: SearchProps) => {
   return (
-    <div class="mb-4 sm:mb-1 gap-y-1 flex flex-col">
-      <div class="flex justify-center items-center mx-2 p-2 rounded-md border border-stone-300 active:border-stone-500 focus-within:border-stone-500">
-        <HiSolidMagnifyingGlass class="text-gray-500 w-5 h-5" />
+    <div class="mb-4 flex flex-col gap-y-1 sm:mb-1">
+      <div class="mx-2 flex items-center justify-center rounded-md border border-stone-300 p-2 focus-within:border-stone-500 active:border-stone-500">
+        <HiSolidMagnifyingGlass class="h-5 w-5 text-gray-500" />
         <input
           type="text"
-          class="w-full bg-transparent active:outline-none focus:outline-none ml-2"
+          class="ml-2 w-full bg-transparent focus:outline-none active:outline-none"
           placeholder="Search"
           value={props.query()}
           onInput={(e) => {
@@ -25,10 +25,10 @@ export const Search = (props: SearchProps) => {
         />
       </div>
 
-      <div class="flex justify-end items-center mx-2 gap-x-2 flex-wrap">
+      <div class="mx-2 flex flex-wrap items-center justify-end gap-x-2">
         <Show when={props.query()}>
           <button
-            class="text-zinc-600 p-1 border border-stone-300 w-fit bg-hn flex items-center gap-x-1 hover:border-stone-900 hover:text-zinc-900"
+            class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
             onClick={() => props.setOpenRateQueryModal(true)}
           >
             Rate Query
@@ -36,10 +36,10 @@ export const Search = (props: SearchProps) => {
         </Show>
         <a
           href={props.algoliaLink()}
-          class="text-zinc-600 p-1 border border-stone-300 w-fit bg-hn flex items-center gap-x-1 hover:border-stone-900 hover:text-zinc-900"
+          class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
           target="_blank"
         >
-          Try With Algolia <FiExternalLink class="w-4 h-4" />
+          Try With Algolia <FiExternalLink class="h-4 w-4" />
         </a>
       </div>
     </div>

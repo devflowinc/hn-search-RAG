@@ -49,7 +49,7 @@ export const RagQueries = (props: RagQueriesProps) => {
       controller={
         <div class="flex gap-2">
           <Select
-            class="min-w-[80px] min-h-7 bg-neutral-100/90"
+            class="min-h-7 min-w-[80px] bg-neutral-100/90"
             options={ALL_SORT_BY.map((e) => formatSortBy(e))}
             selected={formatSortBy(sortBy())}
             onSelected={(e) =>
@@ -57,12 +57,12 @@ export const RagQueries = (props: RagQueriesProps) => {
             }
           />
           <Select
-            class="min-w-[80px] min-h-7 bg-neutral-100/90"
+            class="min-h-7 min-w-[80px] bg-neutral-100/90"
             options={ALL_SORT_ORDER.map((e) => formatSortOrder(e))}
             selected={formatSortOrder(sortOrder())}
             onSelected={(e) =>
               setSortOrder(
-                ALL_SORT_ORDER.find((s) => formatSortOrder(s) === e)!
+                ALL_SORT_ORDER.find((s) => formatSortOrder(s) === e)!,
               )
             }
           />

@@ -52,13 +52,13 @@ export const Footer = () => {
       });
   });
   return (
-    <header class="flex py-[2px] px-2 min-h-[24px] items-center justify-center border-t border-[#ff6600]">
-      <div class="flex py-4 text-[8pt] items-center flex-wrap justify-center">
+    <header class="flex min-h-[24px] items-center justify-center border-t border-[#ff6600] px-2 py-[2px]">
+      <div class="flex flex-wrap items-center justify-center py-4 text-[8pt]">
         <a
           class="flex items-center hover:underline"
           href="https://github.com/devflowinc/trieve"
         >
-          <FiGithub class="h-3 w-3 mr-0.5" /> Star Us
+          <FiGithub class="mr-0.5 h-3 w-3" /> Star Us
         </a>
         <span class="px-1">|</span>
         <a
