@@ -1,4 +1,5 @@
 import ast
+from urllib.parse import urlparse
 import os
 import redis
 import requests
@@ -26,13 +27,14 @@ def deserialize_to_dict(item):
     if item and "type" in item and "deleted" not in item and "dead" not in item:
         row = {
             "by": item.get("by", ""),
-            "descendants": item.get("descendants", []),
+            "descendants": item.get("descendants", 0),
             "id": item.get("id", ""),
             "kids": item.get("kids", []),
             "score": item.get("score", 0),
             "time": item.get("time", 0),
             "title": item.get("title", ""),
             "parent": item.get("parent", ""),
+            "top_parent_id": -1,
             "text": (
                 item.get("text").strip().replace("\n", " ").replace("\r", " ")
                 if item.get("text")
@@ -65,7 +67,8 @@ def deserialize_to_dict(item):
         if row.get("type", "") == "comment":
             # Get Parent
             try:
-                parent_title = get_parent_title(item.get("id"))
+                (top_parent_id, parent_title) = get_parent_title(item.get("id"))
+                row["top_parent_id"] = top_parent_id
                 if parent_title:
                     distance = {
                         "boost_factor": comment_distance_factor,
@@ -87,21 +90,26 @@ def deserialize_to_dict(item):
 
         html = ""
 
-        if row.get("url"):
-            html += row.get("url") + "\n\n"
-
         if row.get("title"):
-            html += row.get("title") + "\n\n"
+            html += row.get("title") + " \n\n"
 
         if row.get("text"):
-            html += row.get("text") + "\n\n"
+            html += row.get("text") + " \n\n"
+
+        if row.get("url"):
+            url = row.get("url")
+            parsedUrl = urlparse(url)
+            if parsedUrl.netloc == "github.com":
+                tags.append("github.com/" + parsedUrl.path.split("/")[1])
+            tags.append(parsedUrl.netloc)
 
         data = dict(
             chunk_html=html,
             link=row["url"],
             metadata={
                 "by": row.get("by", ""),
-                "descendants": row.get("descendants", []),
+                "descendants": max(row.get("descendants", 0), len(row.get("kids", []))),
+                "top_parent_id": row.get("top_parent_id", -1),
                 "parent": row.get("parent", None),
                 "id": row.get("id"),
                 "kids": row.get("kids", []),
@@ -118,6 +126,7 @@ def deserialize_to_dict(item):
             tag_set=tags,
             num_value=row.get("score", 0),
             tracking_id=str(row.get("id")),
+            upsert_by_tracking_id=True,
             time_stamp=stamp,
         )
 
@@ -136,7 +145,7 @@ def get_parent_title(i):
     it = get_item(i)
     if it.get("parent", None):
         return get_parent_title(it.get("parent"))
-    return it.get("title", None)
+    return (i, it.get("title", None))
 
 
 def get_item(i):
@@ -164,6 +173,3 @@ while True:
         },
         json=chunks,
     )
-
-    if len(chunks) > 0:
-        redis_client.lpush("sent", *[str(chunk) for chunk in chunks])
