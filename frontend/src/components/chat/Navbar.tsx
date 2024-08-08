@@ -25,7 +25,7 @@ export interface NavbarProps {
 export const Navbar = (props: NavbarProps) => {
   const [editing, setEditing] = createSignal(false);
   const [editedContent, setEditedContent] = createSignal(
-    props.selectedTopic()?.name ?? ""
+    props.selectedTopic()?.name ?? "",
   );
   const [previousTopicId, setPreviousTopicId] = createSignal<
     string | undefined

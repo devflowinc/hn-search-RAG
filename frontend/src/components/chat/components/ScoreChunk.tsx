@@ -55,7 +55,7 @@ export const getLocalTime = (strDate: string | Date) => {
   const timeZoneOffsetMinutes = new Date().getTimezoneOffset();
 
   const localTime = new Date(
-    utcDate.getTime() - timeZoneOffsetMinutes * 60 * 1000
+    utcDate.getTime() - timeZoneOffsetMinutes * 60 * 1000,
   );
 
   return localTime;
@@ -284,7 +284,7 @@ const ScoreChunk = (props: ScoreChunkProps) => {
                 .replaceAll("line-height", "lh")
                 .replaceAll("\n", "<br>")
             : "",
-          sanitzerOptions
+          sanitzerOptions,
         )}
       />
       <Show when={useExpand()}>

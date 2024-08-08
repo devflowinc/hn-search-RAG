@@ -68,9 +68,9 @@ export const QueryCounts = (props: QueryCountsProps) => {
                   return (
                     <div class="text-center">
                       <div>{displaySearchType(search.search_type)}</div>
-                          <div class="opacity-50">
-                            {displaySearchMethod(search.search_method)}
-                          </div>
+                      <div class="opacity-50">
+                        {displaySearchMethod(search.search_method)}
+                      </div>
                       <div class="text-lg font-semibold">
                         {search.search_count}
                       </div>

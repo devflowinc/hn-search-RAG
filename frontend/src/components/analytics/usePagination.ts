@@ -3,14 +3,14 @@ import { createMemo, createSignal } from "solid-js";
 export function toTitleCase(str: string) {
   return str.replace(
     /\w\S*/g,
-    (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+    (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase(),
   );
 }
 
 export const usePagination = () => {
   const [page, setPage] = createSignal(1);
   const [maxPageDiscovered, setMaxPageDiscovered] = createSignal<number | null>(
-    null
+    null,
   );
 
   const nextPage = () => {

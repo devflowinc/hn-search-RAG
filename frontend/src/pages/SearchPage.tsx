@@ -59,41 +59,41 @@ export const SearchPage = () => {
       .get("matchAnyAuthorNames")
       ?.split(",")
       .map((name) => name.trim())
-      .filter((name) => name !== "") ?? []
+      .filter((name) => name !== "") ?? [],
   );
   const [matchNoneAuthorNames, setMatchNoneAuthorNames] = createSignal(
     urlParams
       .get("matchNoneAuthorNames")
       ?.split(",")
       .map((name) => name.trim())
-      .filter((name) => name !== "") ?? []
+      .filter((name) => name !== "") ?? [],
   );
   const [popularityFilters, setPopularityFilters] = createSignal<any>(
     urlParams.get("popularityFilters")
       ? JSON.parse(urlParams.get("popularityFilters") as string)
-      : {}
+      : {},
   );
   const [selectedStoryType, setSelectedStoryType] = createSignal(
-    urlParams.get("storyType") ?? "story"
+    urlParams.get("storyType") ?? "story",
   );
   const [sortBy, setSortBy] = createSignal(
-    urlParams.get("sortby") ?? "Relevance"
+    urlParams.get("sortby") ?? "Relevance",
   );
   const [dateRange, setDateRange] = createSignal<string>(
-    urlParams.get("dateRange") ?? "all"
+    urlParams.get("dateRange") ?? "all",
   );
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
-    urlParams.get("searchType") ?? "fulltext"
+    urlParams.get("searchType") ?? "fulltext",
   );
   const [recommendType, setRecommendType] = createSignal("semantic");
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
   const [positiveRecStory, setPositiveRecStory] = createSignal<Story | null>(
-    null
+    null,
   );
   const [recommendedStories, setRecommendedStories] = createSignal<Story[]>([]);
   const [showRecModal, setShowRecModal] = createSignal(false);
@@ -110,7 +110,7 @@ export const SearchPage = () => {
       urlParams.get("highlight_delimiters")?.split(",") ??
       defaultHighlightDelimiters,
     highlightThreshold: parseFloat(
-      urlParams.get("highlight_threshold") ?? "0.85"
+      urlParams.get("highlight_threshold") ?? "0.85",
     ),
     highlightMaxLength: parseInt(urlParams.get("highlight_max_length") ?? "50"),
     highlightMaxNum: parseInt(urlParams.get("highlight_max_num") ?? "50"),
@@ -162,7 +162,7 @@ export const SearchPage = () => {
     searchOptions.scoreThreshold &&
       urlParams.set(
         "score_threshold",
-        searchOptions.scoreThreshold?.toString()
+        searchOptions.scoreThreshold?.toString(),
       );
 
     urlParams.set("page_size", searchOptions.pageSize.toString());
@@ -170,29 +170,29 @@ export const SearchPage = () => {
     urlParams.set("rerank_type", searchOptions.rerankType ?? "none");
     urlParams.set(
       "highlight_delimiters",
-      searchOptions.highlightDelimiters.join(",")
+      searchOptions.highlightDelimiters.join(","),
     );
     urlParams.set(
       "highlight_threshold",
-      searchOptions.highlightThreshold.toString()
+      searchOptions.highlightThreshold.toString(),
     );
     urlParams.set(
       "highlight_max_length",
-      searchOptions.highlightMaxLength.toString()
+      searchOptions.highlightMaxLength.toString(),
     );
     urlParams.set(
       "highlight_max_num",
-      searchOptions.highlightMaxNum.toString()
+      searchOptions.highlightMaxNum.toString(),
     );
     urlParams.set("highlight_window", searchOptions.highlightWindow.toString());
     urlParams.set("recency_bias", searchOptions.recencyBias.toString());
     urlParams.set(
       "highlight_results",
-      searchOptions.highlightResults ? "true" : "false"
+      searchOptions.highlightResults ? "true" : "false",
     );
     urlParams.set(
       "use_quote_negated_terms",
-      searchOptions.useQuoteNegatedTerms ? "true" : "false"
+      searchOptions.useQuoteNegatedTerms ? "true" : "false",
     );
 
     if (abortController) {
@@ -213,16 +213,16 @@ export const SearchPage = () => {
     urlParams.set("page", page().toString());
     setAlgoliaLink(
       `https://hn.algolia.com/?q=${encodeURIComponent(
-        queryFiltersRemoved()
+        queryFiltersRemoved(),
       )}&dateRange=${dateRange()}&sort=by${
         sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&type=${selectedStoryType()}&page=0&prefix=false`
+      }&type=${selectedStoryType()}&page=0&prefix=false`,
     );
 
     window.history.replaceState(
       {},
       "",
-      `${window.location.pathname}?${urlParams.toString()}`
+      `${window.location.pathname}?${urlParams.toString()}`,
     );
 
     const time_range = dateRangeSwitch(dateRange());
@@ -252,8 +252,8 @@ export const SearchPage = () => {
       curNoneAuthorNames = [
         ...new Set(
           [...curNoneAuthorNames, ...byNegatedMatches].map((a) =>
-            a.replace("by:-", "").replace("by:", "").trim()
-          )
+            a.replace("by:-", "").replace("by:", "").trim(),
+          ),
         ),
       ];
     }
@@ -261,8 +261,8 @@ export const SearchPage = () => {
       curNoneAuthorNames = [
         ...new Set(
           [...curNoneAuthorNames, ...authorNegatedMatches].map((a) =>
-            a.replace("author:-", "").replace("author:", "").trim()
-          )
+            a.replace("author:-", "").replace("author:", "").trim(),
+          ),
         ),
       ];
     }
@@ -271,8 +271,8 @@ export const SearchPage = () => {
       curAnyAuthorNames = [
         ...new Set(
           [...curAnyAuthorNames, ...byNonNegatedMatches].map((a) =>
-            a.replace("by:-", "").replace("by:", "").trim()
-          )
+            a.replace("by:-", "").replace("by:", "").trim(),
+          ),
         ),
       ];
     }
@@ -280,8 +280,8 @@ export const SearchPage = () => {
       curAnyAuthorNames = [
         ...new Set(
           [...curAnyAuthorNames, ...authorNonNegatedMatches].map((a) =>
-            a.replace("author:-", "").replace("author:", "").trim()
-          )
+            a.replace("author:-", "").replace("author:", "").trim(),
+          ),
         ),
       ];
     }
@@ -695,7 +695,7 @@ export const SearchPage = () => {
 
   return (
     <>
-      <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
+      <main class="mx-auto bg-[#F6F6F0] font-verdana text-[13.33px] sm:bg-hn md:m-2 md:mx-auto md:w-[85%]">
         <Header setQuery={setQuery} />
         <Filters
           setSearchOptions={setSearchOptions}
@@ -726,14 +726,14 @@ export const SearchPage = () => {
           <Match when={stories().length === 0}>
             <Switch>
               <Match when={loading()}>
-                <div class="flex justify-center items-center py-2">
-                  <span class="text-xl animate-pulse">
+                <div class="flex items-center justify-center py-2">
+                  <span class="animate-pulse text-xl">
                     {queryFiltersRemoved() === "" ? "Scrolling" : "Searching"}{" "}
                   </span>
                 </div>
               </Match>
               <Match when={!loading()}>
-                <div class="flex justify-center items-center py-2">
+                <div class="flex items-center justify-center py-2">
                   <span class="text-xl">No stories found</span>
                 </div>
               </Match>
@@ -773,7 +773,7 @@ export const SearchPage = () => {
           </Match>
         </Switch>
         <Show when={stories().length > 0 && queryFiltersRemoved() != ""}>
-          <div class="mx-auto py-3 flex items-center space-x-2 justify-center">
+          <div class="mx-auto flex items-center justify-center space-x-2 py-3">
             <PaginationController
               page={page()}
               setPage={setPage}
@@ -784,7 +784,7 @@ export const SearchPage = () => {
         <Footer />
       </main>
       <FullScreenModal show={showRecModal} setShow={setShowRecModal}>
-        <div class="flex flex-col items-center justify-center w-full max-w-[70vw]">
+        <div class="flex w-full max-w-[70vw] flex-col items-center justify-center">
           <Switch>
             <Match when={recommendedStories().length === 0}>
               <p class="animate-pulse">
@@ -800,7 +800,7 @@ export const SearchPage = () => {
                 <span class="inline">
                   <select
                     id="stories"
-                    class="form-select text-zinc-600 p-1 border border-stone-300 w-fit bg-hn"
+                    class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600"
                     onChange={(e) => {
                       setRecommendType(e.currentTarget.value);
                     }}
@@ -813,7 +813,7 @@ export const SearchPage = () => {
                 for {recommendDateRangeDisplay()} to:{" "}
                 <span class="font-semibold">{positiveRecStory()?.title}</span>
               </p>
-              <div class="pt-2 border-t">
+              <div class="border-t pt-2">
                 <For each={recommendedStories()}>
                   {(story) => (
                     <Story
@@ -842,7 +842,7 @@ export const SearchPage = () => {
             <label class="block text-lg">Rating: {rating().rating}</label>
             <input
               type="range"
-              class="text-[#ff6600] min-w-full accent-[#ff6600] focus:outline-none"
+              class="min-w-full text-[#ff6600] accent-[#ff6600] focus:outline-none"
               value={rating().rating}
               min="0"
               max="10"
@@ -859,11 +859,11 @@ export const SearchPage = () => {
             </div>
           </div>
           <div>
-            <label class="block text-lg mt-2">
+            <label class="mt-2 block text-lg">
               Optional Explanation of Rating (contact info if willing):
             </label>
             <textarea
-              class="p-1 mt-2 min-w-full rounded-md border border-stone-300 active:border-stone-500 focus-within:border-stone-500"
+              class="mt-2 min-w-full rounded-md border border-stone-300 p-1 focus-within:border-stone-500 active:border-stone-500"
               placeholder="Enter written feedback about search ..."
               value={rating().note}
               onInput={(e) => {
@@ -874,9 +874,9 @@ export const SearchPage = () => {
               }}
             />
           </div>
-          <div class="mx-auto flex w-fit flex-col space-y-3 pt-2 mt-3">
+          <div class="mx-auto mt-3 flex w-fit flex-col space-y-3 pt-2">
             <button
-              class="text-zinc-600 p-1 border border-stone-300 w-fit bg-hn flex items-center gap-x-1 hover:border-stone-900 hover:text-zinc-900"
+              class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
               onClick={() => {
                 rateQuery();
                 setOpenRateQueryModal(false);

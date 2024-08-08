@@ -83,7 +83,7 @@ export const createTopic = async (newMessageContent: string, id: string) => {
 
 export const fetchCompletion = async (
   params: any,
-  abortSignal: AbortSignal
+  abortSignal: AbortSignal,
 ) => {
   const response = await fetch(`${apiHost}/message`, {
     method: params.regenerateLastMessage ? "DELETE" : "POST",
@@ -101,7 +101,7 @@ export const fetchCompletion = async (
 
 export const fetchMessages = async (
   topicId: string,
-  abortSignal: AbortSignal
+  abortSignal: AbortSignal,
 ) => {
   const response = await fetch(`${apiHost}/messages/${topicId}`, {
     method: "GET",

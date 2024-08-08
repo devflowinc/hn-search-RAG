@@ -20,7 +20,7 @@ export const createToast = ({ type, message }: ToastDetail) => {
         type,
         message,
       },
-    })
+    }),
   );
 };
 
@@ -37,8 +37,8 @@ const ShowToast = () => {
       timeOutId = setTimeout(() => {
         setToastDetails((prev) =>
           prev.filter(
-            (prevToastDetail) => prevToastDetail !== toastEvent.detail
-          )
+            (prevToastDetail) => prevToastDetail !== toastEvent.detail,
+          ),
         );
       }, 1000);
     };
@@ -55,7 +55,7 @@ const ShowToast = () => {
     <div class="z-100 fixed right-5 top-10 flex flex-col space-y-2 rounded">
       <For each={toastDetails()}>
         {(toastDetail) => (
-          <div class="flex w-auto shadow-lg items-center justify-between space-x-4 rounded bg-[#F6F6F0] px-5 py-2 text-center">
+          <div class="flex w-auto items-center justify-between space-x-4 rounded bg-[#F6F6F0] px-5 py-2 text-center shadow-lg">
             {toastDetail.type === "success" ? (
               <BsCheck2Circle class="text-green-600" size={25} />
             ) : (
@@ -67,8 +67,8 @@ const ShowToast = () => {
               onClick={() => {
                 setToastDetails((prev) =>
                   prev.filter(
-                    (prevToastDetail) => prevToastDetail !== toastDetail
-                  )
+                    (prevToastDetail) => prevToastDetail !== toastDetail,
+                  ),
                 );
               }}
               size={25}

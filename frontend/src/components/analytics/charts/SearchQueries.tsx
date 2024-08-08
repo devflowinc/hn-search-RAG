@@ -34,7 +34,7 @@ export const SearchQueries = (props: SearchQueriesProps) => {
   const [sortBy, setSortBy] = createSignal<SortBy>("created_at");
   const [sortOrder, setSortOrder] = createSignal<SortOrder>("desc");
   const [searchQueries, setSearchQueries] = createSignal<SearchQueryEvent[]>(
-    []
+    [],
   );
 
   createEffect(async () => {
@@ -44,7 +44,7 @@ export const SearchQueries = (props: SearchQueriesProps) => {
       props.params.filter,
       sortBy(),
       sortOrder(),
-      curPage
+      curPage,
     );
 
     if (results.length === 0) {
@@ -149,7 +149,7 @@ const SearchRow = (props: SearchRowProps) => {
   const searchMethod = createMemo(() => {
     return typeof (props.event.request_params ?? {})["search_type"] === "string"
       ? formatSearchMethod(
-          (props.event.request_params ?? {})["search_type"] as string
+          (props.event.request_params ?? {})["search_type"] as string,
         )
       : "All";
   });
@@ -160,7 +160,7 @@ const SearchRow = (props: SearchRowProps) => {
         <Td>
           {format(
             parseCustomDateString(props.event.created_at),
-            "M/d/yy h:mm a"
+            "M/d/yy h:mm a",
           )}
         </Td>
         <Show when={typeof props.filter.search_method === "undefined"}>
@@ -182,14 +182,14 @@ const SearchRow = (props: SearchRowProps) => {
         </Td>
       </Tr>
       <FullScreenModal show={openParamResults} setShow={setOpenParamResults}>
-        <div class="flex flex-col gap-4 w-[60vw]">
+        <div class="flex w-[60vw] flex-col gap-4">
           <div class="flex space-x-2">
             <h2 class="text-xl font-bold">Request Params</h2>
             <button
-              class="text-[#ff6600] text-sm"
+              class="text-sm text-[#ff6600]"
               onClick={(e) => {
                 navigator.clipboard.writeText(
-                  JSON.stringify(props.event.request_params, null, 2)
+                  JSON.stringify(props.event.request_params, null, 2),
                 );
 
                 const target = e.target as HTMLButtonElement;
@@ -208,10 +208,10 @@ const SearchRow = (props: SearchRowProps) => {
           <div class="flex space-x-2">
             <h2 class="text-xl font-bold">Results</h2>
             <button
-              class="text-[#ff6600] text-sm"
+              class="text-sm text-[#ff6600]"
               onClick={(e) => {
                 navigator.clipboard.writeText(
-                  JSON.stringify(props.event.request_params, null, 2)
+                  JSON.stringify(props.event.request_params, null, 2),
                 );
 
                 const target = e.target as HTMLButtonElement;

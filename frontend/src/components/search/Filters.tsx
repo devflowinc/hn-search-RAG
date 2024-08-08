@@ -106,7 +106,7 @@ export default function Filters(props: FiltersProps) {
         JSON.stringify({
           gt: rangeDate().value.start?.toString(),
           lt: rangeDate().value.end?.toString(),
-        })
+        }),
       );
     }
   });
@@ -118,8 +118,8 @@ export default function Filters(props: FiltersProps) {
   });
 
   return (
-    <div class="p-2 flex items-center gap-2">
-      <div class="flex flex-wrap gap-2 text-black items-center">
+    <div class="flex items-center gap-2 p-2">
+      <div class="flex flex-wrap items-center gap-2 text-black">
         <span>Search</span>
         <div>
           <label for="stories" class="sr-only">
@@ -127,7 +127,7 @@ export default function Filters(props: FiltersProps) {
           </label>
           <select
             id="stories"
-            class="form-select text-zinc-600 p-1 border border-stone-300 w-fit bg-hn"
+            class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600"
             onChange={(e) => props.setSelectedStoryType(e.currentTarget.value)}
             value={props.selectedStoryType()}
           >
@@ -149,7 +149,7 @@ export default function Filters(props: FiltersProps) {
           </label>
           <select
             id="popularity"
-            class="form-select text-zinc-600 p-1 border border-stone-300 bg-hn"
+            class="form-select border border-stone-300 bg-hn p-1 text-zinc-600"
             onChange={(e) => props.setSortBy(e.currentTarget.value)}
             value={props.sortBy()}
           >
@@ -169,7 +169,7 @@ export default function Filters(props: FiltersProps) {
             renderInput={({ showDate }) => (
               <select
                 id="date-range"
-                class="form-select text-zinc-600 p-1 border border-stone-300 bg-hn"
+                class="form-select border border-stone-300 bg-hn p-1 text-zinc-600"
                 onClick={(e) => {
                   e.preventDefault();
                   if (e.currentTarget.value === "custom") {
@@ -205,7 +205,7 @@ export default function Filters(props: FiltersProps) {
         <div>
           <select
             id="stories"
-            class="form-select text-zinc-600 p-1 border border-stone-300 w-fit bg-hn"
+            class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600"
             onChange={(e) => {
               props.setSearchType(e.currentTarget.value);
               props.setSearchOptions("rerankType", undefined);
@@ -236,7 +236,7 @@ export default function Filters(props: FiltersProps) {
             </div>
             <button
               onClick={() => setOpenAuthorFilterModal((prev) => !prev)}
-              class="form-select text-xs w-fit bg-hn flex items-center gap-1"
+              class="form-select flex w-fit items-center gap-1 bg-hn text-xs"
             >
               Author Filters
               <FaSolidChevronDown size={10} />
@@ -245,15 +245,15 @@ export default function Filters(props: FiltersProps) {
 
           <Show when={openAuthorFilterModal()}>
             <div
-              class="fixed top-1 left-0 min-h-screen w-full z-5"
+              class="z-5 fixed left-0 top-1 min-h-screen w-full"
               onClick={() => setOpenAuthorFilterModal(false)}
             />
-            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10 right-0">
+            <div class="absolute right-0 top-[1.85rem] z-10 flex flex-col gap-2 border border-stone-300 bg-hn p-2">
               <label for="matchAnyAuthors">Any of the following authors:</label>
-              <div class="flex items-center gap-2 border border-stone-300 px-1 py-0.5 bg-hn focus:border-black">
+              <div class="flex items-center gap-2 border border-stone-300 bg-hn px-1 py-0.5 focus:border-black">
                 <input
                   id="matchAnyAuthors"
-                  class="form-input text-zinc-600 border-none focus:border-none focus:ring-0 bg-transparent focus:outline-none"
+                  class="form-input border-none bg-transparent text-zinc-600 focus:border-none focus:outline-none focus:ring-0"
                   type="text"
                   placeholder="Author Name"
                   value={currentAnyAuthor()}
@@ -268,7 +268,7 @@ export default function Filters(props: FiltersProps) {
                   }}
                 />
                 <button
-                  class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
+                  class="rounded-full border border-stone-300 bg-hn px-2 py-0.5 hover:border-black"
                   onClick={() => {
                     const curAnyAuthor = currentAnyAuthor();
                     if (!curAnyAuthor) return;
@@ -287,10 +287,10 @@ export default function Filters(props: FiltersProps) {
                   <div class="flex items-center gap-2">
                     <p>{author}</p>
                     <button
-                      class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
+                      class="rounded-full border border-stone-300 bg-hn px-2 py-0.5 hover:border-black"
                       onClick={() => {
                         props.setMatchAnyAuthorNames((prev) =>
-                          prev.filter((a) => a !== author)
+                          prev.filter((a) => a !== author),
                         );
                       }}
                     >
@@ -303,10 +303,10 @@ export default function Filters(props: FiltersProps) {
               <label for="matchNoneAuthorNames">
                 None of the following authors:
               </label>
-              <div class="flex items-center gap-2 border border-stone-300 px-1 py-0.5 bg-hn focus:border-black">
+              <div class="flex items-center gap-2 border border-stone-300 bg-hn px-1 py-0.5 focus:border-black">
                 <input
                   id="matchNoneAuthorNames"
-                  class="form-input text-zinc-600 border-none focus:border-none focus:ring-0 bg-transparent focus:outline-none"
+                  class="form-input border-none bg-transparent text-zinc-600 focus:border-none focus:outline-none focus:ring-0"
                   type="text"
                   placeholder="Author Name"
                   value={currentNoneAuthor()}
@@ -321,7 +321,7 @@ export default function Filters(props: FiltersProps) {
                   }}
                 />
                 <button
-                  class="bg-hn py-0.5 px-2 border border-stone-300 rounded-full hover:border-black"
+                  class="rounded-full border border-stone-300 bg-hn px-2 py-0.5 hover:border-black"
                   onClick={() => {
                     const curNoneAuthor = currentNoneAuthor();
                     if (!curNoneAuthor) return;
@@ -340,10 +340,10 @@ export default function Filters(props: FiltersProps) {
                   <div class="flex items-center gap-2">
                     <p>{author}</p>
                     <button
-                      class="bg-hn py-[1px] px-2 border border-stone-300 rounded-full hover:border-black"
+                      class="rounded-full border border-stone-300 bg-hn px-2 py-[1px] hover:border-black"
                       onClick={() => {
                         props.setMatchNoneAuthorNames((prev) =>
-                          prev.filter((a) => a !== author)
+                          prev.filter((a) => a !== author),
                         );
                       }}
                     >
@@ -371,7 +371,7 @@ export default function Filters(props: FiltersProps) {
             </div>
             <button
               onClick={() => setOpenPopularityFilterModal((prev) => !prev)}
-              class="form-select text-xs w-fit bg-hn flex items-center gap-1"
+              class="form-select flex w-fit items-center gap-1 bg-hn text-xs"
             >
               Popularity Filters
               <FaSolidChevronDown size={10} />
@@ -379,10 +379,10 @@ export default function Filters(props: FiltersProps) {
           </div>
           <Show when={openPopularityFilterModal()}>
             <div
-              class="fixed top-1 left-0 min-h-screen w-full z-5"
+              class="z-5 fixed left-0 top-1 min-h-screen w-full"
               onClick={() => setOpenPopularityFilterModal(false)}
             />
-            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10 right-0 min-w-[100px]">
+            <div class="absolute right-0 top-[1.85rem] z-10 flex min-w-[100px] flex-col gap-2 border border-stone-300 bg-hn p-2">
               <label for="gtPoints">&gt; points:</label>
               <input
                 id="gtPoints"
@@ -477,18 +477,18 @@ export default function Filters(props: FiltersProps) {
         <div class="relative">
           <button
             onClick={() => setOpenAdvancedOptions((prev) => !prev)}
-            class="form-select text-xs w-fit bg-hn flex items-center gap-1"
+            class="form-select flex w-fit items-center gap-1 bg-hn text-xs"
           >
             Advanced
             <FaSolidChevronDown size={10} />
           </button>
           <Show when={openAdvancedOptions()}>
             <div
-              class="fixed top-1 left-0 min-h-screen w-full z-5"
+              class="z-5 fixed left-0 top-1 min-h-screen w-full"
               onClick={() => setOpenAdvancedOptions(false)}
             />
-            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10 right-0">
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+            <div class="absolute right-0 top-[1.85rem] z-10 flex flex-col gap-2 border border-stone-300 bg-hn p-2">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Score Threshold (0.0 to 1.0):</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -498,12 +498,12 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "scoreThreshold",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Prefetch Amount:</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -513,20 +513,20 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "prefetchAmount",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Rerank type:</label>
                 <select
-                  class="rounded border border-neutral-400 p-1 bg-white text-black"
+                  class="rounded border border-neutral-400 bg-white p-1 text-black"
                   onChange={(e) => {
                     const newType = e.currentTarget.value;
                     props.setSearchOptions(
                       "rerankType",
-                      newType === "none" ? undefined : newType
+                      newType === "none" ? undefined : newType,
                     );
                   }}
                   value={props.searchOptions.rerankType ?? "none"}
@@ -536,7 +536,7 @@ export default function Filters(props: FiltersProps) {
                   <option>Full Text</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Page size</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -548,7 +548,7 @@ export default function Filters(props: FiltersProps) {
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Highlight Delimiters (seperated by ',')</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -558,12 +558,12 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightDelimiters",
-                      e.target.value.split(",")
+                      e.target.value.split(","),
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Highlight Threshold</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -573,12 +573,12 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightThreshold",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Highlight Max Length</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -588,12 +588,12 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxLength",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Highlight Max Number</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -603,12 +603,12 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightMaxNum",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Highlight Results (Latency Penalty)</label>
                 <input
                   class="h-4 w-4"
@@ -617,12 +617,12 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "highlightResults",
-                      e.target.checked
+                      e.target.checked,
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Use Quote Negated Terms (Latency Penalty)</label>
                 <input
                   class="h-4 w-4"
@@ -631,12 +631,12 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "useQuoteNegatedTerms",
-                      e.target.checked
+                      e.target.checked,
                     );
                   }}
                 />
               </div>
-              <div class="flex items-center justify-between space-x-2 p-1 whitespace-nowrap">
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Recency bias (0.0) to (1.0)</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -646,7 +646,7 @@ export default function Filters(props: FiltersProps) {
                   onChange={(e) => {
                     props.setSearchOptions(
                       "recencyBias",
-                      e.target.valueAsNumber
+                      e.target.valueAsNumber,
                     );
                   }}
                 />

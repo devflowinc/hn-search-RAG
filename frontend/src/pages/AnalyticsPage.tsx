@@ -28,9 +28,9 @@ export const AnalyticsPage = () => {
     createSignal<AnalyticsType>("search");
 
   return (
-    <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
+    <main class="mx-auto bg-[#F6F6F0] font-verdana text-[13.33px] sm:bg-hn md:m-2 md:mx-auto md:w-[85%]">
       <Header />
-      <div class="rounded-md bg-blue-100 p-4 mx-3 my-2">
+      <div class="mx-3 my-2 rounded-md bg-blue-100 p-4">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg
@@ -54,7 +54,7 @@ export const AnalyticsPage = () => {
             <p class="mt-3 text-sm md:ml-6 md:mt-0">
               <a
                 href="https://docs.trieve.ai/api-reference/analytics/get-ctr-analytics"
-                class="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600 hover:underline align-middle"
+                class="whitespace-nowrap align-middle font-medium text-blue-700 hover:text-blue-600 hover:underline"
               >
                 Docs
                 <span aria-hidden="true"> &rarr;</span>

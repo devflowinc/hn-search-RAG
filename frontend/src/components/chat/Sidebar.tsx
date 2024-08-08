@@ -145,10 +145,10 @@ export const Sidebar = (props: SidebarProps) => {
                               e.preventDefault();
                               void deleteTopic(topic.id);
                               props.setSelectedTopic(
-                                props.topics().filter((t) => t.id !== "0")[0]
+                                props.topics().filter((t) => t.id !== "0")[0],
                               );
                               props.setTopics(
-                                props.topics().filter((t) => t.id !== topic.id)
+                                props.topics().filter((t) => t.id !== topic.id),
                               );
                             }}
                             class="text-lg hover:text-red-500"

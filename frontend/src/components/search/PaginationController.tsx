@@ -34,7 +34,8 @@ export const PaginationController = (props: PaginationControllerProps) => {
         <button
           onClick={() => {
             props.setPage(props.page - 1);
-          }}>
+          }}
+        >
           <BiRegularChevronLeft class="h-8 w-8 fill-current text-neutral-400 dark:text-neutral-500" />
         </button>
       </Show>
@@ -44,7 +45,8 @@ export const PaginationController = (props: PaginationControllerProps) => {
           props.totalPages - props.page > 1 ? props.page : props.totalPages - 2,
           // Show 5 pages, unless there are less than 5 total pages
           Math.min(props.totalPages, 5),
-        )}>
+        )}
+      >
         {(n) => (
           <button
             classList={{
@@ -55,7 +57,8 @@ export const PaginationController = (props: PaginationControllerProps) => {
             }}
             onClick={() => {
               props.setPage(n);
-            }}>
+            }}
+          >
             {n}
           </button>
         )}
@@ -64,7 +67,8 @@ export const PaginationController = (props: PaginationControllerProps) => {
         <button
           onClick={() => {
             props.setPage(props.page + 1);
-          }}>
+          }}
+        >
           <BiRegularChevronRight class="h-8 w-8 fill-current text-neutral-400 dark:text-neutral-500" />
         </button>
       </Show>

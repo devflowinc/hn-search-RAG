@@ -26,7 +26,7 @@ export const RpsGraph = (props: RpsGraphProps) => {
   createEffect(async () => {
     let results = await getRpsUsageGraph(
       props.params.filter,
-      props.params.granularity
+      props.params.granularity,
     );
     setUsage(results);
   });
@@ -117,7 +117,7 @@ export const RpsGraph = (props: RpsGraphProps) => {
 
     // Update the chart data;
     chartInstance.data.labels = data.map(
-      (point) => new Date(parseCustomDateString(point.time_stamp, true))
+      (point) => new Date(parseCustomDateString(point.time_stamp, true)),
     );
     chartInstance.data.datasets[0].data = data.map((point) => point.requests);
     chartInstance.update();

@@ -25,10 +25,7 @@ export const HeadQueries = (props: HeadQueriesProps) => {
 
   return (
     <>
-      <Show
-        fallback={<div class="py-8">Loading...</div>}
-        when={results()}
-      >
+      <Show fallback={<div class="py-8">Loading...</div>} when={results()}>
         {(data) => (
           <Table
             fallback={<div class="py-8 text-center">No Data</div>}

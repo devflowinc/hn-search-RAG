@@ -101,7 +101,7 @@ const MainLayout = (props: LayoutProps) => {
   };
 
   const handleReader = async (
-    reader: ReadableStreamDefaultReader<Uint8Array>
+    reader: ReadableStreamDefaultReader<Uint8Array>,
   ) => {
     let done = false;
     while (!done) {
@@ -139,7 +139,7 @@ const MainLayout = (props: LayoutProps) => {
   const addNewMessage = (new_message_content: string) => {
     setNewMessageContent("");
     const newMessageTextarea = document.querySelector(
-      "#new-message-content-textarea"
+      "#new-message-content-textarea",
     ) as HTMLTextAreaElement | undefined;
     newMessageTextarea && resizeTextarea(newMessageTextarea);
 
@@ -195,7 +195,7 @@ const MainLayout = (props: LayoutProps) => {
           system_prompt: chatSettings.systemPrompt,
           regenerateLastMessage,
         },
-        completionAbortController().signal
+        completionAbortController().signal,
       );
 
       if (!reader) {
@@ -212,7 +212,7 @@ const MainLayout = (props: LayoutProps) => {
 
   const fetchMessagesHandler = async (
     topicId: string | undefined,
-    abortController: AbortController
+    abortController: AbortController,
   ) => {
     if (!topicId) {
       return;
@@ -235,7 +235,7 @@ const MainLayout = (props: LayoutProps) => {
       }
       setMessages([]);
       fetchMessagesHandler(props.selectedTopic()?.id!, new AbortController());
-    })
+    }),
   );
 
   const submitNewMessage = () => {
@@ -251,7 +251,7 @@ const MainLayout = (props: LayoutProps) => {
 
   return (
     <>
-      <div class="relative flex w-full  flex-col justify-between">
+      <div class="relative flex w-full flex-col justify-between">
         <div
           class="flex flex-col items-stretch gap-6 px-4 pb-32 pt-4"
           id="topic-messages"
@@ -279,7 +279,7 @@ const MainLayout = (props: LayoutProps) => {
 
                     const params = {
                       filters: getFiltersFromStorage(
-                        props.selectedTopic()?.id!
+                        props.selectedTopic()?.id!,
                       ),
                       concat_user_messages_query:
                         chatSettings.concatUserMessagesQuery,
@@ -321,7 +321,7 @@ const MainLayout = (props: LayoutProps) => {
           </For>
         </div>
 
-        <div class=" fixed bottom-[7vh] right-21 flex w-full flex-col items-center space-y-4 bg-gradient-to-b from-transparent via-zinc-200 to-zinc-100 p-4 dark:via-zinc-800 dark:to-zinc-900 lg:w-[68vw]">
+        <div class="right-21 fixed bottom-[7vh] flex w-full flex-col items-center space-y-4 bg-gradient-to-b from-transparent via-zinc-200 to-zinc-100 p-4 dark:via-zinc-800 dark:to-zinc-900 lg:w-[68vw]">
           <Show when={messages().length > 0}>
             <div class="flex w-full justify-center">
               <Switch>

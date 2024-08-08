@@ -13,7 +13,7 @@ import { getLatency } from "../api/analytics";
 
 export const parseCustomDateString = (
   dateString: string,
-  keepUTC?: boolean
+  keepUTC?: boolean,
 ) => {
   const [datePart, timePart] = dateString.split(" ");
   let [year, month, day] = datePart.split("-");
@@ -44,13 +44,13 @@ interface LatencyGraphProps {
 export const LatencyGraph = (props: LatencyGraphProps) => {
   const [canvasElement, setCanvasElement] = createSignal<HTMLCanvasElement>();
   const [latencyPoints, setLatencyPoints] = createSignal<LatencyDatapoint[]>(
-    []
+    [],
   );
   let chartInstance: Chart | null = null;
   createEffect(async () => {
     let results = await getLatency(
       props.params.filter,
-      props.params.granularity
+      props.params.granularity,
     );
     setLatencyPoints(results);
   });
@@ -126,10 +126,10 @@ export const LatencyGraph = (props: LatencyGraphProps) => {
     chartInstance.options.scales["x"].time.minUnit = props.params.granularity;
     // Update the chart data
     chartInstance.data.labels = data.map(
-      (point) => new Date(parseCustomDateString(point.time_stamp, true))
+      (point) => new Date(parseCustomDateString(point.time_stamp, true)),
     );
     chartInstance.data.datasets[0].data = data.map(
-      (point) => point.average_latency
+      (point) => point.average_latency,
     );
     chartInstance.update();
   });

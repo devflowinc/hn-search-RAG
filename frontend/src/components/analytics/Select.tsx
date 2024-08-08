@@ -14,7 +14,7 @@ export const Select = (props: SelectProps) => {
     <>
       <Show when={props.label}>{(label) => label()}</Show>
       <select
-        class={`bg-neutral-200/70 min-w-[100px] relative border rounded border-neutral-300 ${props.class}`}
+        class={`relative min-w-[100px] rounded border border-neutral-300 bg-neutral-200/70 ${props.class}`}
         value={props.selected}
         onChange={(e) => props.onSelected(e.target.value)}
       >

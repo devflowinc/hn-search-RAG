@@ -44,7 +44,7 @@ export const FullScreenModal = (props: FullScreenModalProps) => {
           class="fixed inset-0 z-10 overflow-y-auto"
           onClose={() => props.setShow(false)}
         >
-          <div class="min-h-screen px-4 flex items-center justify-center">
+          <div class="flex min-h-screen items-center justify-center px-4">
             <TransitionChild
               enter="ease-out duration-300"
               enterFrom="opacity-0"
@@ -68,7 +68,7 @@ export const FullScreenModal = (props: FullScreenModalProps) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel class="inline-block w-full p-6 my-8 overflow-hidden text-left border border-neutral-100 align-middle transition-all transform bg-[#F6F6F0] shadow-xl rounded">
+              <DialogPanel class="my-8 inline-block w-full transform overflow-hidden rounded border border-neutral-100 bg-[#F6F6F0] p-6 text-left align-middle shadow-xl transition-all">
                 <Show when={props.title}>
                   {(title) => (
                     <div class="flex items-center justify-between">
