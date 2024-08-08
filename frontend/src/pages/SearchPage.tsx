@@ -68,7 +68,11 @@ export const SearchPage = () => {
       .map((name) => name.trim())
       .filter((name) => name !== "") ?? []
   );
-  const [popularityFilters, setPopularityFilters] = createSignal<any>({});
+  const [popularityFilters, setPopularityFilters] = createSignal<any>(
+    urlParams.get("popularityFilters")
+      ? JSON.parse(urlParams.get("popularityFilters") as string)
+      : {}
+  );
   const [selectedStoryType, setSelectedStoryType] = createSignal(
     urlParams.get("storyType") ?? "story"
   );
@@ -202,6 +206,7 @@ export const SearchPage = () => {
     urlParams.set("storyType", selectedStoryType());
     urlParams.set("matchAnyAuthorNames", matchAnyAuthorNames().join(","));
     urlParams.set("matchNoneAuthorNames", matchNoneAuthorNames().join(","));
+    urlParams.set("popularityFilters", JSON.stringify(popularityFilters()));
     urlParams.set("sortby", sortBy());
     urlParams.set("dateRange", dateRange());
     urlParams.set("searchType", searchType());
