@@ -1,6 +1,7 @@
 import { createSignal, JSX, Match, Show, Switch } from "solid-js";
 import { Footer } from "../components/Footer";
 import Header from "../components/Header";
+import { FiLinkedin } from "solid-icons/fi";
 
 export const AboutPage = () => {
   return (
@@ -61,8 +62,8 @@ export const AboutPage = () => {
               <p>
                 The painful portion was that unique one-off work was required
                 for the frontend and ingest of this demo; it took 100+ commits.
-                The RAG bit could be higher quality, but for now we just
-                copied the code from our RAG playground at{" "}
+                The RAG bit could be higher quality, but for now we just copied
+                the code from our RAG playground at{" "}
                 <a class="underline" href="https://chat.trieve.ai">
                   chat.trieve.ai
                 </a>
@@ -153,13 +154,13 @@ export const AboutPage = () => {
                 <tbody>
                   <tr>
                     <td>1x g2-standard-4</td>
-                    <td>32cpu  256GB + T4 GPU</td>
+                    <td>32cpu 256GB + T4 GPU</td>
                     <td>$508.90</td>
                     <td>Text-Embeddings-Inference Servers</td>
                   </tr>
                   <tr>
                     <td>4x c2d-highmem-32</td>
-                    <td>32cpu  256GB</td>
+                    <td>32cpu 256GB</td>
                     <td>$5,643.36</td>
                     <td>4 node Qdrant Cluster (2x Replication)</td>
                   </tr>
@@ -190,6 +191,136 @@ export const AboutPage = () => {
                 vectors work significantly better for recommendations. If
                 recommendations don't get much usage, we will probably drop the
                 dense vectors to decrease costs.
+              </p>
+            </>
+          }
+        />
+        <FAQCard
+          question="Contact Us"
+          answer={
+            <>
+              <p>
+                Email:{" "}
+                <a class="underline" href="mailto:humans@trieve.ai">
+                  humans@trieve.ai
+                </a>
+              </p>
+              <p>
+                𝕏:{" "}
+                <a class="underline" href="https://x.com/trieveai">
+                  @trieveai
+                </a>
+              </p>
+              <p>
+                <FiLinkedin class="w-4 h-4 inline-block" />:{" "}
+                <a
+                  class="underline"
+                  href="https://www.linkedin.com/company/trieveai"
+                >
+                  linkedin.com/company/trieveai
+                </a>
+              </p>
+              <p>
+                Discord:{" "}
+                <a class="underline" href="https://discord.gg/eBJXXZDB8z">
+                  discord.gg/eBJXXZDB8z
+                </a>
+              </p>
+              <p>
+                Matrix:{" "}
+                <a
+                  class="underline"
+                  href="https://matrix.to/#/#trieve-general:trieve.ai"
+                >
+                  matrix.to/#/#trieve-general:trieve.ai
+                </a>
+              </p>
+            </>
+          }
+        />
+      </div>
+      <Footer />
+    </main>
+  );
+};
+
+export const HelpPage = () => {
+  return (
+    <main class="bg-[#F6F6F0] sm:bg-hn font-verdana md:m-2 md:w-[85%] mx-auto md:mx-auto text-[13.33px]">
+      <Header />
+      <div class="my-6 flex flex-col gap-y-5">
+        <FAQCard
+          question="Advanced search syntax"
+          answer={
+            <>
+              <ul>
+                <li>
+                  Use <code>"</code> to match a particular sequence of terms{" "}
+                  <code>"search engine"</code>
+                </li>
+                <li>
+                  Use <code>-</code> to ensure a word won't appear in the result
+                  set <code>search -optimization</code>,
+                </li>
+                <li>
+                  Use <code>author:USERNAME</code> or <code>by:USERNAME</code>{" "}
+                  to filter by author,
+                </li>
+                <li>
+                  Use <code>story:ID</code> to filter by story,
+                </li>
+                <li>
+                  Use <code>points&gt;NUMBER</code> or{" "}
+                  <code>points&lt;NUMBER</code> to filter by points,
+                </li>
+                <li>
+                  Use <code>comments&gt;NUMBER</code> or{" "}
+                  <code>comments&lt;NUMBER</code> to filter by number of
+                  comments,
+                </li>
+              </ul>
+            </>
+          }
+        />
+        <FAQCard
+          question="Contact Us"
+          answer={
+            <>
+              <p>
+                Email:{" "}
+                <a class="underline" href="mailto:humans@trieve.ai">
+                  humans@trieve.ai
+                </a>
+              </p>
+              <p>
+                𝕏:{" "}
+                <a class="underline" href="https://x.com/trieveai">
+                  @trieveai
+                </a>
+              </p>
+              <p>
+                <FiLinkedin class="w-4 h-4 inline-block" />:{" "}
+                <a
+                  class="underline"
+                  href="https://www.linkedin.com/company/trieveai"
+                >
+                  linkedin.com/company/trieveai
+                </a>
+              </p>
+              <p>
+                Discord:{" "}
+                <a class="underline" href="https://discord.gg/eBJXXZDB8z">
+                  discord.gg/eBJXXZDB8z
+                </a>
+              </p>
+              <p>
+                Matrix:{" "}
+                <a
+                  class="underline"
+                  href="https://matrix.to/#/#trieve-general:trieve.ai"
+                >
+                  matrix.to/#/#trieve-general:trieve.ai
+                </a>
               </p>
             </>
           }

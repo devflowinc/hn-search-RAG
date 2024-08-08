@@ -91,12 +91,29 @@ export function isTimeRange(value: object): value is TimeRange {
       (value as TimeRange).lte)) as boolean;
 }
 
-export const getFilters = (
-  selectedStoryType: string | null,
-  dateRange: TimeRange | null,
-  matchAnyAuthorNames: string[] | null,
-  matchNoneAuthorNames: string[] | null
-) => {
+export interface GetFiltersParams {
+  dateRange: TimeRange | null;
+  selectedStoryType: string | null;
+  matchAnyAuthorNames: string[] | null;
+  matchNoneAuthorNames: string[] | null;
+  gtStoryPoints: number | null;
+  ltStoryPoints: number | null;
+  gtStoryComments: number | null;
+  ltStoryComments: number | null;
+  storyID: string | null;
+}
+
+export const getFilters = ({
+  dateRange,
+  selectedStoryType,
+  matchAnyAuthorNames,
+  matchNoneAuthorNames,
+  gtStoryPoints,
+  ltStoryPoints,
+  gtStoryComments,
+  ltStoryComments,
+  storyID,
+}: GetFiltersParams) => {
   const mustFilters = [];
   if (
     matchAnyAuthorNames &&
@@ -130,6 +147,40 @@ export const getFilters = (
     mustNotFilters.push({
       field: "tag_set",
       match_any: matchNoneAuthorNames,
+    });
+  }
+
+  if (gtStoryPoints !== null || ltStoryPoints !== null) {
+    let range: any = {};
+    if (gtStoryPoints !== null) {
+      range["gt"] = gtStoryPoints;
+    }
+    if (ltStoryPoints !== null) {
+      range["lt"] = ltStoryPoints;
+    }
+    mustFilters.push({
+      field: "num_value",
+      range,
+    });
+  }
+
+  if (gtStoryComments !== null || ltStoryComments !== null) {
+    let range: any = {};
+    if (gtStoryComments !== null) {
+      range["gt"] = gtStoryComments;
+    }
+    if (ltStoryComments !== null) {
+      range["lt"] = ltStoryComments;
+    }
+    mustFilters.push({
+      field: "metadata.descendants",
+      range,
+    });
+  }
+
+  if (storyID) {
+    mustFilters.push({
+      tracking_ids: [storyID],
     });
   }
 

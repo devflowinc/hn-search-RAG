@@ -44,6 +44,10 @@ export default function Header(props: HeaderProps) {
           About
         </a>
         <span class="pr-1">|</span>
+        <a href="/help" class="pr-1 hover:text-white hover:underline">
+          Help
+        </a>
+        <span class="pr-1">|</span>
         <a
           href="https://news.ycombinator.com/"
           class="pr-1 hover:text-white hover:underline"

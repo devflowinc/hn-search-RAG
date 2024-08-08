@@ -5,8 +5,6 @@ import { Accessor, Setter, Show } from "solid-js";
 export interface SearchProps {
   query: Accessor<string>;
   setQuery: Setter<string>;
-  setMatchAnyAuthorNames: Setter<string[]>;
-  setMatchNoneAuthorNames: Setter<string[]>;
   algoliaLink: Accessor<string>;
   setOpenRateQueryModal: Setter<boolean>;
 }

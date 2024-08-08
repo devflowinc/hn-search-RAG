@@ -1,4 +1,5 @@
 import { FiGithub } from "solid-icons/fi";
+import { TiSocialLinkedin } from "solid-icons/ti";
 import { createSignal, onMount } from "solid-js";
 
 export const Footer = () => {
@@ -91,6 +92,13 @@ export const Footer = () => {
         <span class="px-1">|</span>
         <a href="https://x.com/trieveai" class="hover:underline">
           𝕏
+        </a>
+        <span class="px-1">|</span>
+        <a
+          href="https://www.linkedin.com/company/trieveai"
+          class="hover:underline"
+        >
+          <TiSocialLinkedin class="h-3 w-3" />
         </a>
         <span class="px-1">|</span>
         <span>{count().toLocaleString()} items in index</span>

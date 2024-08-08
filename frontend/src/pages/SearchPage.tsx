@@ -68,6 +68,7 @@ export const SearchPage = () => {
       .map((name) => name.trim())
       .filter((name) => name !== "") ?? []
   );
+  const [popularityFilters, setPopularityFilters] = createSignal<any>({});
   const [selectedStoryType, setSelectedStoryType] = createSignal(
     urlParams.get("storyType") ?? "story"
   );
@@ -139,6 +140,11 @@ export const SearchPage = () => {
       .replace(/author:\w+/g, "")
       .replace(/by:-\w+/g, "")
       .replace(/by:\w+/g, "")
+      .replace(/story:\d+/g, "")
+      .replace(/points>:\d+/g, "")
+      .replace(/points<:\d+/g, "")
+      .replace(/comments>:\d+/g, "")
+      .replace(/comments<:\d+/g, "")
       .trimStart();
   });
 
@@ -275,9 +281,47 @@ export const SearchPage = () => {
       ];
     }
 
+    let curNumValues = popularityFilters()["num_value"];
+    let scoreGtMatch = uncleanedQuery.match(/points>\d+/);
+    let scoreLtMatch = uncleanedQuery.match(/points<\d+/);
+    if (scoreGtMatch) {
+      curNumValues = {
+        ...curNumValues,
+        gt: parseInt(scoreGtMatch[0].split(">")[1]),
+      };
+    }
+    if (scoreLtMatch) {
+      curNumValues = {
+        ...curNumValues,
+        lt: parseInt(scoreLtMatch[0].split("<")[1]),
+      };
+    }
+
+    let curNumComments = popularityFilters()["num_comments"];
+    let commentsGtMatch = uncleanedQuery.match(/comments>\d+/);
+    let commentsLtMatch = uncleanedQuery.match(/comments<\d+/);
+    if (commentsGtMatch) {
+      curNumComments = {
+        ...curNumComments,
+        gt: parseInt(commentsGtMatch[0].split(">")[1]),
+      };
+    }
+    if (commentsLtMatch) {
+      curNumComments = {
+        ...curNumComments,
+        lt: parseInt(commentsLtMatch[0].split("<")[1]),
+      };
+    }
+
+    let curStoryID = popularityFilters()["storyID"];
+    let storyIDMatch = uncleanedQuery.match(/story:\d+/);
+    if (storyIDMatch) {
+      curStoryID = parseInt(storyIDMatch[0].split(":")[1]);
+    }
+
     const reqBody = {
       query: queryFiltersRemoved(),
-      search_type: searchType(),
+      search_type: searchType() === "autocomplete" ? "fulltext" : searchType(),
       page: page(),
       highlight_options: {
         highlight_strategy: "exactmatch",
@@ -298,12 +342,17 @@ export const SearchPage = () => {
           : undefined,
       },
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
-      filters: getFilters(
-        selectedStoryType(),
-        time_range,
-        curAnyAuthorNames,
-        curNoneAuthorNames
-      ),
+      filters: getFilters({
+        dateRange: time_range,
+        selectedStoryType: selectedStoryType(),
+        matchAnyAuthorNames: curAnyAuthorNames,
+        matchNoneAuthorNames: curNoneAuthorNames,
+        gtStoryPoints: curNumValues?.gt,
+        ltStoryPoints: curNumValues?.lt,
+        gtStoryComments: curNumComments?.gt,
+        ltStoryComments: curNumComments?.lt,
+        storyID: curStoryID,
+      }),
       page_size: searchOptions.pageSize,
       score_threshold: searchOptions.scoreThreshold,
     };
@@ -333,12 +382,17 @@ export const SearchPage = () => {
                 field: "time_stamp",
                 order: "desc",
               },
-          filters: getFilters(
-            selectedStoryType(),
-            time_range,
-            matchAnyAuthorNames(),
-            matchNoneAuthorNames()
-          ),
+          filters: getFilters({
+            dateRange: time_range,
+            selectedStoryType: selectedStoryType(),
+            matchAnyAuthorNames: curAnyAuthorNames,
+            matchNoneAuthorNames: curNoneAuthorNames,
+            gtStoryPoints: curNumValues?.gt,
+            ltStoryPoints: curNumValues?.lt,
+            gtStoryComments: curNumComments?.gt,
+            ltStoryComments: curNumComments?.lt,
+            storyID: curStoryID,
+          }),
           page_size: 30,
         }),
         headers: {
@@ -410,7 +464,11 @@ export const SearchPage = () => {
       return;
     }
 
-    fetch(`${trieveBaseURL}/chunk/search`, {
+    let apiPath = "search";
+    if (searchType() === "autocomplete") {
+      apiPath = "autocomplete";
+    }
+    fetch(`${trieveBaseURL}/chunk/${apiPath}`, {
       method: "POST",
       body: JSON.stringify(reqBody),
       headers: {
@@ -503,12 +561,17 @@ export const SearchPage = () => {
       curRecommendType === "SPLADE" ? "fulltext" : curRecommendType;
 
     const time_range = dateRangeSwitch(dateRange());
-    const filters = getFilters(
-      "story",
-      time_range,
-      matchAnyAuthorNames(),
-      matchNoneAuthorNames()
-    );
+    const filters = getFilters({
+      dateRange: time_range,
+      selectedStoryType: selectedStoryType(),
+      matchAnyAuthorNames: matchAnyAuthorNames(),
+      matchNoneAuthorNames: matchNoneAuthorNames(),
+      gtStoryPoints: popularityFilters()["num_value"]?.gt,
+      ltStoryPoints: popularityFilters()["num_value"]?.lt,
+      gtStoryComments: popularityFilters()["num_comments"]?.gt,
+      ltStoryComments: popularityFilters()["num_comments"]?.lt,
+      storyID: popularityFilters()["storyID"],
+    });
 
     void fetch(trieveBaseURL + `/chunk/recommend`, {
       method: "POST",
@@ -640,17 +703,17 @@ export const SearchPage = () => {
           setDateRange={setDateRange}
           searchType={searchType}
           setSearchType={setSearchType}
+          latency={latency}
           matchAnyAuthorNames={matchAnyAuthorNames}
           setMatchAnyAuthorNames={setMatchAnyAuthorNames}
           matchNoneAuthorNames={matchNoneAuthorNames}
           setMatchNoneAuthorNames={setMatchNoneAuthorNames}
-          latency={latency}
+          popularityFilters={popularityFilters}
+          setPopularityFilters={setPopularityFilters}
         />
         <Search
           query={query}
           setQuery={setQuery}
-          setMatchAnyAuthorNames={setMatchAnyAuthorNames}
-          setMatchNoneAuthorNames={setMatchNoneAuthorNames}
           algoliaLink={algoliaLink}
           setOpenRateQueryModal={setOpenRateQueryModal}
         />

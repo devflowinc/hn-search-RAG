@@ -31,10 +31,14 @@ export interface FiltersProps {
   setMatchNoneAuthorNames: Setter<string[]>;
   matchAnyAuthorNames: Accessor<string[]>;
   matchNoneAuthorNames: Accessor<string[]>;
+  setPopularityFilters: Setter<any>;
+  popularityFilters: Accessor<any>;
 }
 
 export default function Filters(props: FiltersProps) {
   const [openAuthorFilterModal, setOpenAuthorFilterModal] = createSignal(false);
+  const [openPopularityFilterModal, setOpenPopularityFilterModal] =
+    createSignal(false);
   const [openAdvancedOptions, setOpenAdvancedOptions] = createSignal(false);
   const [rangeDate, setRangeDate] = createSignal<PickerValue>({
     label: "",
@@ -217,7 +221,6 @@ export default function Filters(props: FiltersProps) {
             <option value="autocomplete">Autocomplete</option>
           </select>
         </div>
-        <span>by</span>
         <div class="relative">
           <div class="flex items-center gap-1">
             <div
@@ -349,6 +352,125 @@ export default function Filters(props: FiltersProps) {
                   </div>
                 )}
               </For>
+            </div>
+          </Show>
+        </div>
+        <div class="relative">
+          <div class="flex items-center gap-1">
+            <div
+              classList={{
+                "rounded-full w-3 h-3 text-[8px] text-center leading-[10px] pt-[1px]":
+                  true,
+                "bg-[#ff6600] text-white":
+                  Object.keys(props.popularityFilters()).length > 0,
+                "bg-stone-200 text-neutral-500":
+                  Object.keys(props.popularityFilters()).length === 0,
+              }}
+            >
+              {Object.keys(props.popularityFilters()).length}
+            </div>
+            <button
+              onClick={() => setOpenPopularityFilterModal((prev) => !prev)}
+              class="form-select text-xs w-fit bg-hn flex items-center gap-1"
+            >
+              Popularity Filters
+              <FaSolidChevronDown size={10} />
+            </button>
+          </div>
+          <Show when={openPopularityFilterModal()}>
+            <div
+              class="fixed top-1 left-0 min-h-screen w-full z-5"
+              onClick={() => setOpenPopularityFilterModal(false)}
+            />
+            <div class="absolute bg-hn flex flex-col gap-2 border border-stone-300 top-[1.85rem] p-2 z-10 right-0 min-w-[100px]">
+              <label for="gtPoints">&gt; points:</label>
+              <input
+                id="gtPoints"
+                class="w-16 rounded border border-neutral-400 p-0.5 text-black"
+                type="number"
+                step="any"
+                placeholder="0"
+                value={props.popularityFilters()["num_value"]?.gt}
+                onChange={(e) => {
+                  props.setPopularityFilters({
+                    ...props.popularityFilters(),
+                    num_value: {
+                      ...props.popularityFilters()["num_value"],
+                      gt: e.target.valueAsNumber,
+                    },
+                  });
+                }}
+              />
+              <label for="lePoints">&lt; points:</label>
+              <input
+                id="lePoints"
+                class="w-16 rounded border border-neutral-400 p-0.5 text-black"
+                type="number"
+                step="any"
+                placeholder="0"
+                value={props.popularityFilters()["num_value"]?.lt}
+                onChange={(e) => {
+                  props.setPopularityFilters({
+                    ...props.popularityFilters(),
+                    num_value: {
+                      ...props.popularityFilters()["num_value"],
+                      lt: e.target.valueAsNumber,
+                    },
+                  });
+                }}
+              />
+              <div class="h-0.5 bg-stone-300" />
+              <label for="gtComments">&gt; descendants:</label>
+              <input
+                id="gtComments"
+                class="w-16 rounded border border-neutral-400 p-0.5 text-black"
+                type="number"
+                step="any"
+                placeholder="0"
+                value={props.popularityFilters()["num_comments"]?.gt}
+                onChange={(e) => {
+                  props.setPopularityFilters({
+                    ...props.popularityFilters(),
+                    num_comments: {
+                      ...props.popularityFilters()["num_comments"],
+                      gt: e.target.valueAsNumber,
+                    },
+                  });
+                }}
+              />
+              <label for="leComments">&lt; descendants:</label>
+              <input
+                id="leComments"
+                class="w-16 rounded border border-neutral-400 p-0.5 text-black"
+                type="number"
+                step="any"
+                placeholder="0"
+                value={props.popularityFilters()["num_comments"]?.lt}
+                onChange={(e) => {
+                  props.setPopularityFilters({
+                    ...props.popularityFilters(),
+                    num_comments: {
+                      ...props.popularityFilters()["num_comments"],
+                      lt: e.target.valueAsNumber,
+                    },
+                  });
+                }}
+              />
+              <div class="h-0.5 bg-stone-300" />
+              <label for="hasID">has id:</label>
+              <input
+                id="hasID"
+                class="w-16 rounded border border-neutral-400 p-0.5 text-black"
+                type="text"
+                placeholder="ID"
+                value={props.popularityFilters()["storyID"] ?? ""}
+                onChange={(e) => {
+                  props.setPopularityFilters({
+                    ...props.popularityFilters(),
+                    storyID: e.target.value,
+                  });
+                }}
+              />
             </div>
           </Show>
         </div>
