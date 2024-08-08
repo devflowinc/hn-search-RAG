@@ -53,8 +53,8 @@ export default function Filters(props: FiltersProps) {
       setRangeDate({
         label: "Custom Range",
         value: {
-          start: new Date(date_range.gt).toISOString(),
-          end: new Date(date_range.lt).toISOString(),
+          start: date_range.gt ? new Date(date_range.gt).toISOString() : undefined,
+          end: date_range.lt ? new Date(date_range.lt).toISOString() : undefined,
         },
       });
     }
@@ -101,11 +101,11 @@ export default function Filters(props: FiltersProps) {
   });
 
   createEffect(() => {
-    if (rangeDate().value.start) {
+    if (rangeDate().value.start || rangeDate().value.end) {
       props.setDateRange(
         JSON.stringify({
-          gt: rangeDate().value.start?.toString(),
-          lt: rangeDate().value.end?.toString(),
+          gt: rangeDate().value.start != "" ? rangeDate().value.start?.toString(): undefined,
+          lt: rangeDate().value.end != "" ? rangeDate().value.end?.toString() : undefined,
         }),
       );
     }
@@ -164,6 +164,43 @@ export default function Filters(props: FiltersProps) {
             Date Range
           </label>
           <DatePicker
+            hideTopArea
+            calendarJSX={(props) => {
+              return (
+                <div class="flex flex-col gap-2 p-2">
+                  <span>Before:</span>
+                  <input
+                    class="form-input border border-stone-300 bg-hn p-1 text-zinc-600"
+                    type="date"
+                    value={rangeDate().value.start?.replace("T00:00:00.000Z", "")}
+                    onInput={(e) => {
+                      setRangeDate({
+                        ...rangeDate(),
+                        value: {
+                          ...rangeDate().value,
+                          start: e.currentTarget.value,
+                        },
+                      });
+                    }}
+                  />
+                  <span>After:</span>
+                  <input
+                    class="form-input border border-stone-300 bg-hn p-1 text-zinc-600"
+                    type="date"
+                    value={rangeDate().value.end?.replace("T00:00:00.000Z", "")}
+                    onInput={(e) => {
+                      setRangeDate({
+                        ...rangeDate(),
+                        value: {
+                          ...rangeDate().value,
+                          end: e.currentTarget.value,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              );
+            }}
             value={rangeDate}
             setValue={setRangeDate}
             renderInput={({ showDate }) => (
@@ -190,10 +227,12 @@ export default function Filters(props: FiltersProps) {
                 <option value="pastMonth">Past Month</option>
                 <option value="pastYear">Past Year</option>
                 <option value="custom">
-                  {rangeDate().value.start
-                    ? rangeDate().value.start?.replace("T07:00:00.000Z", "") +
-                      " - " +
-                      rangeDate().value.end?.replace("T07:00:00.000Z", "")
+                  {rangeDate().value.start || rangeDate().value.end ? 
+                    (!rangeDate().value.end ? "After " : "") +
+                    (rangeDate().value.start ? rangeDate().value.start?.replace("T00:00:00.000Z", "")  : "") + 
+                    (rangeDate().value.start && rangeDate().value.end ? " - " : "") + 
+                     (!rangeDate().value.start ? "Before " : "") +
+                    (rangeDate().value.end ? rangeDate().value.end?.replace("T00:00:00.000Z", "") : "")
                     : "Custom"}
                 </option>
               </select>
