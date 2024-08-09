@@ -48,6 +48,13 @@ const defaultScoreThreshold = (searchType: string): number => {
   }
 };
 
+const storyTypePlurals = {
+  comment: "comments",
+  poll: "polls",
+  all: "items",
+  job: "jobs",
+};
+
 export const SearchPage = () => {
   const trieveApiKey = import.meta.env.VITE_TRIEVE_API_KEY as string;
   const trieveBaseURL = import.meta.env.VITE_TRIEVE_API_URL as string;
@@ -157,6 +164,11 @@ export const SearchPage = () => {
 
   createEffect(() => {
     setSearchOptions("scoreThreshold", defaultScoreThreshold(searchType()));
+  });
+
+  createEffect(() => {
+    query();
+    setPage(1);
   });
 
   createEffect(() => {
@@ -697,13 +709,6 @@ export const SearchPage = () => {
           });
       }
     });
-  };
-
-  const storyTypePlurals = {
-    comment: "comments",
-    poll: "polls",
-    all: "items",
-    job: "jobs",
   };
 
   return (
