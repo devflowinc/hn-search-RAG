@@ -202,8 +202,6 @@ export const SearchPage = () => {
     abortController = new AbortController();
     const { signal } = abortController;
 
-    console.log(dateRange())
-
     urlParams.set("q", queryFiltersRemoved());
     urlParams.set("storyType", selectedStoryType());
     urlParams.set("matchAnyAuthorNames", matchAnyAuthorNames().join(","));

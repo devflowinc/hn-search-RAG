@@ -241,6 +241,8 @@ const formatSearchMethod = (searchMethod: string) => {
       return "Fulltext";
     case "semantic":
       return "Semantic";
+    case "bm25":
+      return "BM25";
     default:
       return "All";
   }
