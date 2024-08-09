@@ -9,6 +9,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  onCleanup,
 } from "solid-js";
 import Filters from "../components/search/Filters";
 import Header from "../components/Header";
@@ -92,6 +93,7 @@ export const SearchPage = () => {
   const [dateRange, setDateRange] = createSignal<string>(
     urlParams.get("dateRange") ?? "all",
   );
+  const [totalPages, setTotalPages] = createSignal(10);
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
@@ -162,94 +164,8 @@ export const SearchPage = () => {
       .trimStart();
   });
 
-  createEffect(() => {
-    setSearchOptions("scoreThreshold", defaultScoreThreshold(searchType()));
-  });
-
-  createEffect(() => {
-    query();
-    setPage(1);
-  });
-
-  createEffect(() => {
-    setLoading(true);
-
-    searchOptions.scoreThreshold &&
-      urlParams.set(
-        "score_threshold",
-        searchOptions.scoreThreshold?.toString(),
-      );
-
-    urlParams.set("page_size", searchOptions.pageSize.toString());
-    urlParams.set("prefetch_amount", searchOptions.prefetchAmount.toString());
-    urlParams.set("rerank_type", searchOptions.rerankType ?? "none");
-    urlParams.set(
-      "highlight_delimiters",
-      searchOptions.highlightDelimiters.join(","),
-    );
-    urlParams.set(
-      "highlight_threshold",
-      searchOptions.highlightThreshold.toString(),
-    );
-    urlParams.set(
-      "highlight_max_length",
-      searchOptions.highlightMaxLength.toString(),
-    );
-    urlParams.set(
-      "highlight_max_num",
-      searchOptions.highlightMaxNum.toString(),
-    );
-    urlParams.set("highlight_window", searchOptions.highlightWindow.toString());
-    urlParams.set("recency_bias", searchOptions.recencyBias.toString());
-    urlParams.set(
-      "highlight_results",
-      searchOptions.highlightResults ? "true" : "false",
-    );
-    urlParams.set(
-      "use_quote_negated_terms",
-      searchOptions.useQuoteNegatedTerms ? "true" : "false",
-    );
-
-    if (abortController) {
-      abortController.abort();
-    }
-
-    abortController = new AbortController();
-    const { signal } = abortController;
-
-    urlParams.set("q", queryFiltersRemoved());
-    urlParams.set("storyType", selectedStoryType());
-    urlParams.set("matchAnyAuthorNames", matchAnyAuthorNames().join(","));
-    urlParams.set("matchNoneAuthorNames", matchNoneAuthorNames().join(","));
-    urlParams.set("popularityFilters", JSON.stringify(popularityFilters()));
-    urlParams.set("sortby", sortBy());
-    urlParams.set("dateRange", dateRange());
-    urlParams.set("searchType", searchType());
-    urlParams.set("page", page().toString());
-    setAlgoliaLink(
-      `https://hn.algolia.com/?q=${encodeURIComponent(
-        queryFiltersRemoved(),
-      )}&dateRange=${dateRange()}&sort=by${
-        sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&type=${selectedStoryType()}&page=0&prefix=false`,
-    );
-
-    window.history.replaceState(
-      {},
-      "",
-      `${window.location.pathname}?${urlParams.toString()}`,
-    );
-
+  const curFilterValues = createMemo(() => {
     const time_range = dateRangeSwitch(dateRange());
-
-    let sort_by_field;
-    if (sortBy() == "Date") {
-      sort_by_field = "time_stamp";
-    } else if (sortBy() == "Popularity") {
-      sort_by_field = "num_value";
-    } else {
-      sort_by_field = undefined;
-    }
 
     const uncleanedQuery = query();
     let curAnyAuthorNames = matchAnyAuthorNames();
@@ -339,6 +255,148 @@ export const SearchPage = () => {
       curStoryID = parseInt(storyIDMatch[0].split(":")[1]);
     }
 
+    const curFilter = getFilters({
+      dateRange: time_range,
+      selectedStoryType: selectedStoryType(),
+      matchAnyAuthorNames: curAnyAuthorNames,
+      matchNoneAuthorNames: curNoneAuthorNames,
+      gtStoryPoints: curNumValues?.gt,
+      ltStoryPoints: curNumValues?.lt,
+      gtStoryComments: curNumComments?.gt,
+      ltStoryComments: curNumComments?.lt,
+      storyID: curStoryID,
+    });
+
+    return curFilter;
+  });
+
+  createEffect(() => {
+    setSearchOptions("scoreThreshold", defaultScoreThreshold(searchType()));
+  });
+
+  createEffect(() => {
+    query();
+    setPage(1);
+  });
+
+  createEffect(() => {
+    const curQuery = queryFiltersRemoved();
+
+    // eslint-disable-next-line solid/reactivity
+    const curOptions = searchOptions;
+
+    const abortController = new AbortController();
+
+    fetch(`${trieveBaseURL}/chunk/count`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "TR-Dataset": trieveDatasetId,
+        Authorization: trieveApiKey,
+      },
+      signal: abortController.signal,
+      body: JSON.stringify({
+        query: curQuery,
+        filters: curFilterValues(),
+        use_quote_negated_terms: curOptions.useQuoteNegatedTerms,
+        score_threshold: curOptions.scoreThreshold,
+        limit: 500,
+        search_type:
+          searchType() === "hybrid" || searchType() === "autocomplete"
+            ? "fulltext"
+            : searchType(),
+      }),
+    }).then((response) =>
+      response
+        .json()
+        .then((data) =>
+          setTotalPages(Math.floor(data.count / curOptions.pageSize)),
+        ),
+    );
+
+    onCleanup(() => {
+      abortController.abort("cleanup count");
+    });
+  });
+
+  createEffect(() => {
+    setLoading(true);
+
+    searchOptions.scoreThreshold &&
+      urlParams.set(
+        "score_threshold",
+        searchOptions.scoreThreshold?.toString(),
+      );
+
+    urlParams.set("page_size", searchOptions.pageSize.toString());
+    urlParams.set("prefetch_amount", searchOptions.prefetchAmount.toString());
+    urlParams.set("rerank_type", searchOptions.rerankType ?? "none");
+    urlParams.set(
+      "highlight_delimiters",
+      searchOptions.highlightDelimiters.join(","),
+    );
+    urlParams.set(
+      "highlight_threshold",
+      searchOptions.highlightThreshold.toString(),
+    );
+    urlParams.set(
+      "highlight_max_length",
+      searchOptions.highlightMaxLength.toString(),
+    );
+    urlParams.set(
+      "highlight_max_num",
+      searchOptions.highlightMaxNum.toString(),
+    );
+    urlParams.set("highlight_window", searchOptions.highlightWindow.toString());
+    urlParams.set("recency_bias", searchOptions.recencyBias.toString());
+    urlParams.set(
+      "highlight_results",
+      searchOptions.highlightResults ? "true" : "false",
+    );
+    urlParams.set(
+      "use_quote_negated_terms",
+      searchOptions.useQuoteNegatedTerms ? "true" : "false",
+    );
+
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    urlParams.set("q", queryFiltersRemoved());
+    urlParams.set("storyType", selectedStoryType());
+    urlParams.set("matchAnyAuthorNames", matchAnyAuthorNames().join(","));
+    urlParams.set("matchNoneAuthorNames", matchNoneAuthorNames().join(","));
+    urlParams.set("popularityFilters", JSON.stringify(popularityFilters()));
+    urlParams.set("sortby", sortBy());
+    urlParams.set("dateRange", dateRange());
+    urlParams.set("searchType", searchType());
+    urlParams.set("page", page().toString());
+    setAlgoliaLink(
+      `https://hn.algolia.com/?q=${encodeURIComponent(
+        queryFiltersRemoved(),
+      )}&dateRange=${dateRange()}&sort=by${
+        sortBy() == "Relevance" ? "Popularity" : sortBy()
+      }&type=${selectedStoryType()}&page=0&prefix=false`,
+    );
+
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${urlParams.toString()}`,
+    );
+
+    let sort_by_field;
+    if (sortBy() == "Date") {
+      sort_by_field = "time_stamp";
+    } else if (sortBy() == "Popularity") {
+      sort_by_field = "num_value";
+    } else {
+      sort_by_field = undefined;
+    }
+
     const reqBody = {
       query: queryFiltersRemoved(),
       search_type: searchType() === "autocomplete" ? "fulltext" : searchType(),
@@ -362,17 +420,7 @@ export const SearchPage = () => {
           : undefined,
       },
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
-      filters: getFilters({
-        dateRange: time_range,
-        selectedStoryType: selectedStoryType(),
-        matchAnyAuthorNames: curAnyAuthorNames,
-        matchNoneAuthorNames: curNoneAuthorNames,
-        gtStoryPoints: curNumValues?.gt,
-        ltStoryPoints: curNumValues?.lt,
-        gtStoryComments: curNumComments?.gt,
-        ltStoryComments: curNumComments?.lt,
-        storyID: curStoryID,
-      }),
+      filters: curFilterValues(),
       page_size: searchOptions.pageSize,
       score_threshold: searchOptions.scoreThreshold,
     };
@@ -402,17 +450,7 @@ export const SearchPage = () => {
                 field: "time_stamp",
                 order: "desc",
               },
-          filters: getFilters({
-            dateRange: time_range,
-            selectedStoryType: selectedStoryType(),
-            matchAnyAuthorNames: curAnyAuthorNames,
-            matchNoneAuthorNames: curNoneAuthorNames,
-            gtStoryPoints: curNumValues?.gt,
-            ltStoryPoints: curNumValues?.lt,
-            gtStoryComments: curNumComments?.gt,
-            ltStoryComments: curNumComments?.lt,
-            storyID: curStoryID,
-          }),
+          filters: curFilterValues(),
           page_size: 30,
         }),
         headers: {
@@ -439,7 +477,6 @@ export const SearchPage = () => {
               const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
               let title_split = 0;
               if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
-                console.log("link", chunk.link);
                 title_split = 1;
               }
 
@@ -529,7 +566,6 @@ export const SearchPage = () => {
               const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
               let title_split = 0;
               if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
-                console.log("link", chunk.link);
                 title_split = 1;
               }
 
@@ -625,7 +661,6 @@ export const SearchPage = () => {
             const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
             let title_split = 0;
             if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
-              console.log("link", chunk.link);
               title_split = 1;
             }
 
@@ -763,7 +798,7 @@ export const SearchPage = () => {
             </Switch>
           </Match>
           <Match when={stories().length > 0}>
-            <div class="pb-2">
+            <div classList={{ "pb-2": true, "animate-pulse": loading() }}>
               <For each={stories()}>
                 {(story, i) => (
                   <Story
@@ -795,12 +830,12 @@ export const SearchPage = () => {
             </div>
           </Match>
         </Switch>
-        <Show when={stories().length > 0 && queryFiltersRemoved() != ""}>
+        <Show when={queryFiltersRemoved() != ""}>
           <div class="mx-auto flex items-center justify-center space-x-2 py-3">
             <PaginationController
               page={page()}
               setPage={setPage}
-              totalPages={500}
+              totalPages={totalPages()}
             />
           </div>
         </Show>
