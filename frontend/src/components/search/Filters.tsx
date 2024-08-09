@@ -432,7 +432,7 @@ export default function Filters(props: FiltersProps) {
               onClick={() => setOpenPopularityFilterModal((prev) => !prev)}
               class="form-select flex w-fit items-center gap-1 bg-hn text-xs"
             >
-              Popularity Filters
+              Other Filters
               <FaSolidChevronDown size={10} />
             </button>
           </div>

@@ -426,7 +426,8 @@ export const SearchPage = () => {
             } else {
               const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
               let title_split = 0;
-              if (chunk.link) {
+              if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
+                console.log("link", chunk.link);
                 title_split = 1;
               }
 
@@ -515,7 +516,8 @@ export const SearchPage = () => {
             } else {
               const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
               let title_split = 0;
-              if (chunk.link) {
+              if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
+                console.log("link", chunk.link);
                 title_split = 1;
               }
 
@@ -610,7 +612,8 @@ export const SearchPage = () => {
           } else {
             const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
             let title_split = 0;
-            if (chunk.link) {
+            if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
+              console.log("link", chunk.link);
               title_split = 1;
             }
 
