@@ -168,7 +168,7 @@ export default function Filters(props: FiltersProps) {
             calendarJSX={(props) => {
               return (
                 <div class="flex flex-col gap-2 p-2">
-                  <span>After:</span>
+                  <span>From:</span>
                   <input
                     class="form-input border border-stone-300 bg-hn p-1 text-zinc-600"
                     type="date"
@@ -183,7 +183,7 @@ export default function Filters(props: FiltersProps) {
                       });
                     }}
                   />
-                  <span>Before:</span>
+                  <span>To:</span>
                   <input
                     class="form-input border border-stone-300 bg-hn p-1 text-zinc-600"
                     type="date"
