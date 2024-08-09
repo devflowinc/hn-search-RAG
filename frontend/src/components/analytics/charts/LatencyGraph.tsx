@@ -47,12 +47,12 @@ export const LatencyGraph = (props: LatencyGraphProps) => {
     [],
   );
   let chartInstance: Chart | null = null;
-  createEffect(async () => {
-    let results = await getLatency(
-      props.params.filter,
-      props.params.granularity,
+  createEffect(() => {
+    getLatency(props.params.filter, props.params.granularity).then(
+      (results) => {
+        setLatencyPoints(results);
+      },
     );
-    setLatencyPoints(results);
   });
 
   createEffect(() => {
@@ -122,7 +122,7 @@ export const LatencyGraph = (props: LatencyGraphProps) => {
     }
 
     // @ts-expect-error library types not updated
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
     chartInstance.options.scales["x"].time.minUnit = props.params.granularity;
     // Update the chart data
     chartInstance.data.labels = data.map(

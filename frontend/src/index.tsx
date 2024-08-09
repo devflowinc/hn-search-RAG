@@ -22,5 +22,5 @@ render(
       <Route path="*404" component={RedirectToSearch} />
     </Router>
   ),
-  root!
+  root!,
 );

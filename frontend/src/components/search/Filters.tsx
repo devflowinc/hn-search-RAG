@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FaSolidChevronDown } from "solid-icons/fa";
 import {
   Accessor,
@@ -53,8 +54,12 @@ export default function Filters(props: FiltersProps) {
       setRangeDate({
         label: "Custom Range",
         value: {
-          start: date_range.gt ? new Date(date_range.gt).toISOString() : undefined,
-          end: date_range.lt ? new Date(date_range.lt).toISOString() : undefined,
+          start: date_range.gt
+            ? new Date(date_range.gt).toISOString()
+            : undefined,
+          end: date_range.lt
+            ? new Date(date_range.lt).toISOString()
+            : undefined,
         },
       });
     }
@@ -104,8 +109,14 @@ export default function Filters(props: FiltersProps) {
     if (rangeDate().value.start || rangeDate().value.end) {
       props.setDateRange(
         JSON.stringify({
-          gt: rangeDate().value.start != "" ? rangeDate().value.start?.toString(): undefined,
-          lt: rangeDate().value.end != "" ? rangeDate().value.end?.toString() : undefined,
+          gt:
+            rangeDate().value.start != ""
+              ? rangeDate().value.start?.toString()
+              : undefined,
+          lt:
+            rangeDate().value.end != ""
+              ? rangeDate().value.end?.toString()
+              : undefined,
         }),
       );
     }
@@ -165,14 +176,17 @@ export default function Filters(props: FiltersProps) {
           </label>
           <DatePicker
             hideTopArea
-            calendarJSX={(props) => {
+            calendarJSX={() => {
               return (
                 <div class="flex flex-col gap-2 p-2">
                   <span>From:</span>
                   <input
                     class="form-input border border-stone-300 bg-hn p-1 text-zinc-600"
                     type="date"
-                    value={rangeDate().value.start?.replace("T00:00:00.000Z", "")}
+                    value={rangeDate().value.start?.replace(
+                      "T00:00:00.000Z",
+                      "",
+                    )}
                     onInput={(e) => {
                       setRangeDate({
                         ...rangeDate(),
@@ -227,12 +241,18 @@ export default function Filters(props: FiltersProps) {
                 <option value="pastMonth">Past Month</option>
                 <option value="pastYear">Past Year</option>
                 <option value="custom">
-                  {rangeDate().value.start || rangeDate().value.end ? 
-                    (!rangeDate().value.end ? "After " : "") +
-                    (rangeDate().value.start ? rangeDate().value.start?.replace("T00:00:00.000Z", "")  : "") + 
-                    (rangeDate().value.start && rangeDate().value.end ? " - " : "") + 
-                     (!rangeDate().value.start ? "Before " : "") +
-                    (rangeDate().value.end ? rangeDate().value.end?.replace("T00:00:00.000Z", "") : "")
+                  {rangeDate().value.start || rangeDate().value.end
+                    ? (!rangeDate().value.end ? "After " : "") +
+                      (rangeDate().value.start
+                        ? rangeDate().value.start?.replace("T00:00:00.000Z", "")
+                        : "") +
+                      (rangeDate().value.start && rangeDate().value.end
+                        ? " - "
+                        : "") +
+                      (!rangeDate().value.start ? "Before " : "") +
+                      (rangeDate().value.end
+                        ? rangeDate().value.end?.replace("T00:00:00.000Z", "")
+                        : "")
                     : "Custom"}
                 </option>
               </select>

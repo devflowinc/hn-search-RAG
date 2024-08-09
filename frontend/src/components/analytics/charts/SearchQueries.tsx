@@ -37,20 +37,17 @@ export const SearchQueries = (props: SearchQueriesProps) => {
     [],
   );
 
-  createEffect(async () => {
+  createEffect(() => {
     const curPage = pages.page();
 
-    const results = await getSearchQueries(
-      props.params.filter,
-      sortBy(),
-      sortOrder(),
-      curPage,
+    getSearchQueries(props.params.filter, sortBy(), sortOrder(), curPage).then(
+      (results) => {
+        if (results.length === 0) {
+          pages.setMaxPageDiscovered(curPage);
+        }
+        setSearchQueries(results);
+      },
     );
-
-    if (results.length === 0) {
-      pages.setMaxPageDiscovered(curPage);
-    }
-    setSearchQueries(results);
   });
 
   interface SortableHeaderProps {

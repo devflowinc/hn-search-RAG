@@ -24,7 +24,6 @@ export const usePagination = () => {
   };
 
   const canGoNext = createMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const maxPage = maxPageDiscovered();
     return maxPage === null || page() < maxPage;
   });

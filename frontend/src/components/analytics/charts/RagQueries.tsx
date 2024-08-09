@@ -25,19 +25,20 @@ export const RagQueries = (props: RagQueriesProps) => {
   const [sortOrder, setSortOrder] = createSignal<SortOrder>("asc");
   const [ragQueries, setRagQueries] = createSignal<RagQueryEvent[]>([]);
 
-  createEffect(async () => {
+  createEffect(() => {
     const curPage = pages.page();
-    const results = await getRAGQueries({
+    getRAGQueries({
       page: curPage,
       filter: props.filter,
       sort_by: sortBy(),
       sort_order: sortOrder(),
-    });
-    if (results.length === 0) {
-      pages.setMaxPageDiscovered(curPage);
-    }
+    }).then((results) => {
+      if (results.length === 0) {
+        pages.setMaxPageDiscovered(curPage);
+      }
 
-    setRagQueries(results);
+      setRagQueries(results);
+    });
   });
 
   return (

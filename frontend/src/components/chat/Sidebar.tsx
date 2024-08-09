@@ -1,3 +1,4 @@
+/* eslint-disable solid/reactivity */
 import {
   BiRegularChat,
   BiRegularCheck,
@@ -29,7 +30,7 @@ export const Sidebar = (props: SidebarProps) => {
               if (
                 props.topics().findIndex((topic) => topic.id === "0") === -1
               ) {
-                let newTopic = {
+                const newTopic = {
                   id: "0",
                   name: "New Topic",
                   user_id: "",

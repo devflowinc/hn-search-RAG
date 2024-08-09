@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
   BiRegularClipboard,
   BiRegularEdit,
@@ -153,7 +151,7 @@ export const AfMessage = (props: AfMessageProps) => {
     for (const chunk of chunksReceived) {
       if (!metadata().includes(chunk)) {
         // the linter does not understand that the chunk can sometimes be undefined or null
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
         if (!chunk) return;
         setMetadata((prev) => [...prev, chunk]);
       }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Topic } from "../../../types";
 
 const apiHost = import.meta.env.VITE_TRIEVE_API_URL as string;

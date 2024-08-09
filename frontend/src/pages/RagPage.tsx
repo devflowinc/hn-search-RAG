@@ -18,8 +18,8 @@ export const RagPage = () => {
 
   const fpPromise = FingerprintJS.load();
 
-  createEffect(async () => {
-    await refetchTopics();
+  createEffect(() => {
+    refetchTopics();
   });
 
   const refetchTopics = async () => {

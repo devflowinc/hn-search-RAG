@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { cva, cx, VariantProps } from "cva";
 import { For, JSX, Show, splitProps } from "solid-js";
 

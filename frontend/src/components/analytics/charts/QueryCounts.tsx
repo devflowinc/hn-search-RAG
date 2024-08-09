@@ -43,9 +43,10 @@ interface QueryCountsProps {
 export const QueryCounts = (props: QueryCountsProps) => {
   const [queryCounts, setQueryCounts] = createSignal<SearchTypeCount[]>([]);
 
-  createEffect(async () => {
-    let results = await getQueryCounts(props.params.filter);
-    setQueryCounts(results);
+  createEffect(() => {
+    getQueryCounts(props.params.filter).then((results) =>
+      setQueryCounts(results),
+    );
   });
 
   return (

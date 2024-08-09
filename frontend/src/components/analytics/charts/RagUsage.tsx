@@ -9,9 +9,10 @@ interface RagUsageProps {
 export const RagUsage = (props: RagUsageProps) => {
   const [ragUsage, setRagUsage] = createSignal<RAGUsageResponse | null>(null);
 
-  createEffect(async () => {
-    let results = await getRAGUsage(props.filter);
-    setRagUsage(results);
+  createEffect(() => {
+    getRAGUsage(props.filter).then((results) => {
+      setRagUsage(results);
+    });
   });
 
   return (

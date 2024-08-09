@@ -1,3 +1,6 @@
+/* eslint-disable no-constant-binary-expression */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import {
   For,
   Match,
@@ -236,7 +239,7 @@ export const SearchPage = () => {
       sort_by_field = undefined;
     }
 
-    let uncleanedQuery = query();
+    const uncleanedQuery = query();
     let curAnyAuthorNames = matchAnyAuthorNames();
     let curNoneAuthorNames = matchNoneAuthorNames();
     const byNegatedMatches =
@@ -287,8 +290,8 @@ export const SearchPage = () => {
     }
 
     let curNumValues = popularityFilters()["num_value"];
-    let scoreGtMatch = uncleanedQuery.match(/points>\d+/);
-    let scoreLtMatch = uncleanedQuery.match(/points<\d+/);
+    const scoreGtMatch = uncleanedQuery.match(/points>\d+/);
+    const scoreLtMatch = uncleanedQuery.match(/points<\d+/);
     if (scoreGtMatch) {
       curNumValues = {
         ...curNumValues,
@@ -303,8 +306,8 @@ export const SearchPage = () => {
     }
 
     let curNumComments = popularityFilters()["num_comments"];
-    let commentsGtMatch = uncleanedQuery.match(/comments>\d+/);
-    let commentsLtMatch = uncleanedQuery.match(/comments<\d+/);
+    const commentsGtMatch = uncleanedQuery.match(/comments>\d+/);
+    const commentsLtMatch = uncleanedQuery.match(/comments<\d+/);
     if (commentsGtMatch) {
       curNumComments = {
         ...curNumComments,
@@ -319,7 +322,7 @@ export const SearchPage = () => {
     }
 
     let curStoryID = popularityFilters()["storyID"];
-    let storyIDMatch = uncleanedQuery.match(/story:\d+/);
+    const storyIDMatch = uncleanedQuery.match(/story:\d+/);
     if (storyIDMatch) {
       curStoryID = parseInt(storyIDMatch[0].split(":")[1]);
     }

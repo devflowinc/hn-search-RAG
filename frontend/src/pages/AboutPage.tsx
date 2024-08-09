@@ -2,6 +2,109 @@ import { createSignal, JSX, Match, Show, Switch } from "solid-js";
 import { Footer } from "../components/Footer";
 import Header from "../components/Header";
 import { FiLinkedin } from "solid-icons/fi";
+import { BiRegularChevronDown, BiRegularChevronUp } from "solid-icons/bi";
+
+export const HowToUse = () => {
+  return (
+    <FAQCard
+      question="How to Use"
+      answer={
+        <>
+          <p>
+            - Fulltext is powered by SPLADE sparse vectors and is the
+            recommended search method for most queries. It automatically handles
+            typos and synonyms to make things feel semantic'y while still being
+            fast and returning exact matches first.
+          </p>
+          <p>
+            - Semantic mode is powered by dense vectors (bge-m3 model) and is
+            the recommended search method for queries that are more about the
+            meaning of the text than the exact words used. It's slower than
+            fulltext (though still quite fast) but can understand multi-sentence
+            or more abstract queries to return more relevant results.
+          </p>
+          <p>
+            - Hybrid search performs both a fulltext and semantic search then
+            ranks the results with a cross-encoder (bge-large-en re-reranker) to
+            merge them. It has not been tuned for this dataset yet and is
+            unlikely to be better than fulltext or semantic search for most
+            queries.
+          </p>
+          <p>
+            - Click on the advanced button to tweak advanced features. Check out
+            our{" "}
+            <a
+              class="underline"
+              href="https://docs.trieve.ai/api-reference/chunk/search"
+              target="_blank"
+            >
+              API Docs for the search endpoint
+            </a>{" "}
+            for more information.
+          </p>
+        </>
+      }
+    />
+  );
+};
+
+export const WhyMakeThis = () => {
+  return (
+    <FAQCard
+      question="Why Make This?"
+      answer={
+        <>
+          <p>
+            1. Test dense vectors vs. SPLADE vs. BM25 for search and
+            recommendations at sufficient scale
+          </p>
+          <p>
+            2. Make HN search more explorable with recommendations plus RAG and
+            more open with public analytics. We added a feedback button under
+            the search bar and are collecting CTR data such that we can
+            continously fine-tune our models to improve the search experience.
+            If you have some time, try out our{" "}
+            <a class="underline" href="https://hn-comparison.trieve.ai">
+              blind comparison at hn-comparison.trieve.ai
+            </a>
+            .
+          </p>
+          <p>
+            3. Open up a more fully-featured discovery API for others who want
+            to build on top of HN data. The firebase HN API is great, but
+            storing all the data yourself is expensive and time-consuming. We
+            are hoping to lower that barrier in the old{" "}
+            <a
+              class="underline"
+              href="https://news.ycombinator.com/item?id=2619892"
+            >
+              Octopart HNSearch spirit
+            </a>
+            .
+          </p>
+          <p>
+            4. Show what's possible with Trieve, work out scaling/stability
+            bugs, and pressure test
+          </p>
+          <p>
+            5. HN is a cool place where we like to spend time and showing what
+            we are working on to this community we feel apart of feels really
+            good and is something we're excited about
+          </p>
+          <p>
+            6.{" "}
+            <a class="underline" href="Algolia gets a lot of traffic from HN">
+              Algolia gets a lot of referral traffic from HN (purported 80% of
+              total)
+            </a>{" "}
+            and we wanted to see if we could get at least a bit of that for
+            growth purposes.
+          </p>
+        </>
+      }
+    />
+  );
+};
 
 export const AboutPage = () => {
   return (
@@ -14,7 +117,8 @@ export const AboutPage = () => {
             <>
               <p>
                 Trieve is all-in-one infrastructure for search, recommendations,
-                RAG, and analytics offered via API.
+                RAG, and analytics offered via API. We also offer UI's for
+                exploring your data and adjusting ranking and relevance.
               </p>
               <p>
                 Using SOTA search tech requires architecting and maintaining a
@@ -27,24 +131,10 @@ export const AboutPage = () => {
             </>
           }
         />
+        <HowToUse />
+        <WhyMakeThis />
         <FAQCard
-          question="Why Make a HN Demo?"
-          answer={
-            <>
-              <p>
-                1. Show what's possible with Trieve and that it works at scale
-              </p>
-              <p>2. Get feedback from HN users</p>
-              <p>
-                3. Make exploring the HN archive better with additional features
-                relative to Algolia's (i.e. submitter filters, recommendations,
-                boolean operators, RAG, and analytics)
-              </p>
-            </>
-          }
-        />
-        <FAQCard
-          question="How Hard was it to Build the Demo?"
+          question="How Hard was it to Build This?"
           answer={
             <>
               <p>
@@ -73,11 +163,12 @@ export const AboutPage = () => {
                 We punted on some frontend for CTR analytics, advanced
                 recommendations, and the "Add to chat" functionality similar to
                 what Exa offers due to time bounds. We'll add those features if
-                this demo gets traction and people actually use it.
+                this demo gets traction and people use it.
               </p>
               <p>
-                Tons of respect to the Algolia folks for building HN search the
-                first time and maintaining it for so long. It's not easy.
+                Tons of respect to the Algolia folks for building such a great
+                building HN search experience and maintaining it for over a
+                decade. It's not easy.
               </p>
             </>
           }
@@ -282,6 +373,7 @@ export const HelpPage = () => {
             </>
           }
         />
+        <HowToUse />
         <FAQCard
           question="Contact Us"
           answer={
@@ -336,22 +428,26 @@ export const FAQCard = (props: { question: string; answer: JSX.Element }) => {
 
   return (
     <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
-      <h3>
+      <h3 class="mb-1">
         <button
           class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]"
           onClick={() => setOpen((prev) => !prev)}
         >
-          <p class="block w-3">
+          <p class="mr-2 block w-3">
             <Switch>
-              <Match when={open()}>{`- `}</Match>
-              <Match when={!open()}>{`+ `} </Match>
+              <Match when={open()}>
+                <BiRegularChevronUp />
+              </Match>
+              <Match when={!open()}>
+                <BiRegularChevronDown />
+              </Match>
             </Switch>
           </p>
           <p>{props.question}</p>
         </button>
       </h3>
       <Show when={open()}>
-        <div class="ml-3 flex flex-col gap-y-1 text-wrap text-[11pt] text-black sm:text-[10pt]">
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
           {props.answer}
         </div>
       </Show>

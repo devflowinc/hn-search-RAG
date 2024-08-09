@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { PaginationButtons } from "../PaginationButtons";
 import { AnalyticsFilter, HeadQuery } from "../../../types";
 import { usePagination } from "../usePagination";
@@ -13,14 +13,15 @@ export const HeadQueries = (props: HeadQueriesProps) => {
   const pages = usePagination();
   const [results, setResults] = createSignal<HeadQuery[]>([]);
 
-  createEffect(async () => {
+  createEffect(() => {
     const params = props.params;
 
-    const results = await getHeadQueries(params.filter, pages.page());
-    if (results.length === 0) {
-      pages.setMaxPageDiscovered(pages.page());
-    }
-    setResults(results);
+    getHeadQueries(params.filter, pages.page()).then((results) => {
+      if (results.length === 0) {
+        pages.setMaxPageDiscovered(pages.page());
+      }
+      setResults(results);
+    });
   });
 
   return (

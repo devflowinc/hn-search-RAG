@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { For, Show, createMemo, createSignal, Switch, Match } from "solid-js";
 
 import { BiRegularChevronDown, BiRegularChevronUp } from "solid-icons/bi";
@@ -14,11 +11,9 @@ import {
 } from "../../../types";
 
 export const sanitzerOptions = {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
   allowedTags: [...sanitizeHtml.defaults.allowedTags, "font", "button", "span"],
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   allowedAttributes: {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     ...sanitizeHtml.defaults.allowedAttributes,
     "*": ["style"],
     button: ["onclick"],
@@ -203,7 +198,7 @@ const ScoreChunk = (props: ScoreChunkProps) => {
             <div class="pl-2">
               <For each={Object.keys(props.chunk.metadata ?? {})}>
                 {(key) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const value = (props.chunk.metadata as any)[key];
                   return (
                     <Show when={value}>
@@ -277,7 +272,7 @@ const ScoreChunk = (props: ScoreChunkProps) => {
             ? { "-webkit-line-clamp": linesBeforeShowMore }
             : {}
         }
-        // eslint-disable-next-line solid/no-innerhtml, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+        // eslint-disable-next-line solid/no-innerhtml
         innerHTML={sanitizeHtml(
           props.chunk.chunk_html !== undefined
             ? props.chunk.chunk_html

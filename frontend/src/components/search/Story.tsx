@@ -1,3 +1,4 @@
+/* eslint-disable solid/reactivity */
 import { Show } from "solid-js";
 import { formatDistanceToNowStrict } from "date-fns";
 

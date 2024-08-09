@@ -23,12 +23,12 @@ export const RpsGraph = (props: RpsGraphProps) => {
   const [usageQuery, setUsage] = createSignal<UsageDatapoint[]>([]);
   let chartInstance: Chart | null = null;
 
-  createEffect(async () => {
-    let results = await getRpsUsageGraph(
-      props.params.filter,
-      props.params.granularity,
+  createEffect(() => {
+    getRpsUsageGraph(props.params.filter, props.params.granularity).then(
+      (results) => {
+        setUsage(results);
+      },
     );
-    setUsage(results);
   });
 
   createEffect(() => {
@@ -103,15 +103,15 @@ export const RpsGraph = (props: RpsGraphProps) => {
 
     if (props.params.granularity === "day") {
       // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       chartInstance.options.scales["x"].time.unit = "day";
     } else if (props.params.granularity === "minute") {
       // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       chartInstance.options.scales["x"].time.unit = "minute";
     } else {
       // @ts-expect-error library types not updated
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       chartInstance.options.scales["x"].time.unit = undefined;
     }
 

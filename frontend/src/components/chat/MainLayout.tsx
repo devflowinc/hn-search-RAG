@@ -1,3 +1,7 @@
+/* eslint-disable solid/reactivity */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   For,
   Setter,
@@ -124,7 +128,7 @@ const MainLayout = (props: LayoutProps) => {
           };
           return [...prev.slice(0, prev.length - 1), newMessage];
         });
-        setPreviousTopicId(props.selectedTopic()?.id!);
+        setPreviousTopicId(props.selectedTopic()?.id ?? "");
       }
     }
   };

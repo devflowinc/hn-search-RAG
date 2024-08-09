@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { subDays, subHours } from "date-fns";
 
 export const indirectHasOwnProperty = (obj: unknown, prop: string): boolean => {
@@ -151,7 +152,7 @@ export const getFilters = ({
   }
 
   if (gtStoryPoints !== null || ltStoryPoints !== null) {
-    let range: any = {};
+    const range: any = {};
     if (gtStoryPoints !== null) {
       range["gt"] = gtStoryPoints;
     }
@@ -165,7 +166,7 @@ export const getFilters = ({
   }
 
   if (gtStoryComments !== null || ltStoryComments !== null) {
-    let range: any = {};
+    const range: any = {};
     if (gtStoryComments !== null) {
       range["gt"] = gtStoryComments;
     }
