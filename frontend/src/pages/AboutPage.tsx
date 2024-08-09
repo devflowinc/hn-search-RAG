@@ -91,15 +91,6 @@ export const WhyMakeThis = () => {
             we are working on to this community we feel apart of feels really
             good and is something we're excited about
           </p>
-          <p>
-            6.{" "}
-            <a class="underline" href="Algolia gets a lot of traffic from HN">
-              Algolia gets a lot of referral traffic from HN (purported 80% of
-              total)
-            </a>{" "}
-            and we wanted to see if we could get at least a bit of that for
-            growth purposes.
-          </p>
         </>
       }
     />
