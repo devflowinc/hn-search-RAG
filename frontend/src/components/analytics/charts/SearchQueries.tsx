@@ -240,6 +240,8 @@ const formatSearchMethod = (searchMethod: string) => {
       return "Semantic";
     case "bm25":
       return "BM25";
+    case "rag":
+      return "Query made by RAG";
     default:
       return "All";
   }
