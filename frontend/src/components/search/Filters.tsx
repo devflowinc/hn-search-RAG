@@ -15,6 +15,8 @@ import { SetStoreFunction } from "solid-js/store";
 import { SearchOptions } from "../../types";
 import DatePicker, { PickerValue } from "@rnwonder/solid-date-picker";
 import "@rnwonder/solid-date-picker/dist/style.css";
+import { AiOutlineInfoCircle } from "solid-icons/ai";
+import { TrieveTooltip } from "../TrieveTooltip";
 
 export interface FiltersProps {
   selectedStoryType: Accessor<string>;
@@ -127,6 +129,30 @@ export default function Filters(props: FiltersProps) {
       props.matchAnyAuthorNames().length + props.matchNoneAuthorNames().length
     );
   });
+
+  const getTooltipText = () => {
+    if (props.searchType() === "fulltext") {
+      return "Fulltext is powered by SPLADE sparse vectors and is the recommended search method for most queries. It automatically handles typos and synonyms.";
+    }
+
+    if (props.searchType() === "semantic") {
+      return "Semantic mode is powered by dense vectors and is the recommended search method for queries that are more about the meaning of the text than the exact words used. ";
+    }
+
+    if (props.searchType() === "hybrid") {
+      return "Hybrid search performs both a fulltext and semantic search then ranks the results with a cross-encoder (bge-large-en re-reranker) to merge them. ";
+    }
+
+    if (props.searchType() === "bm25") {
+      return "BM25 search matches search terms between the query and data objects in the index and ranks results based on the frequency of those terms.";
+    }
+
+    if (props.searchType() === "autocomplete") {
+      return "Autocomplete is???";
+    }
+
+    return null;
+  };
 
   return (
     <div class="flex items-center gap-2 p-2">
@@ -261,7 +287,7 @@ export default function Filters(props: FiltersProps) {
           />
         </div>
         <span>using</span>
-        <div>
+        <div class="flex items-center gap-1">
           <select
             id="stories"
             class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600"
@@ -279,6 +305,15 @@ export default function Filters(props: FiltersProps) {
             <option value="bm25">BM25</option>
             <option value="autocomplete">Autocomplete</option>
           </select>
+          <Show when={getTooltipText()}>
+            {(tooltipText) => (
+              <TrieveTooltip
+                direction="right"
+                body={<AiOutlineInfoCircle class="h-4 w-4" />}
+                tooltipText={tooltipText()}
+              />
+            )}
+          </Show>
         </div>
         <div class="relative">
           <div class="flex items-center gap-1">
