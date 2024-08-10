@@ -1,7 +1,10 @@
 import { JSX, Show, splitProps } from "solid-js";
+import { TrieveTooltip } from "../../TrieveTooltip";
+import { AiOutlineInfoCircle } from "solid-icons/ai";
 
 interface ChartCardProps extends JSX.HTMLAttributes<HTMLDivElement> {
   title?: string;
+  tooltipText?: string;
   subtitle?: string;
   width: number;
   children: JSX.Element;
@@ -20,9 +23,22 @@ export const ChartCard = (props: ChartCardProps) => {
     >
       <div class="flex items-center justify-between">
         <div>
-          <Show when={props.title}>
-            {(title) => <div class="my-2 text-lg leading-none">{title()}</div>}
-          </Show>
+          <div class="flex items-center gap-2">
+            <Show when={props.title}>
+              {(title) => (
+                <div class="my-2 text-lg leading-none">{title()}</div>
+              )}
+            </Show>
+            <Show when={props.tooltipText}>
+              {(tooltipText) => (
+                <TrieveTooltip
+                  direction="right"
+                  body={<AiOutlineInfoCircle class="h-4 w-4" />}
+                  tooltipText={tooltipText()}
+                />
+              )}
+            </Show>
+          </div>
           <Show when={props.subtitle}>
             {(subtitle) => (
               <div class="text-sm leading-none text-neutral-600">

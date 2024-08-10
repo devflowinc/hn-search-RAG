@@ -110,7 +110,12 @@ export const AnalyticsPage = () => {
               filter: analyticsFilters.filter,
             }}
           />
-          <ChartCard title="Head Queries" class="px-4" width={2}>
+          <ChartCard
+            title="Head Queries"
+            class="px-4"
+            width={2}
+            tooltipText="Most common search queries"
+          >
             <HeadQueries
               params={{
                 filter: analyticsFilters.filter,
@@ -119,8 +124,8 @@ export const AnalyticsPage = () => {
           </ChartCard>
         </Show>
         <Show when={analyticsType() === "rag"}>
-          <RagQueries filter={analyticsFilters.filter} />
           <RagUsage filter={analyticsFilters.filter} />
+          <RagQueries filter={analyticsFilters.filter} />
         </Show>
       </div>
       <Footer />
