@@ -219,16 +219,15 @@ export default function Filters(props: FiltersProps) {
             setValue={setRangeDate}
             renderInput={({ showDate }) => (
               <select
-                id="date-range"
-                class="form-select border border-stone-300 bg-hn p-1 text-zinc-600"
-                onClick={(e) => {
-                  e.preventDefault();
+                onChange={(e) => {
                   if (e.currentTarget.value === "custom") {
                     showDate();
                   } else {
                     props.setDateRange(e.currentTarget.value);
                   }
                 }}
+                id="date-range"
+                class="form-select border border-stone-300 bg-hn p-1 text-zinc-600"
                 value={
                   props.dateRange().startsWith("{")
                     ? "custom"
