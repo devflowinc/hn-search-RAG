@@ -101,7 +101,7 @@ export const SearchPage = () => {
   );
   const [recommendType, setRecommendType] = createSignal("semantic");
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
-  const [scrollOffset, setScrollOffset] = createSignal("");
+  const [offsetStoryIds, setOffsetStoryIds] = createSignal<string[]>([]);
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
   const [positiveRecStory, setPositiveRecStory] = createSignal<Story | null>(
@@ -165,6 +165,7 @@ export const SearchPage = () => {
   });
 
   const curFilterValues = createMemo(() => {
+    setOffsetStoryIds([]);
     const time_range = dateRangeSwitch(dateRange());
 
     const uncleanedQuery = query();
@@ -321,13 +322,18 @@ export const SearchPage = () => {
 
   createEffect(() => {
     setLoading(true);
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
+    const { signal } = abortController;
 
     searchOptions.scoreThreshold &&
       urlParams.set(
         "score_threshold",
         searchOptions.scoreThreshold?.toString(),
       );
-
     urlParams.set("page_size", searchOptions.pageSize.toString());
     urlParams.set("prefetch_amount", searchOptions.prefetchAmount.toString());
     urlParams.set("rerank_type", searchOptions.rerankType ?? "none");
@@ -357,14 +363,6 @@ export const SearchPage = () => {
       "use_quote_negated_terms",
       searchOptions.useQuoteNegatedTerms ? "true" : "false",
     );
-
-    if (abortController) {
-      abortController.abort();
-    }
-
-    abortController = new AbortController();
-    const { signal } = abortController;
-
     urlParams.set("q", queryFiltersRemoved());
     urlParams.set("storyType", selectedStoryType());
     urlParams.set("matchAnyAuthorNames", matchAnyAuthorNames().join(","));
@@ -437,7 +435,22 @@ export const SearchPage = () => {
     }
 
     if (queryFiltersRemoved() === "") {
-      const curScrollOffset = scrollOffset();
+      const curOffsetStoryIds = offsetStoryIds();
+      const curFilters = curFilterValues();
+      if (curOffsetStoryIds.length) {
+        if (!curFilters.must_not) {
+          curFilters.must_not = [];
+        } else {
+          curFilters.must_not = curFilters.must_not.filter(
+            (filter) => Object.keys(filter)[0] !== "ids",
+          );
+        }
+
+        curFilters.must_not?.push({
+          ids: curOffsetStoryIds,
+        } as any);
+      }
+
       fetch(`${trieveBaseURL}/chunks/scroll`, {
         method: "POST",
         body: JSON.stringify({
@@ -451,8 +464,7 @@ export const SearchPage = () => {
                 field: "time_stamp",
                 order: "desc",
               },
-          filters: curFilterValues(),
-          offset_chunk_id: curScrollOffset ? curScrollOffset : undefined,
+          filters: curFilters,
           page_size: 30,
         }),
         headers: {
@@ -510,10 +522,6 @@ export const SearchPage = () => {
                 trieve_id: chunk.id,
               };
             });
-            const offset_chunk_id = data.offset_chunk_id;
-            if (offset_chunk_id) {
-              stories[stories.length - 1].trieve_id = offset_chunk_id;
-            }
 
             if (!sort_by_field || sort_by_field === "time_stamp") {
               stories.sort((a, b) => {
@@ -522,7 +530,7 @@ export const SearchPage = () => {
             }
 
             setStories((prevStories) => {
-              if (curScrollOffset) {
+              if (curOffsetStoryIds) {
                 return [...prevStories, ...stories];
               } else {
                 return stories;
@@ -859,12 +867,14 @@ export const SearchPage = () => {
               />
             </div>
           </Match>
-          <Match when={queryFiltersRemoved() === ""}>
+          <Match when={queryFiltersRemoved() === "" && stories().length}>
             <button
               class="-mt-1 pb-3 pl-4 text-stone-600"
               onClick={() => {
-                setScrollOffset(
-                  stories()[stories().length - 1].trieve_id ?? "",
+                setOffsetStoryIds(
+                  stories()
+                    .filter((s) => s.trieve_id)
+                    .map((s) => s.trieve_id as string),
                 );
               }}
             >
