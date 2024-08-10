@@ -10,6 +10,8 @@ import {
 import { getRAGQueries } from "../api/analytics";
 import { Select } from "../Select";
 import { usePagination } from "../usePagination";
+import { parseCustomDateString } from "./LatencyGraph";
+import { format } from "date-fns";
 
 interface RagQueriesProps {
   filter: RAGAnalyticsFilter;
@@ -22,7 +24,7 @@ export const RagQueries = (props: RagQueriesProps) => {
   const pages = usePagination();
 
   const [sortBy, setSortBy] = createSignal<SortBy>("created_at");
-  const [sortOrder, setSortOrder] = createSignal<SortOrder>("asc");
+  const [sortOrder, setSortOrder] = createSignal<SortOrder>("desc");
   const [ragQueries, setRagQueries] = createSignal<RagQueryEvent[]>([]);
 
   createEffect(() => {
@@ -86,6 +88,7 @@ export const RagQueries = (props: RagQueriesProps) => {
                   <thead>
                     <tr>
                       <th class="text-left font-semibold">Message</th>
+                      <th class="pl-2 text-left font-semibold">Sent At</th>
                       <th class="text-right font-semibold">RAG Type</th>
                     </tr>
                   </thead>
@@ -119,8 +122,12 @@ interface QueryCardProps {
 const RagQueryEventCard = (props: QueryCardProps) => {
   return (
     <tr>
-      <td class="w-full max-w-0 truncate">
-        {props.rag_query_event.user_message}
+      <td class="truncate">{props.rag_query_event.user_message}</td>
+      <td class="pr-8 text-right">
+        {format(
+          parseCustomDateString(props.rag_query_event.created_at),
+          "M/d/yy h:mm a",
+        )}
       </td>
       <td class="text-right">{props.rag_query_event.rag_type}</td>
     </tr>

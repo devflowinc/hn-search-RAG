@@ -380,7 +380,7 @@ export const SearchPage = () => {
       }&type=${selectedStoryType()}&page=0&prefix=false`,
     );
 
-    window.history.replaceState(
+    window.history.pushState(
       {},
       "",
       `${window.location.pathname}?${urlParams.toString()}`,
