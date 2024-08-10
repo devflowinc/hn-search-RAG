@@ -9,6 +9,7 @@ import {
   createMemo,
   createSignal,
   onCleanup,
+  onMount,
 } from "solid-js";
 import Filters from "../components/search/Filters";
 import Header from "../components/Header";
@@ -95,6 +96,7 @@ export const SearchPage = () => {
   const [totalPages, setTotalPages] = createSignal(10);
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
+  const [queryOnBack, setQueryOnBack] = createSignal<string | null>(null);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
     urlParams.get("searchType") ?? "fulltext",
@@ -131,6 +133,55 @@ export const SearchPage = () => {
     highlightResults: (urlParams.get("highlight_results") ?? "true") === "true",
     useQuoteNegatedTerms:
       (urlParams.get("use_quote_negated_terms") ?? "true") === "true",
+  });
+
+  onMount(() => {
+    const setSignalsFromUrlParams = (stringifiedUrlParams: string) => {
+      console.log("setting signals from url params", stringifiedUrlParams);
+      const curUrlParams = new URLSearchParams(stringifiedUrlParams);
+      console.log("setting signals from url params", curUrlParams.get("q"));
+
+      setMatchAnyAuthorNames(
+        curUrlParams
+          .get("matchAnyAuthorNames")
+          ?.split(",")
+          .map((name) => name.trim())
+          .filter((name) => name !== "") ?? [],
+      );
+      setMatchNoneAuthorNames(
+        curUrlParams
+          .get("matchNoneAuthorNames")
+          ?.split(",")
+          .map((name) => name.trim())
+          .filter((name) => name !== "") ?? [],
+      );
+      setPopularityFilters(
+        curUrlParams.get("popularityFilters")
+          ? JSON.parse(curUrlParams.get("popularityFilters") as string)
+          : {},
+      );
+      setSelectedStoryType(curUrlParams.get("storyType") ?? "story");
+      setSortBy(curUrlParams.get("sortby") ?? "Relevance");
+      setDateRange(curUrlParams.get("dateRange") ?? "all");
+      setQuery(curUrlParams.get("q") ?? "");
+      setSearchType(curUrlParams.get("searchType") ?? "fulltext");
+      setPage(Number(curUrlParams.get("page") ?? "1"));
+    };
+
+    window.addEventListener("popstate", () => {
+      setQueryOnBack(query());
+      const curUrlHistory = window.localStorage.getItem("urlParamsHistory");
+      if (curUrlHistory) {
+        const curUrlHistoryParsed = JSON.parse(curUrlHistory);
+        const lastUrlParams = curUrlHistoryParsed.pop();
+
+        window.localStorage.setItem(
+          "urlParamsHistory",
+          JSON.stringify(curUrlHistoryParsed),
+        );
+        setSignalsFromUrlParams(lastUrlParams);
+      }
+    });
   });
 
   const recommendDateRangeDisplay = createMemo(() => {
@@ -271,6 +322,35 @@ export const SearchPage = () => {
     return curFilter;
   });
 
+  createEffect((prevUrlParamsStringified) => {
+    stories();
+    const urlParamsStringified = urlParams.toString();
+    if (!prevUrlParamsStringified || prevUrlParamsStringified === urlParamsStringified) {
+      return urlParamsStringified;
+    }
+    const prevUrlParams = new URLSearchParams(prevUrlParamsStringified as string);
+    if (prevUrlParams.get("q") === queryOnBack()) {
+      return null;
+    }
+
+    const curUrlHistory = window.localStorage.getItem("urlParamsHistory");
+    if (curUrlHistory) {
+      const curUrlHistoryParsed = JSON.parse(curUrlHistory);
+      if (!curUrlHistoryParsed.find((urlParams: string) => urlParams === prevUrlParamsStringified)) {
+        curUrlHistoryParsed.push(prevUrlParamsStringified);
+      }
+
+      window.localStorage.setItem(
+        "urlParamsHistory",
+        JSON.stringify(curUrlHistoryParsed),
+      );
+    } else {
+      window.localStorage.setItem("urlParamsHistory", JSON.stringify([prevUrlParamsStringified]));
+    }
+
+    return urlParamsStringified;
+  });
+
   createEffect(() => {
     setSearchOptions("scoreThreshold", defaultScoreThreshold(searchType()));
   });
@@ -381,7 +461,9 @@ export const SearchPage = () => {
     );
 
     window.history.pushState(
-      {},
+      {
+        urlParamsStringified: urlParams.toString(),
+      },
       "",
       `${window.location.pathname}?${urlParams.toString()}`,
     );

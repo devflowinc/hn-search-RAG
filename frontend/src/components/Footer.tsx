@@ -43,9 +43,6 @@ export const Footer = () => {
         console.log("Success:", data);
       })
       .catch((error) => {
-        // Handle error
-        console.error("Error:", error.message);
-
         // Try to parse the error message
         const errorMessage = error.message;
         setCount(extractLimit(errorMessage) || 0);
