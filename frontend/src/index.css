@@ -16,7 +16,7 @@ code {
   margin-top: 8px;
 }
 
-#comment-parent > a {
+#comment-parent a {
   color: black;
   text-decoration: underline;
 }
