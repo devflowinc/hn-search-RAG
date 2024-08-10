@@ -36,6 +36,7 @@ export interface Story {
   kids: string[];
   type: string;
   id: string;
+  trieve_id?: string;
 }
 
 export const Story = (props: {
