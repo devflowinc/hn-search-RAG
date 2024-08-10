@@ -4,7 +4,6 @@
 import {
   For,
   Match,
-  Show,
   Switch,
   createEffect,
   createMemo,
@@ -102,6 +101,7 @@ export const SearchPage = () => {
   );
   const [recommendType, setRecommendType] = createSignal("semantic");
   const [page, setPage] = createSignal(Number(urlParams.get("page") ?? "1"));
+  const [scrollOffset, setScrollOffset] = createSignal("");
   const [algoliaLink, setAlgoliaLink] = createSignal("");
   const [latency, setLatency] = createSignal<number | null>(null);
   const [positiveRecStory, setPositiveRecStory] = createSignal<Story | null>(
@@ -310,7 +310,7 @@ export const SearchPage = () => {
       response
         .json()
         .then((data) =>
-          setTotalPages(Math.floor(data.count / curOptions.pageSize)),
+          setTotalPages(Math.ceil(data.count / curOptions.pageSize)),
         ),
     );
 
@@ -437,6 +437,7 @@ export const SearchPage = () => {
     }
 
     if (queryFiltersRemoved() === "") {
+      const curScrollOffset = scrollOffset();
       fetch(`${trieveBaseURL}/chunks/scroll`, {
         method: "POST",
         body: JSON.stringify({
@@ -451,6 +452,7 @@ export const SearchPage = () => {
                 order: "desc",
               },
           filters: curFilterValues(),
+          offset_chunk_id: curScrollOffset ? curScrollOffset : undefined,
           page_size: 30,
         }),
         headers: {
@@ -464,55 +466,71 @@ export const SearchPage = () => {
         .then((response) => {
           return response.json();
         })
-        .then((data: { chunks: ChunkMetadataStringTagSet[] }) => {
-          const stories: Story[] = data.chunks.map((chunk): Story => {
-            let title_html = undefined;
-            let body_html = undefined;
-            if (!chunk.tag_set?.includes("story")) {
-              body_html = chunk.chunk_html
-                ?.replaceAll("\n\n", "<br>")
-                .trim()
-                .replace(/<br>$/, "");
-            } else {
-              const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
-              let title_split = 0;
-              if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
-                title_split = 1;
+        .then(
+          (data: {
+            chunks: ChunkMetadataStringTagSet[];
+            offset_chunk_id?: string;
+          }) => {
+            const stories: Story[] = data.chunks.map((chunk): Story => {
+              let title_html = undefined;
+              let body_html = undefined;
+              if (!chunk.tag_set?.includes("story")) {
+                body_html = chunk.chunk_html
+                  ?.replaceAll("\n\n", "<br>")
+                  .trim()
+                  .replace(/<br>$/, "");
+              } else {
+                const html_split_by_newlines = chunk.chunk_html?.split("\n\n");
+                let title_split = 0;
+                if (chunk.link && chunk.chunk_html?.includes(chunk.link)) {
+                  title_split = 1;
+                }
+
+                title_html = html_split_by_newlines?.[title_split];
+                body_html = html_split_by_newlines
+                  ?.slice(title_split + 1)
+                  .join("<br>")
+                  .trim()
+                  .replace(/<br>$/, "");
               }
 
-              title_html = html_split_by_newlines?.[title_split];
-              body_html = html_split_by_newlines
-                ?.slice(title_split + 1)
-                .join("<br>")
-                .trim()
-                .replace(/<br>$/, "");
+              return {
+                title_html,
+                body_html,
+                parent_id: (chunk.metadata?.parent ?? "").toString(),
+                parent_title: chunk.metadata?.parent_title ?? "",
+                url: chunk.link ?? "",
+                points: chunk.metadata?.score ?? 0,
+                user: chunk.metadata?.by ?? "",
+                time: new Date(chunk.time_stamp + "Z"),
+                title: chunk.metadata?.title ?? "",
+                kids: chunk.metadata?.kids ?? [],
+                type: chunk.metadata?.type ?? "",
+                id: chunk.tracking_id ?? "0",
+                trieve_id: chunk.id,
+              };
+            });
+            const offset_chunk_id = data.offset_chunk_id;
+            if (offset_chunk_id) {
+              stories[stories.length - 1].trieve_id = offset_chunk_id;
             }
 
-            return {
-              title_html,
-              body_html,
-              parent_id: (chunk.metadata?.parent ?? "").toString(),
-              parent_title: chunk.metadata?.parent_title ?? "",
-              url: chunk.link ?? "",
-              points: chunk.metadata?.score ?? 0,
-              user: chunk.metadata?.by ?? "",
-              time: new Date(chunk.time_stamp + "Z"),
-              title: chunk.metadata?.title ?? "",
-              kids: chunk.metadata?.kids ?? [],
-              type: chunk.metadata?.type ?? "",
-              id: chunk.tracking_id ?? "0",
-            };
-          });
+            if (!sort_by_field || sort_by_field === "time_stamp") {
+              stories.sort((a, b) => {
+                return b.time.getTime() - a.time.getTime();
+              });
+            }
 
-          if (!sort_by_field || sort_by_field === "time_stamp") {
-            stories.sort((a, b) => {
-              return b.time.getTime() - a.time.getTime();
+            setStories((prevStories) => {
+              if (curScrollOffset) {
+                return [...prevStories, ...stories];
+              } else {
+                return stories;
+              }
             });
-          }
-
-          setStories(stories);
-          setLoading(false);
-        })
+            setLoading(false);
+          },
+        )
         .catch((error) => {
           if ((error as Error).name !== "AbortError") {
             console.error("Error:", error);
@@ -591,6 +609,7 @@ export const SearchPage = () => {
               kids: chunk.metadata?.kids ?? [],
               type: chunk.metadata?.type ?? "",
               id: chunk.tracking_id ?? "0",
+              trieve_id: chunk.id,
             };
           }) ?? [];
 
@@ -830,15 +849,29 @@ export const SearchPage = () => {
             </div>
           </Match>
         </Switch>
-        <Show when={queryFiltersRemoved() != ""}>
-          <div class="mx-auto flex items-center justify-center space-x-2 py-3">
-            <PaginationController
-              page={page()}
-              setPage={setPage}
-              totalPages={totalPages()}
-            />
-          </div>
-        </Show>
+        <Switch>
+          <Match when={queryFiltersRemoved() != ""}>
+            <div class="mx-auto flex items-center justify-center space-x-2 py-3">
+              <PaginationController
+                page={page()}
+                setPage={setPage}
+                totalPages={totalPages()}
+              />
+            </div>
+          </Match>
+          <Match when={queryFiltersRemoved() === ""}>
+            <button
+              class="-mt-1 pb-3 pl-4 text-stone-600"
+              onClick={() => {
+                setScrollOffset(
+                  stories()[stories().length - 1].trieve_id ?? "",
+                );
+              }}
+            >
+              More
+            </button>
+          </Match>
+        </Switch>
         <Footer />
       </main>
       <FullScreenModal show={showRecModal} setShow={setShowRecModal}>
