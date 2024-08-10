@@ -80,7 +80,12 @@ export const SearchQueries = (props: SearchQueriesProps) => {
   };
 
   return (
-    <ChartCard title="All Search Queries" class="flex flex-col px-4" width={2}>
+    <ChartCard
+      title="All Search Queries"
+      class="flex flex-col px-4"
+      width={2}
+      tooltipText="Autocomplete search-as-you-type sub-sentences are collapsed on a 10-minute interval"
+    >
       <div>
         <Show when={searchQueries().length === 0}>
           <div class="py-8 text-center opacity-80">No Data.</div>

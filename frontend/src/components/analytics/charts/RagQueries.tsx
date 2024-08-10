@@ -44,7 +44,8 @@ export const RagQueries = (props: RagQueriesProps) => {
   return (
     <ChartCard
       title="RAG Queries"
-      subtitle={"All RAG Queries"}
+      tooltipText="This table will soon be updated to show all data being collected and available through the analytics API resource"
+      subtitle="All RAG Queries"
       class="flex flex-col px-4"
       width={2}
       controller={
