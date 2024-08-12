@@ -137,9 +137,7 @@ export const SearchPage = () => {
 
   onMount(() => {
     const setSignalsFromUrlParams = (stringifiedUrlParams: string) => {
-      console.log("setting signals from url params", stringifiedUrlParams);
       const curUrlParams = new URLSearchParams(stringifiedUrlParams);
-      console.log("setting signals from url params", curUrlParams.get("q"));
 
       setMatchAnyAuthorNames(
         curUrlParams
@@ -325,10 +323,15 @@ export const SearchPage = () => {
   createEffect((prevUrlParamsStringified) => {
     stories();
     const urlParamsStringified = urlParams.toString();
-    if (!prevUrlParamsStringified || prevUrlParamsStringified === urlParamsStringified) {
+    if (
+      !prevUrlParamsStringified ||
+      prevUrlParamsStringified === urlParamsStringified
+    ) {
       return urlParamsStringified;
     }
-    const prevUrlParams = new URLSearchParams(prevUrlParamsStringified as string);
+    const prevUrlParams = new URLSearchParams(
+      prevUrlParamsStringified as string,
+    );
     if (prevUrlParams.get("q") === queryOnBack()) {
       return null;
     }
@@ -336,7 +339,11 @@ export const SearchPage = () => {
     const curUrlHistory = window.localStorage.getItem("urlParamsHistory");
     if (curUrlHistory) {
       const curUrlHistoryParsed = JSON.parse(curUrlHistory);
-      if (!curUrlHistoryParsed.find((urlParams: string) => urlParams === prevUrlParamsStringified)) {
+      if (
+        !curUrlHistoryParsed.find(
+          (urlParams: string) => urlParams === prevUrlParamsStringified,
+        )
+      ) {
         curUrlHistoryParsed.push(prevUrlParamsStringified);
       }
 
@@ -345,7 +352,10 @@ export const SearchPage = () => {
         JSON.stringify(curUrlHistoryParsed),
       );
     } else {
-      window.localStorage.setItem("urlParamsHistory", JSON.stringify([prevUrlParamsStringified]));
+      window.localStorage.setItem(
+        "urlParamsHistory",
+        JSON.stringify([prevUrlParamsStringified]),
+      );
     }
 
     return urlParamsStringified;
@@ -516,7 +526,7 @@ export const SearchPage = () => {
       } as any;
     }
 
-    if (queryFiltersRemoved() === "") {
+    if (!queryFiltersRemoved() || queryFiltersRemoved() === "") {
       const curOffsetStoryIds = offsetStoryIds();
       const curFilters = curFilterValues();
       if (curOffsetStoryIds.length) {
