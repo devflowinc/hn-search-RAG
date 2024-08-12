@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { For, createEffect, createSignal, onCleanup } from "solid-js";
 import { BsCheck2Circle } from "solid-icons/bs";
 import { BiRegularErrorCircle } from "solid-icons/bi";
@@ -13,7 +14,6 @@ export interface ToastEvent {
 }
 
 export const createToast = ({ type, message }: ToastDetail) => {
-  console.log("show-toast");
   window.dispatchEvent(
     new CustomEvent("show-toast", {
       detail: {
@@ -28,7 +28,7 @@ const ShowToast = () => {
   const [toastDetails, setToastDetails] = createSignal<ToastDetail[]>([]);
 
   createEffect(() => {
-    let timeOutId: number;
+    let timeOutId: any;
 
     const showToastEvent = (event: Event) => {
       const toastEvent = event as unknown as ToastEvent;

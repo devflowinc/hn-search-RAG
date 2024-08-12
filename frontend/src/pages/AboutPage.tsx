@@ -11,14 +11,26 @@ export const HowToUse = () => {
       answer={
         <>
           <p>
-            - Fulltext is powered by SPLADE sparse vectors and is the
-            recommended search method for most queries. It automatically handles
-            typos and synonyms to make things feel semantic'y while still being
-            fast and returning exact matches first.
+            -{" "}
+            <u>
+              Good fulltext query: <b>Rust ORM</b>.
+            </u>{" "}
+            Fulltext is powered by SPLADE sparse vectors and is the recommended
+            search method for most queries. It automatically handles typos and
+            synonyms to make things feel semantic'y while still being fast and
+            returning exact matches first.
           </p>
           <p>
-            - Semantic mode is powered by dense vectors (bge-m3 model) and is
-            the recommended search method for queries that are more about the
+            -{" "}
+            <u>
+              Good semantic query:{" "}
+              <b>
+                I'm trying to setup my Rust HTTP server with SQL. How do I
+                manage SQL migrations and queries in Rust?
+              </b>
+            </u>{" "}
+            Semantic mode is powered by dense vectors (bge-m3 model) and is the
+            recommended search method for queries that are more about the
             meaning of the text than the exact words used. It's slower than
             fulltext (though still quite fast) but can understand multi-sentence
             or more abstract queries to return more relevant results.
@@ -55,8 +67,14 @@ export const WhyMakeThis = () => {
       answer={
         <>
           <p>
-            1. Test dense vectors vs. SPLADE vs. BM25 for search and
-            recommendations at sufficient scale
+            1. Dense vector semantic search, re-rankers, SPLADE, and other
+            techniques have gotten a lot of hype recently, but it's hard to
+            figure out where each technique is best applied. We're hackers and
+            built hacker'y features into Trieve to make it easier to test and
+            experiment with this new tech, and needed a dataset us and our
+            friends would have knowledge of to mess with. We're hoping to build
+            lots of cool shareable projects on top of this demo to learn and
+            collect feedback with.
           </p>
           <p>
             2. Make HN search more explorable with recommendations plus RAG and
@@ -67,7 +85,7 @@ export const WhyMakeThis = () => {
             <a class="underline" href="https://hn-comparison.trieve.ai">
               blind comparison at hn-comparison.trieve.ai
             </a>
-            .
+            to help us collect higher quality training data.
           </p>
           <p>
             3. Open up a more fully-featured discovery API for others who want
@@ -84,12 +102,12 @@ export const WhyMakeThis = () => {
           </p>
           <p>
             4. Show what's possible with Trieve, work out scaling/stability
-            bugs, and pressure test
+            bugs, and pressure test.
           </p>
           <p>
             5. HN is a cool place where we like to spend time and showing what
-            we are working on to this community we feel apart of feels really
-            good and is something we're excited about
+            we are working on to this community we feel apart is something we're
+            excited about!
           </p>
         </>
       }
