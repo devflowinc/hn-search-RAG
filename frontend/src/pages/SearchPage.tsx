@@ -96,7 +96,6 @@ export const SearchPage = () => {
   const [totalPages, setTotalPages] = createSignal(10);
   const [stories, setStories] = createSignal<Story[]>([]);
   const [loading, setLoading] = createSignal(true);
-  const [queryOnBack, setQueryOnBack] = createSignal<string | null>(null);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
     urlParams.get("searchType") ?? "fulltext",
@@ -136,49 +135,8 @@ export const SearchPage = () => {
   });
 
   onMount(() => {
-    const setSignalsFromUrlParams = (stringifiedUrlParams: string) => {
-      const curUrlParams = new URLSearchParams(stringifiedUrlParams);
-
-      setMatchAnyAuthorNames(
-        curUrlParams
-          .get("matchAnyAuthorNames")
-          ?.split(",")
-          .map((name) => name.trim())
-          .filter((name) => name !== "") ?? [],
-      );
-      setMatchNoneAuthorNames(
-        curUrlParams
-          .get("matchNoneAuthorNames")
-          ?.split(",")
-          .map((name) => name.trim())
-          .filter((name) => name !== "") ?? [],
-      );
-      setPopularityFilters(
-        curUrlParams.get("popularityFilters")
-          ? JSON.parse(curUrlParams.get("popularityFilters") as string)
-          : {},
-      );
-      setSelectedStoryType(curUrlParams.get("storyType") ?? "story");
-      setSortBy(curUrlParams.get("sortby") ?? "Relevance");
-      setDateRange(curUrlParams.get("dateRange") ?? "all");
-      setQuery(curUrlParams.get("q") ?? "");
-      setSearchType(curUrlParams.get("searchType") ?? "fulltext");
-      setPage(Number(curUrlParams.get("page") ?? "1"));
-    };
-
     window.addEventListener("popstate", () => {
-      setQueryOnBack(query());
-      const curUrlHistory = window.localStorage.getItem("urlParamsHistory");
-      if (curUrlHistory) {
-        const curUrlHistoryParsed = JSON.parse(curUrlHistory);
-        const lastUrlParams = curUrlHistoryParsed.pop();
-
-        window.localStorage.setItem(
-          "urlParamsHistory",
-          JSON.stringify(curUrlHistoryParsed),
-        );
-        setSignalsFromUrlParams(lastUrlParams);
-      }
+      setQuery("");
     });
   });
 
@@ -318,47 +276,6 @@ export const SearchPage = () => {
     });
 
     return curFilter;
-  });
-
-  createEffect((prevUrlParamsStringified) => {
-    stories();
-    const urlParamsStringified = urlParams.toString();
-    if (
-      !prevUrlParamsStringified ||
-      prevUrlParamsStringified === urlParamsStringified
-    ) {
-      return urlParamsStringified;
-    }
-    const prevUrlParams = new URLSearchParams(
-      prevUrlParamsStringified as string,
-    );
-    if (prevUrlParams.get("q") === queryOnBack()) {
-      return null;
-    }
-
-    const curUrlHistory = window.localStorage.getItem("urlParamsHistory");
-    if (curUrlHistory) {
-      const curUrlHistoryParsed = JSON.parse(curUrlHistory);
-      if (
-        !curUrlHistoryParsed.find(
-          (urlParams: string) => urlParams === prevUrlParamsStringified,
-        )
-      ) {
-        curUrlHistoryParsed.push(prevUrlParamsStringified);
-      }
-
-      window.localStorage.setItem(
-        "urlParamsHistory",
-        JSON.stringify(curUrlHistoryParsed),
-      );
-    } else {
-      window.localStorage.setItem(
-        "urlParamsHistory",
-        JSON.stringify([prevUrlParamsStringified]),
-      );
-    }
-
-    return urlParamsStringified;
   });
 
   createEffect(() => {
@@ -622,7 +539,7 @@ export const SearchPage = () => {
             }
 
             setStories((prevStories) => {
-              if (curOffsetStoryIds) {
+              if (curOffsetStoryIds.length) {
                 return [...prevStories, ...stories];
               } else {
                 return stories;
