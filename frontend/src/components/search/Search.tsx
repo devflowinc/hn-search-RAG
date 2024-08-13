@@ -1,6 +1,9 @@
 import { FiExternalLink } from "solid-icons/fi";
-import { HiSolidMagnifyingGlass } from "solid-icons/hi";
-import { Accessor, createSignal, Setter } from "solid-js";
+import {
+  HiOutlineAdjustmentsVertical,
+  HiSolidMagnifyingGlass,
+} from "solid-icons/hi";
+import { Accessor, createSignal, onMount, Setter, Show } from "solid-js";
 import { HowToUse, WhyMakeThis } from "../../pages/AboutPage";
 import { FullScreenModal } from "../FullScreenModal";
 import { createToast } from "../ShowToast";
@@ -12,11 +15,47 @@ export interface SearchProps {
   setOpenRateQueryModal: Setter<boolean>;
   getAISummary: Accessor<boolean>;
   setGetAISummary: Setter<boolean>;
+  aiSummaryPrompt: Accessor<string>;
+  setAiSummaryPrompt: Setter<string>;
+  aiMaxTokens: Accessor<number>;
+  setAiMaxTokens: Setter<number>;
+  aiFrequencyPenalty: Accessor<number>;
+  setAiFrequencyPenalty: Setter<number>;
+  aiPresencePenalty: Accessor<number>;
+  setAiPresencePenalty: Setter<number>;
+  aiTemperature: Accessor<number>;
+  setAiTemperature: Setter<number>;
+}
+
+export interface AiParams {
+  aiSummaryPrompt: string;
+  aiMaxTokens: number;
+  aiFrequencyPenalty: number;
+  aiPresencePenalty: number;
+  aiTemperature: number;
 }
 
 export const Search = (props: SearchProps) => {
   const [openWhyMakeThisModal, setOpenWhyMakeThisModal] = createSignal(false);
   const [openHowToUseModal, setOpenHowToUseModal] = createSignal(false);
+  const [openAiSettingsModal, setOpenAiSettingsModal] = createSignal(false);
+  const [tempAiParams, setTempAiParams] = createSignal<AiParams>({
+    aiSummaryPrompt: "",
+    aiMaxTokens: 0,
+    aiFrequencyPenalty: 0,
+    aiPresencePenalty: 0,
+    aiTemperature: 0,
+  });
+
+  onMount(() => {
+    setTempAiParams({
+      aiSummaryPrompt: props.aiSummaryPrompt(),
+      aiMaxTokens: props.aiMaxTokens(),
+      aiFrequencyPenalty: props.aiFrequencyPenalty(),
+      aiPresencePenalty: props.aiPresencePenalty(),
+      aiTemperature: props.aiTemperature(),
+    });
+  });
 
   return (
     <>
@@ -25,6 +64,7 @@ export const Search = (props: SearchProps) => {
           <HiSolidMagnifyingGlass class="h-5 w-5 text-gray-500" />
           <input
             type="text"
+            id="primary-search-input"
             class="ml-2 w-full bg-transparent focus:outline-none active:outline-none"
             placeholder="Search"
             value={props.query()}
@@ -67,6 +107,15 @@ export const Search = (props: SearchProps) => {
                 }}
               />
             </button>
+            <Show when={props.getAISummary()}>
+              <button
+                class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
+                onClick={() => setOpenAiSettingsModal(true)}
+                title="AI Settings"
+              >
+                <HiOutlineAdjustmentsVertical class="h-4 w-4" />
+              </button>
+            </Show>
           </div>
           <div class="flex-1" />
           <button
@@ -133,6 +182,115 @@ export const Search = (props: SearchProps) => {
               About
             </a>{" "}
             page.{" "}
+          </p>
+        </div>
+      </FullScreenModal>
+      <FullScreenModal
+        show={openAiSettingsModal}
+        setShow={setOpenAiSettingsModal}
+      >
+        <div class="min-w-[250px] sm:min-w-[400px] sm:max-w-[50vw]">
+          <div class="flex flex-col gap-y-2">
+            <label aria-label="AI Summary Prompt" class="text-sm">
+              LLM Summary Prompt
+            </label>
+            <textarea
+              class="h-[230px] w-full border border-stone-300 bg-transparent p-1"
+              value={tempAiParams().aiSummaryPrompt}
+              onInput={(e) =>
+                setTempAiParams((prev) => ({
+                  ...prev,
+                  aiSummaryPrompt: e.currentTarget.value,
+                }))
+              }
+            />
+            <label aria-label="AI Max Tokens" class="text-sm">
+              Max Tokens
+            </label>
+            <input
+              type="number"
+              class="w-full border border-stone-300 bg-transparent p-1"
+              value={tempAiParams().aiMaxTokens}
+              onInput={(e) =>
+                setTempAiParams((prev) => ({
+                  ...prev,
+                  aiMaxTokens: parseInt(e.currentTarget.value),
+                }))
+              }
+            />
+            <label aria-label="AI Frequency Penalty" class="text-sm">
+              Frequency Penalty
+            </label>
+            <input
+              type="number"
+              class="w-full border border-stone-300 bg-transparent p-1"
+              value={tempAiParams().aiFrequencyPenalty}
+              onInput={(e) =>
+                setTempAiParams((prev) => ({
+                  ...prev,
+                  aiFrequencyPenalty: parseFloat(e.currentTarget.value),
+                }))
+              }
+            />
+            <label aria-label="AI Presence Penalty" class="text-sm">
+              Presence Penalty
+            </label>
+            <input
+              type="number"
+              class="w-full border border-stone-300 bg-transparent p-1"
+              value={tempAiParams().aiPresencePenalty}
+              onInput={(e) =>
+                setTempAiParams((prev) => ({
+                  ...prev,
+                  aiPresencePenalty: parseFloat(e.currentTarget.value),
+                }))
+              }
+            />
+            <label aria-label="AI Temperature" class="text-sm">
+              Temperature
+            </label>
+            <input
+              type="number"
+              class="w-full border border-stone-300 bg-transparent p-1"
+              value={tempAiParams().aiTemperature}
+              onInput={(e) =>
+                setTempAiParams((prev) => ({
+                  ...prev,
+                  aiTemperature: parseFloat(e.currentTarget.value),
+                }))
+              }
+            />
+          </div>
+          <div class="mt-4 flex justify-end gap-x-2">
+            <button
+              class="border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
+              onClick={() => setOpenAiSettingsModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              class="border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
+              onClick={() => {
+                props.setAiSummaryPrompt(tempAiParams().aiSummaryPrompt);
+                props.setAiMaxTokens(tempAiParams().aiMaxTokens);
+                props.setAiFrequencyPenalty(tempAiParams().aiFrequencyPenalty);
+                props.setAiPresencePenalty(tempAiParams().aiPresencePenalty);
+                props.setAiTemperature(tempAiParams().aiTemperature);
+                setOpenAiSettingsModal(false);
+              }}
+            >
+              Save
+            </button>
+          </div>
+          <p class="pt-6 text-xs text-stone-600">
+            See{" "}
+            <a
+              class="underline"
+              href="https://docs.trieve.ai/api-reference/chunk/rag-on-specified-chunks"
+            >
+              docs for the RAG on Specified Chunks route
+            </a>{" "}
+            for more information on these parameters.
           </p>
         </div>
       </FullScreenModal>

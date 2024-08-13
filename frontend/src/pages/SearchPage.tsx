@@ -119,6 +119,14 @@ export const SearchPage = () => {
   const [getAISummary, setGetAISummary] = createSignal(
     urlParams.get("getAISummary") === "true",
   );
+  const [loadingAiSummary, setLoadingAiSummary] = createSignal(false);
+  const [aiSummaryPrompt, setAISummaryPrompt] = createSignal(
+    "The user's message contains their search query. Based on and using the provided documents, generate a 1-3 paragraph markdown completion that would be helpful to the user based on this query. Do not include citations or references.",
+  );
+  const [aiMaxTokens, setAiMaxTokens] = createSignal(1000);
+  const [aiFrequencyPenalty, setAiFrequencyPenalty] = createSignal(0.7);
+  const [aiPresencePenalty, setAiPresencePenalty] = createSignal(0.7);
+  const [aiTemperature, setAiTemperature] = createSignal(0.5);
   const [showRecModal, setShowRecModal] = createSignal(false);
   const [searchID, setSearchID] = createSignal("");
   const [openRateQueryModal, setOpenRateQueryModal] = createSignal(false);
@@ -147,11 +155,13 @@ export const SearchPage = () => {
   const handleReader = async (
     reader: ReadableStreamDefaultReader<Uint8Array>,
   ) => {
+    setLoadingAiSummary(true);
     let done = false;
     while (!done) {
       const { value, done: doneReading } = await reader.read();
       if (doneReading) {
         done = doneReading;
+        setLoadingAiSummary(false);
       } else if (value) {
         const decoder = new TextDecoder();
         const newText = decoder.decode(value);
@@ -167,6 +177,16 @@ export const SearchPage = () => {
   onMount(() => {
     window.addEventListener("popstate", () => {
       setQuery("");
+    });
+
+    const searchInput = document.getElementById("primary-search-input");
+    searchInput?.focus();
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "/" || (e.ctrlKey && e.key === "k")) {
+        e.preventDefault();
+        searchInput?.focus();
+      }
     });
   });
 
@@ -330,9 +350,11 @@ export const SearchPage = () => {
               role: "user",
             },
           ],
-          prompt:
-            "The user's message contains their search query. Use the provided documents to generate a 1-3 paragraph markdown completion that would be helpful to the user based on this query. Do not include citations or references.",
-          max_tokens: 1000,
+          prompt: aiSummaryPrompt(),
+          max_tokens: aiMaxTokens(),
+          frequency_penalty: aiFrequencyPenalty(),
+          presence_penalty: aiPresencePenalty(),
+          temperature: aiTemperature(),
         }),
         signal: completionAbortController.signal,
       });
@@ -889,6 +911,16 @@ export const SearchPage = () => {
           setOpenRateQueryModal={setOpenRateQueryModal}
           getAISummary={getAISummary}
           setGetAISummary={setGetAISummary}
+          aiSummaryPrompt={aiSummaryPrompt}
+          setAiSummaryPrompt={setAISummaryPrompt}
+          aiMaxTokens={aiMaxTokens}
+          setAiMaxTokens={setAiMaxTokens}
+          aiFrequencyPenalty={aiFrequencyPenalty}
+          setAiFrequencyPenalty={setAiFrequencyPenalty}
+          aiPresencePenalty={aiPresencePenalty}
+          setAiPresencePenalty={setAiPresencePenalty}
+          aiTemperature={aiTemperature}
+          setAiTemperature={setAiTemperature}
         />
         <Switch>
           <Match when={stories().length === 0}>
@@ -913,177 +945,181 @@ export const SearchPage = () => {
             </Switch>
           </Match>
           <Match when={stories().length > 0}>
-            <Show when={aiCompletion().join("")}>
-              {(curAiCompletion) => (
-                <>
-                  <div class="border-t" />
-                  <SolidMarkdown
-                    remarkPlugins={[remarkBreaks, remarkGfm]}
-                    rehypePlugins={[rehypeSanitize]}
-                    class="select-text space-y-2 p-3 font-semibold"
-                    components={{
-                      h1: (props) => {
-                        return (
-                          <h1 class="mb-4 text-4xl font-bold dark:bg-neutral-700 dark:text-white">
-                            {props.children}
-                          </h1>
-                        );
-                      },
-                      h2: (props) => {
-                        return (
-                          <h2 class="mb-3 text-3xl font-semibold dark:text-white">
-                            {props.children}
-                          </h2>
-                        );
-                      },
-                      h3: (props) => {
-                        return (
-                          <h3 class="mb-2 text-2xl font-medium dark:text-white">
-                            {props.children}
-                          </h3>
-                        );
-                      },
-                      h4: (props) => {
-                        return (
-                          <h4 class="mb-2 text-xl font-medium dark:text-white">
-                            {props.children}
-                          </h4>
-                        );
-                      },
-                      h5: (props) => {
-                        return (
-                          <h5 class="mb-1 text-lg font-medium dark:text-white">
-                            {props.children}
-                          </h5>
-                        );
-                      },
-                      h6: (props) => {
-                        return (
-                          <h6 class="mb-1 text-base font-medium dark:text-white">
-                            {props.children}
-                          </h6>
-                        );
-                      },
-                      code: (props) => {
-                        const [codeBlock, setCodeBlock] = createSignal();
-                        const [isCopied, setIsCopied] = createSignal(false);
-
-                        createEffect(() => {
-                          if (isCopied()) {
-                            const timeout = setTimeout(() => {
-                              setIsCopied(false);
-                            }, 800);
-                            return () => {
-                              clearTimeout(timeout);
-                            };
-                          }
-                        });
-
-                        return (
-                          <div class="relative w-full rounded-lg bg-gray-100 px-4 py-2 dark:bg-neutral-700">
-                            <button
-                              class="absolute right-2 top-2 p-1 text-xs hover:text-fuchsia-500 dark:text-white dark:hover:text-fuchsia-500"
-                              onClick={() => {
-                                const code = (codeBlock() as any).innerText;
-
-                                navigator.clipboard.writeText(code).then(
-                                  () => {
-                                    setIsCopied(true);
-                                  },
-                                  (err) => {
-                                    console.error("failed to copy", err);
-                                  },
-                                );
-                              }}
-                            >
-                              <Switch>
-                                <Match when={isCopied()}>
-                                  <BiSolidCheckSquare class="h-5 w-5 text-green-500" />
-                                </Match>
-                                <Match when={!isCopied()}>
-                                  <BiRegularClipboard class="h-5 w-5" />
-                                </Match>
-                              </Switch>
-                            </button>
-
-                            <code ref={setCodeBlock}>{props.children}</code>
-                          </div>
-                        );
-                      },
-                      a: (props) => {
-                        return (
-                          <a class="underline" href={props.href}>
-                            {props.children}
-                          </a>
-                        );
-                      },
-                      blockquote: (props) => {
-                        return (
-                          <blockquote class="my-4 border-l-4 border-gray-300 bg-gray-100 p-2 py-2 pl-4 italic text-gray-700 dark:bg-neutral-700 dark:text-white">
-                            {props.children}
-                          </blockquote>
-                        );
-                      },
-                      ul: (props) => {
-                        return (
-                          <ul class="my-4 list-outside list-disc space-y-2 pl-5">
-                            {props.children}
-                          </ul>
-                        );
-                      },
-                      ol: (props) => {
-                        return (
-                          <ol class="my-4 list-outside list-decimal space-y-2 pl-5">
-                            {props.children}
-                          </ol>
-                        );
-                      },
-                      img: (props) => {
-                        return (
-                          <img
-                            src={props.src}
-                            alt={props.alt}
-                            class="my-4 h-auto max-w-full rounded-lg shadow-md"
-                          />
-                        );
-                      },
-                      table: (props) => (
-                        <table class="my-4 border-collapse">
+            <Show
+              when={
+                getAISummary() &&
+                (loadingAiSummary() || aiCompletion().join(""))
+              }
+            >
+              <>
+                <div class="border-t" />
+                <SolidMarkdown
+                  remarkPlugins={[remarkBreaks, remarkGfm]}
+                  rehypePlugins={[rehypeSanitize]}
+                  class="select-text space-y-2 p-3 font-semibold"
+                  components={{
+                    h1: (props) => {
+                      return (
+                        <h1 class="mb-4 text-4xl font-bold dark:bg-neutral-700 dark:text-white">
                           {props.children}
-                        </table>
-                      ),
-
-                      thead: (props) => (
-                        <thead class="bg-gray-100">{props.children}</thead>
-                      ),
-
-                      tbody: (props) => (
-                        <tbody class="bg-white">{props.children}</tbody>
-                      ),
-
-                      tr: (props) => (
-                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        </h1>
+                      );
+                    },
+                    h2: (props) => {
+                      return (
+                        <h2 class="mb-3 text-3xl font-semibold dark:text-white">
                           {props.children}
-                        </tr>
-                      ),
-
-                      th: (props) => (
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        </h2>
+                      );
+                    },
+                    h3: (props) => {
+                      return (
+                        <h3 class="mb-2 text-2xl font-medium dark:text-white">
                           {props.children}
-                        </th>
-                      ),
-
-                      td: (props) => (
-                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        </h3>
+                      );
+                    },
+                    h4: (props) => {
+                      return (
+                        <h4 class="mb-2 text-xl font-medium dark:text-white">
                           {props.children}
-                        </td>
-                      ),
-                    }}
-                    children={curAiCompletion()}
-                  />
-                  <div class="border-t pb-4" />
-                </>
-              )}
+                        </h4>
+                      );
+                    },
+                    h5: (props) => {
+                      return (
+                        <h5 class="mb-1 text-lg font-medium dark:text-white">
+                          {props.children}
+                        </h5>
+                      );
+                    },
+                    h6: (props) => {
+                      return (
+                        <h6 class="mb-1 text-base font-medium dark:text-white">
+                          {props.children}
+                        </h6>
+                      );
+                    },
+                    code: (props) => {
+                      const [codeBlock, setCodeBlock] = createSignal();
+                      const [isCopied, setIsCopied] = createSignal(false);
+
+                      createEffect(() => {
+                        if (isCopied()) {
+                          const timeout = setTimeout(() => {
+                            setIsCopied(false);
+                          }, 800);
+                          return () => {
+                            clearTimeout(timeout);
+                          };
+                        }
+                      });
+
+                      return (
+                        <div class="relative w-full rounded-lg bg-gray-100 px-4 py-2 dark:bg-neutral-700">
+                          <button
+                            class="absolute right-2 top-2 p-1 text-xs hover:text-fuchsia-500 dark:text-white dark:hover:text-fuchsia-500"
+                            onClick={() => {
+                              const code = (codeBlock() as any).innerText;
+
+                              navigator.clipboard.writeText(code).then(
+                                () => {
+                                  setIsCopied(true);
+                                },
+                                (err) => {
+                                  console.error("failed to copy", err);
+                                },
+                              );
+                            }}
+                          >
+                            <Switch>
+                              <Match when={isCopied()}>
+                                <BiSolidCheckSquare class="h-5 w-5 text-green-500" />
+                              </Match>
+                              <Match when={!isCopied()}>
+                                <BiRegularClipboard class="h-5 w-5" />
+                              </Match>
+                            </Switch>
+                          </button>
+
+                          <code ref={setCodeBlock}>{props.children}</code>
+                        </div>
+                      );
+                    },
+                    a: (props) => {
+                      return (
+                        <a class="underline" href={props.href}>
+                          {props.children}
+                        </a>
+                      );
+                    },
+                    blockquote: (props) => {
+                      return (
+                        <blockquote class="my-4 border-l-4 border-gray-300 bg-gray-100 p-2 py-2 pl-4 italic text-gray-700 dark:bg-neutral-700 dark:text-white">
+                          {props.children}
+                        </blockquote>
+                      );
+                    },
+                    ul: (props) => {
+                      return (
+                        <ul class="my-4 list-outside list-disc space-y-2 pl-5">
+                          {props.children}
+                        </ul>
+                      );
+                    },
+                    ol: (props) => {
+                      return (
+                        <ol class="my-4 list-outside list-decimal space-y-2 pl-5">
+                          {props.children}
+                        </ol>
+                      );
+                    },
+                    img: (props) => {
+                      return (
+                        <img
+                          src={props.src}
+                          alt={props.alt}
+                          class="my-4 h-auto max-w-full rounded-lg shadow-md"
+                        />
+                      );
+                    },
+                    table: (props) => (
+                      <table class="my-4 border-collapse">
+                        {props.children}
+                      </table>
+                    ),
+                    thead: (props) => (
+                      <thead class="bg-gray-100">{props.children}</thead>
+                    ),
+                    tbody: (props) => (
+                      <tbody class="bg-white">{props.children}</tbody>
+                    ),
+                    tr: (props) => (
+                      <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        {props.children}
+                      </tr>
+                    ),
+                    th: (props) => (
+                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        {props.children}
+                      </th>
+                    ),
+                    td: (props) => (
+                      <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {props.children}
+                      </td>
+                    ),
+                  }}
+                  children={
+                    queryFiltersRemoved() &&
+                    !aiCompletion().length &&
+                    loadingAiSummary()
+                      ? "Loading..."
+                      : aiCompletion().join("")
+                  }
+                />
+                <div class="border-t pb-4" />
+              </>
             </Show>
             <div classList={{ "pb-2": true, "animate-pulse": loading() }}>
               <For each={stories()}>
