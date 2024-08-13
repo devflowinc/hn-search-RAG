@@ -4,6 +4,7 @@
 import {
   For,
   Match,
+  Show,
   Switch,
   createEffect,
   createMemo,
@@ -27,6 +28,11 @@ import { Footer } from "../components/Footer";
 import { createStore } from "solid-js/store";
 import { FullScreenModal } from "../components/FullScreenModal";
 import { createToast } from "../components/ShowToast";
+import { BiRegularClipboard, BiSolidCheckSquare } from "solid-icons/bi";
+import { SolidMarkdown } from "solid-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
 
 const parseFloatOrNull = (val: string | null): number | null => {
   const num = parseFloat(val ?? "NaN");
@@ -95,6 +101,7 @@ export const SearchPage = () => {
   );
   const [totalPages, setTotalPages] = createSignal(10);
   const [stories, setStories] = createSignal<Story[]>([]);
+  const [aiCompletion, setAICompletion] = createSignal<string[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
@@ -109,6 +116,9 @@ export const SearchPage = () => {
     null,
   );
   const [recommendedStories, setRecommendedStories] = createSignal<Story[]>([]);
+  const [getAISummary, setGetAISummary] = createSignal(
+    urlParams.get("getAISummary") === "true",
+  );
   const [showRecModal, setShowRecModal] = createSignal(false);
   const [searchID, setSearchID] = createSignal("");
   const [openRateQueryModal, setOpenRateQueryModal] = createSignal(false);
@@ -133,6 +143,26 @@ export const SearchPage = () => {
     useQuoteNegatedTerms:
       (urlParams.get("use_quote_negated_terms") ?? "true") === "true",
   });
+
+  const handleReader = async (
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+  ) => {
+    let done = false;
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      if (doneReading) {
+        done = doneReading;
+      } else if (value) {
+        const decoder = new TextDecoder();
+        const newText = decoder.decode(value);
+
+        setAICompletion((prev) => {
+          const deduped = [...new Set([...prev, newText])];
+          return deduped;
+        });
+      }
+    }
+  };
 
   onMount(() => {
     window.addEventListener("popstate", () => {
@@ -279,6 +309,52 @@ export const SearchPage = () => {
   });
 
   createEffect(() => {
+    const completionAbortController = new AbortController();
+    const curCleanedQuery = queryFiltersRemoved();
+    const curStories = stories();
+    setAICompletion([]);
+
+    const handleCompletion = async () => {
+      const response = await fetch(`${trieveBaseURL}/chunk/generate`, {
+        headers: {
+          "Content-Type": "application/json",
+          "TR-Dataset": trieveDatasetId,
+          Authorization: trieveApiKey,
+        },
+        method: "POST",
+        body: JSON.stringify({
+          chunk_ids: curStories.map((story) => story.trieve_id),
+          prev_messages: [
+            {
+              content: curCleanedQuery,
+              role: "user",
+            },
+          ],
+          prompt:
+            "The user's message contains their search query. Use the provided documents to generate a 1-3 paragraph markdown completion that would be helpful to the user based on this query. Do not include citations or references.",
+          max_tokens: 1000,
+        }),
+        signal: completionAbortController.signal,
+      });
+      const reader = response.body?.getReader();
+
+      if (!reader) {
+        return;
+      }
+
+      await handleReader(reader);
+    };
+
+    if (curCleanedQuery && getAISummary()) {
+      void handleCompletion();
+    }
+
+    onCleanup(() => {
+      completionAbortController.abort();
+    });
+  });
+
+  createEffect(() => {
     setSearchOptions("scoreThreshold", defaultScoreThreshold(searchType()));
   });
 
@@ -386,6 +462,7 @@ export const SearchPage = () => {
         sortBy() == "Relevance" ? "Popularity" : sortBy()
       }&type=${selectedStoryType()}&page=0&prefix=false`,
     );
+    urlParams.set("getAISummary", getAISummary().toString());
 
     window.history.pushState(
       {
@@ -810,6 +887,8 @@ export const SearchPage = () => {
           setQuery={setQuery}
           algoliaLink={algoliaLink}
           setOpenRateQueryModal={setOpenRateQueryModal}
+          getAISummary={getAISummary}
+          setGetAISummary={setGetAISummary}
         />
         <Switch>
           <Match when={stories().length === 0}>
@@ -834,6 +913,178 @@ export const SearchPage = () => {
             </Switch>
           </Match>
           <Match when={stories().length > 0}>
+            <Show when={aiCompletion().join("")}>
+              {(curAiCompletion) => (
+                <>
+                  <div class="border-t" />
+                  <SolidMarkdown
+                    remarkPlugins={[remarkBreaks, remarkGfm]}
+                    rehypePlugins={[rehypeSanitize]}
+                    class="select-text space-y-2 p-3 font-semibold"
+                    components={{
+                      h1: (props) => {
+                        return (
+                          <h1 class="mb-4 text-4xl font-bold dark:bg-neutral-700 dark:text-white">
+                            {props.children}
+                          </h1>
+                        );
+                      },
+                      h2: (props) => {
+                        return (
+                          <h2 class="mb-3 text-3xl font-semibold dark:text-white">
+                            {props.children}
+                          </h2>
+                        );
+                      },
+                      h3: (props) => {
+                        return (
+                          <h3 class="mb-2 text-2xl font-medium dark:text-white">
+                            {props.children}
+                          </h3>
+                        );
+                      },
+                      h4: (props) => {
+                        return (
+                          <h4 class="mb-2 text-xl font-medium dark:text-white">
+                            {props.children}
+                          </h4>
+                        );
+                      },
+                      h5: (props) => {
+                        return (
+                          <h5 class="mb-1 text-lg font-medium dark:text-white">
+                            {props.children}
+                          </h5>
+                        );
+                      },
+                      h6: (props) => {
+                        return (
+                          <h6 class="mb-1 text-base font-medium dark:text-white">
+                            {props.children}
+                          </h6>
+                        );
+                      },
+                      code: (props) => {
+                        const [codeBlock, setCodeBlock] = createSignal();
+                        const [isCopied, setIsCopied] = createSignal(false);
+
+                        createEffect(() => {
+                          if (isCopied()) {
+                            const timeout = setTimeout(() => {
+                              setIsCopied(false);
+                            }, 800);
+                            return () => {
+                              clearTimeout(timeout);
+                            };
+                          }
+                        });
+
+                        return (
+                          <div class="relative w-full rounded-lg bg-gray-100 px-4 py-2 dark:bg-neutral-700">
+                            <button
+                              class="absolute right-2 top-2 p-1 text-xs hover:text-fuchsia-500 dark:text-white dark:hover:text-fuchsia-500"
+                              onClick={() => {
+                                const code = (codeBlock() as any).innerText;
+
+                                navigator.clipboard.writeText(code).then(
+                                  () => {
+                                    setIsCopied(true);
+                                  },
+                                  (err) => {
+                                    console.error("failed to copy", err);
+                                  },
+                                );
+                              }}
+                            >
+                              <Switch>
+                                <Match when={isCopied()}>
+                                  <BiSolidCheckSquare class="h-5 w-5 text-green-500" />
+                                </Match>
+                                <Match when={!isCopied()}>
+                                  <BiRegularClipboard class="h-5 w-5" />
+                                </Match>
+                              </Switch>
+                            </button>
+
+                            <code ref={setCodeBlock}>{props.children}</code>
+                          </div>
+                        );
+                      },
+                      a: (props) => {
+                        return (
+                          <a class="underline" href={props.href}>
+                            {props.children}
+                          </a>
+                        );
+                      },
+                      blockquote: (props) => {
+                        return (
+                          <blockquote class="my-4 border-l-4 border-gray-300 bg-gray-100 p-2 py-2 pl-4 italic text-gray-700 dark:bg-neutral-700 dark:text-white">
+                            {props.children}
+                          </blockquote>
+                        );
+                      },
+                      ul: (props) => {
+                        return (
+                          <ul class="my-4 list-outside list-disc space-y-2 pl-5">
+                            {props.children}
+                          </ul>
+                        );
+                      },
+                      ol: (props) => {
+                        return (
+                          <ol class="my-4 list-outside list-decimal space-y-2 pl-5">
+                            {props.children}
+                          </ol>
+                        );
+                      },
+                      img: (props) => {
+                        return (
+                          <img
+                            src={props.src}
+                            alt={props.alt}
+                            class="my-4 h-auto max-w-full rounded-lg shadow-md"
+                          />
+                        );
+                      },
+                      table: (props) => (
+                        <table class="my-4 border-collapse">
+                          {props.children}
+                        </table>
+                      ),
+
+                      thead: (props) => (
+                        <thead class="bg-gray-100">{props.children}</thead>
+                      ),
+
+                      tbody: (props) => (
+                        <tbody class="bg-white">{props.children}</tbody>
+                      ),
+
+                      tr: (props) => (
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                          {props.children}
+                        </tr>
+                      ),
+
+                      th: (props) => (
+                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                          {props.children}
+                        </th>
+                      ),
+
+                      td: (props) => (
+                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                          {props.children}
+                        </td>
+                      ),
+                    }}
+                    children={curAiCompletion()}
+                  />
+                  <div class="border-t pb-4" />
+                </>
+              )}
+            </Show>
             <div classList={{ "pb-2": true, "animate-pulse": loading() }}>
               <For each={stories()}>
                 {(story, i) => (
