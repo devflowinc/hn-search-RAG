@@ -346,11 +346,11 @@ export const SearchPage = () => {
           chunk_ids: curStories.map((story) => story.trieve_id),
           prev_messages: [
             {
-              content: curCleanedQuery,
-              role: "user",
+              content: aiSummaryPrompt(),
+              role: "system",
             },
           ],
-          prompt: aiSummaryPrompt(),
+          prompt: curCleanedQuery,
           max_tokens: aiMaxTokens(),
           frequency_penalty: aiFrequencyPenalty(),
           presence_penalty: aiPresencePenalty(),
