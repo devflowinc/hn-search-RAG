@@ -114,7 +114,7 @@ export const AnalyticsPage = () => {
             title="Head Queries"
             class="px-4"
             width={2}
-            tooltipText="Most common search queries"
+            tooltipText="Most common search queries by frequency not accounting for statistical similarity with levenshtein, jaccard, or semantic metrics."
           >
             <HeadQueries
               params={{

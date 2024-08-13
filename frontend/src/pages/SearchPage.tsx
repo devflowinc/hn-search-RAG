@@ -947,7 +947,9 @@ export const SearchPage = () => {
         setShow={setOpenRateQueryModal}
       >
         <div class="min-w-[250px] sm:min-w-[300px]">
-          <div class="mb-4 text-center text-xl">Rate query:</div>
+          <div class="mb-4 text-center text-xl">
+            Rate the quality of the results for this query:
+          </div>
           <div>
             <label class="block text-lg">Rating: {rating().rating}</label>
             <input

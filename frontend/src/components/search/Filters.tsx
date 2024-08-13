@@ -276,7 +276,7 @@ export default function Filters(props: FiltersProps) {
             </option>
             <option value="semantic">Semantic</option>
             <option value="fulltext">Fulltext</option>
-            <option value="bm25">BM25</option>
+            <option value="keyword">Keyword</option>
             <option value="autocomplete">Autocomplete</option>
           </select>
         </div>

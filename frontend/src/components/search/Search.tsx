@@ -47,7 +47,7 @@ export const Search = (props: SearchProps) => {
               props.setOpenRateQueryModal(true);
             }}
           >
-            Rate Query
+            Rate Results
           </button>
           <button
             class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"

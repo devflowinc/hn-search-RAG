@@ -11,49 +11,77 @@ export const HowToUse = () => {
       answer={
         <>
           <p>
-            -{" "}
-            <u>
-              Good fulltext query: <b>Rust ORM</b>.
-            </u>{" "}
-            Fulltext is powered by SPLADE sparse vectors and is the recommended
-            search method for most queries. It automatically handles typos and
-            synonyms to make things feel semantic'y while still being fast and
-            returning exact matches first.
+            There aren't specific strings of words (AKA search queries) which
+            you should use for fulltext and not semantic search. Really, it's
+            about the type of results you want to see. Here's an explanation of
+            what the search index will do in different modes with a query like
+            "React vs. SolidJS":
           </p>
-          <p>
-            -{" "}
-            <u>
-              Good semantic query:{" "}
-              <b>
-                I'm trying to setup my Rust HTTP server with SQL. How do I
-                manage SQL migrations and queries in Rust?
-              </b>
-            </u>{" "}
-            Semantic mode is powered by dense vectors (bge-m3 model) and is the
-            recommended search method for queries that are more about the
-            meaning of the text than the exact words used. It's slower than
-            fulltext (though still quite fast) but can understand multi-sentence
-            or more abstract queries to return more relevant results.
-          </p>
-          <p>
-            - Hybrid search performs both a fulltext and semantic search then
-            ranks the results with a cross-encoder (bge-large-en re-reranker) to
-            merge them. It has not been tuned for this dataset yet and is
-            unlikely to be better than fulltext or semantic search for most
-            queries.
-          </p>
-          <p>
-            - Click on the advanced button to tweak advanced features. Check out
-            our{" "}
-            <a
-              class="underline"
-              href="https://docs.trieve.ai/api-reference/chunk/search"
-              target="_blank"
-            >
-              API Docs for the search endpoint
-            </a>{" "}
-            for more information.
-          </p>
+          <div class="flex flex-col gap-y-2 pl-2">
+            <p>
+              -{" "}
+              <u>
+                <b>Fulltext</b>:
+              </u>{" "}
+              There are 6 tokens in the query: "React", "vs.", "JS", "Solid",
+              and "SolidJS". Fulltext is powered by a neural net called SPLADE
+              which will rank these tokens by importance in the order:
+              "SolidJS", "React", "vs.", "Solid", "JS". It will then return
+              results which have tokens biasing towards the front of the list.
+              It understands that you want documents with "SolidJS" and "React",
+              but it doesn't understand that you specifically want results
+              comparing them. Therefore, it may return documents mentioning
+              "React" and "SolidJS" in random, seemingly unrelated contexts.
+            </p>
+            <p>
+              -{" "}
+              <u>
+                <b>Semantic</b>:
+              </u>{" "}
+              In this mode, the query "React vs. SolidJS" will be transformed
+              into a vector (array of floating point numbers) which represents
+              the meaning of the query. The search index will then return
+              documents which are closest to this vector. The vector will
+              reflect that you want documents about comparing "React" and
+              "SolidJS", but also comparisons and JS frameworks in general.
+              Understandably, the search results may rank documents comparing
+              "Vue" and "Angular" higher than a doc talking about "SolidJS
+              performance".
+            </p>
+            <p>
+              -{" "}
+              <u>
+                <b>Hybrid</b>
+              </u>{" "}
+              search performs both a fulltext and semantic search then ranks the
+              results with a cross-encoder (bge-large-en re-reranker) to merge
+              them. Usually, it's the best of both words, but it can take 500+ms
+              to return results and is therefore not the default search method.
+            </p>
+            <p>
+              -{" "}
+              <u>
+                <b>Keyword</b>
+              </u>{" "}
+              search uses BM25 scoring and takes the tokens for the query:
+              React", "vs.", "JS", "Solid", and "SolidJS" then returns results
+              which have the most present. There is some bias towards tokens
+              which are less present in the dataset overall, but no
+              understanding of the meaning of the query.
+            </p>
+            <p>
+              - Click on the advanced button for low-level control over ranking,
+              highlights, and more. Check out our{" "}
+              <a
+                class="underline"
+                href="https://docs.trieve.ai/api-reference/chunk/search"
+                target="_blank"
+              >
+                API Docs for the search endpoint
+              </a>{" "}
+              for more information.
+            </p>
+          </div>
         </>
       }
     />
@@ -84,7 +112,7 @@ export const WhyMakeThis = () => {
             If you have some time, try out our{" "}
             <a class="underline" href="https://hn-comparison.trieve.ai">
               blind comparison at hn-comparison.trieve.ai
-            </a>
+            </a>{" "}
             to help us collect higher quality training data.
           </p>
           <p>
@@ -156,7 +184,8 @@ export const AboutPage = () => {
                 </a>{" "}
                 was early in our YC batch in Feb 2024. Took us 5 months to get
                 Trieve stable enough to handle ingesting and storing all the HN
-                data. It feels awesome to finally have this up and running.
+                data then 1 more to polish this webapp. It feels awesome to
+                finally have this up and running.
               </p>
               <p>
                 The painful portion was that unique one-off work was required
@@ -288,9 +317,10 @@ export const AboutPage = () => {
               <p>
                 Most of the cost is from storing the dense text embeddings in
                 Qdrant. SPLADE is typically better for search, but the dense
-                vectors work significantly better for recommendations. If
-                recommendations don't get much usage, we will probably drop the
-                dense vectors to decrease costs.
+                vectors work significantly better for recommendations and are
+                cool to show functionality of. If recommendations don't get much
+                usage, we will probably drop the dense vectors to decrease
+                costs.
               </p>
             </>
           }

@@ -227,7 +227,7 @@ export interface DateRangeFilter {
 
 export interface AnalyticsFilter {
   date_range: DateRangeFilter;
-  search_method?: "fulltext" | "hybrid" | "semantic" | "bm25";
+  search_method?: "fulltext" | "hybrid" | "semantic" | "keyword";
   search_type?:
     | "search"
     | "autocomplete"

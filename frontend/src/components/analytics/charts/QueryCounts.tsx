@@ -27,7 +27,7 @@ export const displaySearchMethod = (type: SearchTypeCount["search_method"]) => {
       return "Hybrid";
     case "semantic":
       return "Semantic";
-    case "bm25":
+    case "keyword":
       return "BM25";
     default:
       return null;
