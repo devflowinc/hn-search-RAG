@@ -43,6 +43,7 @@ export const Story = (props: {
   story: Story;
   sendCTR: () => void;
   onClickRecommend: () => void;
+  onClickAddToAI: () => void;
 }) => {
   const articleLink =
     "https://news.ycombinator.com/item?id=" +
@@ -110,6 +111,13 @@ export const Story = (props: {
             <span class="px-1">|</span>
             <span>Score {props.story.score?.toFixed(3)}</span>
           </Show>
+          <span class="px-1">|</span>
+          <span
+            class="cursor-pointer font-semibold hover:underline"
+            onClick={() => props.onClickAddToAI()}
+          >
+            Add to Chat
+          </span>
           <Show when={props.story.type != "comment"}>
             <span class="px-1">|</span>
             <span

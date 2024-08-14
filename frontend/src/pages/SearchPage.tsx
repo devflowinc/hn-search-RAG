@@ -11,6 +11,7 @@ import {
   createSignal,
   onCleanup,
   onMount,
+  untrack,
 } from "solid-js";
 import Filters from "../components/search/Filters";
 import Header from "../components/Header";
@@ -28,11 +29,17 @@ import { Footer } from "../components/Footer";
 import { createStore } from "solid-js/store";
 import { FullScreenModal } from "../components/FullScreenModal";
 import { createToast } from "../components/ShowToast";
-import { BiRegularClipboard, BiSolidCheckSquare } from "solid-icons/bi";
+import {
+  BiRegularClipboard,
+  BiSolidCheckSquare,
+  BiSolidUserRectangle,
+} from "solid-icons/bi";
 import { SolidMarkdown } from "solid-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
+import { FiSend } from "solid-icons/fi";
+import { AiOutlineRobot } from "solid-icons/ai";
 
 const parseFloatOrNull = (val: string | null): number | null => {
   const num = parseFloat(val ?? "NaN");
@@ -101,7 +108,9 @@ export const SearchPage = () => {
   );
   const [totalPages, setTotalPages] = createSignal(10);
   const [stories, setStories] = createSignal<Story[]>([]);
-  const [aiCompletion, setAICompletion] = createSignal<string[]>([]);
+  const [aIStories, setAIStories] = createSignal<Story[]>([]);
+  const [aIMessages, setAIMessages] = createSignal<string[]>([]);
+  const [userFollowup, setUserFollowup] = createSignal();
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [searchType, setSearchType] = createSignal(
@@ -121,7 +130,7 @@ export const SearchPage = () => {
   );
   const [loadingAiSummary, setLoadingAiSummary] = createSignal(false);
   const [aiSummaryPrompt, setAISummaryPrompt] = createSignal(
-    "The user's message contains their search query. Based on and using the provided documents, generate a 1-3 paragraph markdown completion that would be helpful to the user based on this query. Do not include citations or references.",
+    "The previous user message contains a query. Based on and using the provided documents, generate a 1-3 paragraph markdown completion that would be helpful to the user based on this query. Do not include citations or references.",
   );
   const [aiMaxTokens, setAiMaxTokens] = createSignal(1000);
   const [aiFrequencyPenalty, setAiFrequencyPenalty] = createSignal(0.7);
@@ -166,9 +175,16 @@ export const SearchPage = () => {
         const decoder = new TextDecoder();
         const newText = decoder.decode(value);
 
-        setAICompletion((prev) => {
-          const deduped = [...new Set([...prev, newText])];
-          return deduped;
+        setAIMessages((prev) => {
+          const lastEvenIndex =
+            prev.length % 2 === 0 ? prev.length : prev.length - 1;
+          const currentMessage = prev[lastEvenIndex];
+          const newMessage = (currentMessage ? currentMessage : "") + newText;
+          return [
+            ...prev.slice(0, lastEvenIndex),
+            newMessage,
+            ...prev.slice(lastEvenIndex + 1),
+          ];
         });
       }
     }
@@ -329,10 +345,63 @@ export const SearchPage = () => {
   });
 
   createEffect(() => {
+    userFollowup();
+    const curCleanedQuery = queryFiltersRemoved();
+    const curStories = stories();
+
+    const completionAbortController = new AbortController();
+
+    const handleCompletion = async () => {
+      const response = await fetch(`${trieveBaseURL}/chunk/generate`, {
+        headers: {
+          "Content-Type": "application/json",
+          "TR-Dataset": trieveDatasetId,
+          Authorization: trieveApiKey,
+        },
+        method: "POST",
+        body: JSON.stringify({
+          chunk_ids: curStories.map((story) => story.trieve_id),
+          prev_messages: [
+            {
+              content: curCleanedQuery,
+              role: "user",
+            },
+            ...untrack(aIMessages).map((message, index) => {
+              return {
+                content: message,
+                role: index % 2 === 0 ? "assistant" : "user",
+              };
+            }),
+          ],
+          prompt: aiSummaryPrompt(),
+          max_tokens: aiMaxTokens(),
+          frequency_penalty: aiFrequencyPenalty(),
+          presence_penalty: aiPresencePenalty(),
+          temperature: aiTemperature(),
+        }),
+        signal: completionAbortController.signal,
+      });
+      const reader = response.body?.getReader();
+
+      if (!reader) {
+        return;
+      }
+
+      await handleReader(reader);
+    };
+
+    void handleCompletion();
+
+    onCleanup(() => {
+      completionAbortController.abort();
+    });
+  });
+
+  createEffect(() => {
     const completionAbortController = new AbortController();
     const curCleanedQuery = queryFiltersRemoved();
     const curStories = stories();
-    setAICompletion([]);
+    setAIMessages([]);
 
     const handleCompletion = async () => {
       const response = await fetch(`${trieveBaseURL}/chunk/generate`, {
@@ -947,177 +1016,247 @@ export const SearchPage = () => {
           <Match when={stories().length > 0}>
             <Show
               when={
+                queryFiltersRemoved() &&
                 getAISummary() &&
-                (loadingAiSummary() || aiCompletion().join(""))
+                !aIMessages().join("") &&
+                loadingAiSummary()
+              }
+            >
+              <div class="border-t" />
+              <div class="m-3 animate-pulse border border-stone-300">
+                <p class="p-3">Loading...</p>
+              </div>
+            </Show>
+            <Show
+              when={
+                queryFiltersRemoved() &&
+                getAISummary() &&
+                (loadingAiSummary() || aIMessages().join(""))
               }
             >
               <>
                 <div class="border-t" />
-                <SolidMarkdown
-                  remarkPlugins={[remarkBreaks, remarkGfm]}
-                  rehypePlugins={[rehypeSanitize]}
-                  class="select-text space-y-2 p-3 font-semibold"
-                  components={{
-                    h1: (props) => {
-                      return (
-                        <h1 class="mb-4 text-4xl font-bold dark:bg-neutral-700 dark:text-white">
-                          {props.children}
-                        </h1>
-                      );
-                    },
-                    h2: (props) => {
-                      return (
-                        <h2 class="mb-3 text-3xl font-semibold dark:text-white">
-                          {props.children}
-                        </h2>
-                      );
-                    },
-                    h3: (props) => {
-                      return (
-                        <h3 class="mb-2 text-2xl font-medium dark:text-white">
-                          {props.children}
-                        </h3>
-                      );
-                    },
-                    h4: (props) => {
-                      return (
-                        <h4 class="mb-2 text-xl font-medium dark:text-white">
-                          {props.children}
-                        </h4>
-                      );
-                    },
-                    h5: (props) => {
-                      return (
-                        <h5 class="mb-1 text-lg font-medium dark:text-white">
-                          {props.children}
-                        </h5>
-                      );
-                    },
-                    h6: (props) => {
-                      return (
-                        <h6 class="mb-1 text-base font-medium dark:text-white">
-                          {props.children}
-                        </h6>
-                      );
-                    },
-                    code: (props) => {
-                      const [codeBlock, setCodeBlock] = createSignal();
-                      const [isCopied, setIsCopied] = createSignal(false);
+                <For each={aIMessages()}>
+                  {(message, i) => (
+                    <div
+                      classList={{
+                        "select-text gap-y-2 m-3 border border-stone-300 flex w-fit max-w-[75%]":
+                          true,
+                        "ml-auto": i() % 2 === 1,
+                      }}
+                    >
+                      <div class="pl-1 pt-[15px]">
+                        <Switch>
+                          <Match when={i() % 2 === 0}>
+                            <AiOutlineRobot class="h-4 w-4" />
+                          </Match>
+                          <Match when={i() % 2 === 1}>
+                            <BiSolidUserRectangle class="h-4 w-4" />
+                          </Match>
+                        </Switch>
+                      </div>
+                      <SolidMarkdown
+                        remarkPlugins={[remarkBreaks, remarkGfm]}
+                        rehypePlugins={[rehypeSanitize]}
+                        class="select-text space-y-2 p-3"
+                        components={{
+                          h1: (props) => {
+                            return (
+                              <h1 class="mb-4 text-4xl font-bold dark:bg-neutral-700 dark:text-white">
+                                {props.children}
+                              </h1>
+                            );
+                          },
+                          h2: (props) => {
+                            return (
+                              <h2 class="mb-3 text-3xl font-semibold dark:text-white">
+                                {props.children}
+                              </h2>
+                            );
+                          },
+                          h3: (props) => {
+                            return (
+                              <h3 class="mb-2 text-2xl font-medium dark:text-white">
+                                {props.children}
+                              </h3>
+                            );
+                          },
+                          h4: (props) => {
+                            return (
+                              <h4 class="mb-2 text-xl font-medium dark:text-white">
+                                {props.children}
+                              </h4>
+                            );
+                          },
+                          h5: (props) => {
+                            return (
+                              <h5 class="mb-1 text-lg font-medium dark:text-white">
+                                {props.children}
+                              </h5>
+                            );
+                          },
+                          h6: (props) => {
+                            return (
+                              <h6 class="mb-1 text-base font-medium dark:text-white">
+                                {props.children}
+                              </h6>
+                            );
+                          },
+                          code: (props) => {
+                            const [codeBlock, setCodeBlock] = createSignal();
+                            const [isCopied, setIsCopied] = createSignal(false);
 
-                      createEffect(() => {
-                        if (isCopied()) {
-                          const timeout = setTimeout(() => {
-                            setIsCopied(false);
-                          }, 800);
-                          return () => {
-                            clearTimeout(timeout);
-                          };
-                        }
-                      });
+                            createEffect(() => {
+                              if (isCopied()) {
+                                const timeout = setTimeout(() => {
+                                  setIsCopied(false);
+                                }, 800);
+                                return () => {
+                                  clearTimeout(timeout);
+                                };
+                              }
+                            });
 
-                      return (
-                        <div class="relative w-full rounded-lg bg-gray-100 px-4 py-2 dark:bg-neutral-700">
-                          <button
-                            class="absolute right-2 top-2 p-1 text-xs hover:text-fuchsia-500 dark:text-white dark:hover:text-fuchsia-500"
-                            onClick={() => {
-                              const code = (codeBlock() as any).innerText;
+                            return (
+                              <div class="relative w-full rounded-lg bg-gray-100 px-4 py-2 dark:bg-neutral-700">
+                                <button
+                                  class="absolute right-2 top-2 p-1 text-xs hover:text-fuchsia-500 dark:text-white dark:hover:text-fuchsia-500"
+                                  onClick={() => {
+                                    const code = (codeBlock() as any).innerText;
 
-                              navigator.clipboard.writeText(code).then(
-                                () => {
-                                  setIsCopied(true);
-                                },
-                                (err) => {
-                                  console.error("failed to copy", err);
-                                },
-                              );
-                            }}
-                          >
-                            <Switch>
-                              <Match when={isCopied()}>
-                                <BiSolidCheckSquare class="h-5 w-5 text-green-500" />
-                              </Match>
-                              <Match when={!isCopied()}>
-                                <BiRegularClipboard class="h-5 w-5" />
-                              </Match>
-                            </Switch>
-                          </button>
+                                    navigator.clipboard.writeText(code).then(
+                                      () => {
+                                        setIsCopied(true);
+                                      },
+                                      (err) => {
+                                        console.error("failed to copy", err);
+                                      },
+                                    );
+                                  }}
+                                >
+                                  <Switch>
+                                    <Match when={isCopied()}>
+                                      <BiSolidCheckSquare class="h-5 w-5 text-green-500" />
+                                    </Match>
+                                    <Match when={!isCopied()}>
+                                      <BiRegularClipboard class="h-5 w-5" />
+                                    </Match>
+                                  </Switch>
+                                </button>
 
-                          <code ref={setCodeBlock}>{props.children}</code>
-                        </div>
-                      );
-                    },
-                    a: (props) => {
-                      return (
-                        <a class="underline" href={props.href}>
-                          {props.children}
-                        </a>
-                      );
-                    },
-                    blockquote: (props) => {
-                      return (
-                        <blockquote class="my-4 border-l-4 border-gray-300 bg-gray-100 p-2 py-2 pl-4 italic text-gray-700 dark:bg-neutral-700 dark:text-white">
-                          {props.children}
-                        </blockquote>
-                      );
-                    },
-                    ul: (props) => {
-                      return (
-                        <ul class="my-4 list-outside list-disc space-y-2 pl-5">
-                          {props.children}
-                        </ul>
-                      );
-                    },
-                    ol: (props) => {
-                      return (
-                        <ol class="my-4 list-outside list-decimal space-y-2 pl-5">
-                          {props.children}
-                        </ol>
-                      );
-                    },
-                    img: (props) => {
-                      return (
-                        <img
-                          src={props.src}
-                          alt={props.alt}
-                          class="my-4 h-auto max-w-full rounded-lg shadow-md"
-                        />
-                      );
-                    },
-                    table: (props) => (
-                      <table class="my-4 border-collapse">
-                        {props.children}
-                      </table>
-                    ),
-                    thead: (props) => (
-                      <thead class="bg-gray-100">{props.children}</thead>
-                    ),
-                    tbody: (props) => (
-                      <tbody class="bg-white">{props.children}</tbody>
-                    ),
-                    tr: (props) => (
-                      <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        {props.children}
-                      </tr>
-                    ),
-                    th: (props) => (
-                      <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        {props.children}
-                      </th>
-                    ),
-                    td: (props) => (
-                      <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                        {props.children}
-                      </td>
-                    ),
-                  }}
-                  children={
-                    queryFiltersRemoved() &&
-                    !aiCompletion().length &&
-                    loadingAiSummary()
-                      ? "Loading..."
-                      : aiCompletion().join("")
-                  }
-                />
+                                <code ref={setCodeBlock}>{props.children}</code>
+                              </div>
+                            );
+                          },
+                          a: (props) => {
+                            return (
+                              <a class="underline" href={props.href}>
+                                {props.children}
+                              </a>
+                            );
+                          },
+                          blockquote: (props) => {
+                            return (
+                              <blockquote class="my-4 border-l-4 border-gray-300 bg-gray-100 p-2 py-2 pl-4 italic text-gray-700 dark:bg-neutral-700 dark:text-white">
+                                {props.children}
+                              </blockquote>
+                            );
+                          },
+                          ul: (props) => {
+                            return (
+                              <ul class="my-4 list-outside list-disc space-y-2 pl-5">
+                                {props.children}
+                              </ul>
+                            );
+                          },
+                          ol: (props) => {
+                            return (
+                              <ol class="my-4 list-outside list-decimal space-y-2 pl-5">
+                                {props.children}
+                              </ol>
+                            );
+                          },
+                          img: (props) => {
+                            return (
+                              <img
+                                src={props.src}
+                                alt={props.alt}
+                                class="my-4 h-auto max-w-full rounded-lg shadow-md"
+                              />
+                            );
+                          },
+                          table: (props) => (
+                            <table class="my-4 border-collapse">
+                              {props.children}
+                            </table>
+                          ),
+                          thead: (props) => (
+                            <thead class="bg-gray-100">{props.children}</thead>
+                          ),
+                          tbody: (props) => (
+                            <tbody class="bg-white">{props.children}</tbody>
+                          ),
+                          tr: (props) => (
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                              {props.children}
+                            </tr>
+                          ),
+                          th: (props) => (
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                              {props.children}
+                            </th>
+                          ),
+                          td: (props) => (
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                              {props.children}
+                            </td>
+                          ),
+                        }}
+                        children={message}
+                      />
+                    </div>
+                  )}
+                </For>
+                <div class="flex items-center gap-x-2 p-3">
+                  <textarea
+                    id="ai-followup"
+                    class="h-10 w-full resize-none rounded-md border border-stone-300 p-2 focus:outline-none"
+                    placeholder="Continue the conversation..."
+                    disabled={loadingAiSummary()}
+                    onKeyDown={(e: any) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        const element = e.currentTarget as HTMLTextAreaElement;
+                        const followup = element.value;
+                        setAIMessages([...aIMessages(), followup]);
+                        setUserFollowup(followup);
+                        element.value = "";
+                      }
+
+                      const element = e.currentTarget as HTMLTextAreaElement;
+                      element.style.height = "auto";
+                      element.style.height = element.scrollHeight + "px";
+                    }}
+                  />
+                  <button
+                    class="btn btn-primary"
+                    onClick={() => {
+                      const element = document.getElementById(
+                        "ai-followup",
+                      ) as HTMLTextAreaElement;
+                      const followup = element.value;
+                      setAIMessages([...aIMessages(), followup]);
+                      setUserFollowup(followup);
+                      element.value = "";
+
+                      element.style.height = "auto";
+                      element.style.height = element.scrollHeight + "px";
+                    }}
+                    disabled={loadingAiSummary()}
+                  >
+                    <FiSend class="h-4 w-4" />
+                  </button>
+                </div>
                 <div class="border-t pb-4" />
               </>
             </Show>
@@ -1146,6 +1285,9 @@ export const SearchPage = () => {
                       setRecommendedStories([]);
                       setPositiveRecStory(story);
                       setShowRecModal(true);
+                    }}
+                    onClickAddToAI={() => {
+                      setAIStories((prev) => [...prev, story]);
                     }}
                   />
                 )}
@@ -1220,6 +1362,9 @@ export const SearchPage = () => {
                         setRecommendedStories([]);
                         setPositiveRecStory(story);
                         setShowRecModal(true);
+                      }}
+                      onClickAddToAI={() => {
+                        setAIStories((prev) => [...prev, story]);
                       }}
                     />
                   )}
