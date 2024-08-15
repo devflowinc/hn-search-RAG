@@ -40,6 +40,7 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { FiSend } from "solid-icons/fi";
 import { AiOutlineRobot } from "solid-icons/ai";
+import { VsClose } from "solid-icons/vs";
 
 const parseFloatOrNull = (val: string | null): number | null => {
   const num = parseFloat(val ?? "NaN");
@@ -1045,6 +1046,43 @@ export const SearchPage = () => {
             >
               <>
                 <div class="border-t" />
+                <div class="flex w-fit flex-wrap gap-1 px-3 pt-3 text-xs">
+                  <For each={aIStories()}>
+                    {(story) => (
+                      <a
+                        class="flex gap-0.5 border border-stone-300 px-1 py-0.5 hover:border-stone-600 hover:bg-[#FFFFF0]"
+                        href={
+                          "https://news.ycombinator.com/item?id=" +
+                          story.id
+                            .replaceAll("<mark><b>", "")
+                            .replaceAll("</b></mark>", "")
+                        }
+                        target="_blank"
+                      >
+                        <p>
+                          {story.title?.slice(0, 100) ??
+                            story.body_html
+                              ?.replaceAll("<mark><b>", "")
+                              .replaceAll("</mark></b>", "")
+                              .slice(0, 100)}
+                          ...
+                        </p>
+                        <button
+                          class="hover:text-[#FF6600]"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setAIStories((prev) =>
+                              prev.filter((s) => s.id !== story.id),
+                            );
+                          }}
+                        >
+                          <VsClose />
+                        </button>
+                      </a>
+                    )}
+                  </For>
+                </div>
                 <For each={aIMessages()}>
                   {(message, i) => (
                     <div
