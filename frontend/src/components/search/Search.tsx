@@ -13,8 +13,9 @@ export interface SearchProps {
   setQuery: Setter<string>;
   algoliaLink: Accessor<string>;
   setOpenRateQueryModal: Setter<boolean>;
-  getAISummary: Accessor<boolean>;
-  setGetAISummary: Setter<boolean>;
+  aiEnabled: Accessor<boolean>;
+  setLoadingAi: Setter<boolean>;
+  setAiEnabled: Setter<boolean>;
   aiSummaryPrompt: Accessor<string>;
   setAiSummaryPrompt: Setter<string>;
   aiMaxTokens: Accessor<number>;
@@ -81,7 +82,16 @@ export const Search = (props: SearchProps) => {
               class="focus:ring-none group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full outline-[#ff6600]"
               role="switch"
               aria-checked="false"
-              onClick={() => props.setGetAISummary((prev) => !prev)}
+              onClick={() => {
+                if (props.aiEnabled()) {
+                  props.setAiEnabled(false);
+                } else {
+                  props.setAiEnabled(true);
+                  if (props.query()) {
+                    props.setLoadingAi(true);
+                  }
+                }
+              }}
             >
               <span class="sr-only">Get AI Summary</span>
               <span
@@ -93,8 +103,8 @@ export const Search = (props: SearchProps) => {
                 classList={{
                   "pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out":
                     true,
-                  "bg-stone-300": !props.getAISummary(),
-                  "bg-[#ff6600]": props.getAISummary(),
+                  "bg-stone-300": !props.aiEnabled(),
+                  "bg-[#ff6600]": props.aiEnabled(),
                 }}
               />
               <span
@@ -102,12 +112,12 @@ export const Search = (props: SearchProps) => {
                 classList={{
                   "pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out":
                     true,
-                  "translate-x-5": props.getAISummary(),
-                  "translate-x-0": !props.getAISummary(),
+                  "translate-x-5": props.aiEnabled(),
+                  "translate-x-0": !props.aiEnabled(),
                 }}
               />
             </button>
-            <Show when={props.getAISummary()}>
+            <Show when={props.aiEnabled()}>
               <button
                 class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
                 onClick={() => setOpenAiSettingsModal(true)}

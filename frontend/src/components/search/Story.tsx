@@ -42,6 +42,7 @@ export interface Story {
 export const StoryComponent = (props: {
   story: Story;
   aiStories?: Accessor<Story[]>;
+  aiEnabled?: Accessor<boolean>;
   sendCTR?: () => void;
   onClickRecommend: () => void;
   onClickAddToAI?: () => void;
@@ -112,18 +113,6 @@ export const StoryComponent = (props: {
             <span class="px-1">|</span>
             <span>Score {props.story.score?.toFixed(3)}</span>
           </Show>
-          <span class="px-1">|</span>
-          <Show when={props.aiStories && props.onClickAddToAI}>
-            <span
-              class="cursor-pointer font-semibold hover:underline"
-              onClick={() => props.onClickAddToAI?.()}
-            >
-              {props.aiStories?.().find((story) => story.id === props.story.id)
-                ? "Remove from"
-                : "Add to"}{" "}
-              Chat
-            </span>
-          </Show>
           <Show when={props.story.type != "comment"}>
             <span class="px-1">|</span>
             <span
@@ -131,6 +120,22 @@ export const StoryComponent = (props: {
               onClick={() => props.onClickRecommend()}
             >
               Get Recommendations
+            </span>
+          </Show>
+          <Show
+            when={
+              props.aiEnabled?.() && props.aiStories && props.onClickAddToAI
+            }
+          >
+            <span class="px-1">|</span>
+            <span
+              class="cursor-pointer font-semibold hover:underline"
+              onClick={() => props.onClickAddToAI?.()}
+            >
+              {props.aiStories?.().find((story) => story.id === props.story.id)
+                ? "Remove from"
+                : "Add to"}{" "}
+              AI Context
             </span>
           </Show>
           <Show when={props.story.parent_title}>
