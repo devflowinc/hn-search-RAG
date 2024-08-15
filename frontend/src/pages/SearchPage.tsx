@@ -15,7 +15,7 @@ import {
 } from "solid-js";
 import Filters from "../components/search/Filters";
 import Header from "../components/Header";
-import { Story } from "../components/search/Story";
+import { Story, StoryComponent } from "../components/search/Story";
 import {
   ChunkMetadataStringTagSet,
   dateRangeSwitch,
@@ -41,6 +41,7 @@ import remarkGfm from "remark-gfm";
 import { FiSend } from "solid-icons/fi";
 import { AiOutlineRobot } from "solid-icons/ai";
 import { VsClose } from "solid-icons/vs";
+import { BsInfoCircle } from "solid-icons/bs";
 
 const parseFloatOrNull = (val: string | null): number | null => {
   const num = parseFloat(val ?? "NaN");
@@ -348,7 +349,7 @@ export const SearchPage = () => {
   createEffect(() => {
     const curUserFollowup = userFollowup();
     const curCleanedQuery = queryFiltersRemoved();
-    const curStories = stories();
+    const curStories = aIStories().length ? aIStories() : stories();
 
     const completionAbortController = new AbortController();
 
@@ -391,7 +392,7 @@ export const SearchPage = () => {
       await handleReader(reader);
     };
 
-    if (curCleanedQuery && curUserFollowup) {
+    if (getAISummary() && curCleanedQuery && curUserFollowup) {
       void handleCompletion();
     }
 
@@ -403,7 +404,7 @@ export const SearchPage = () => {
   createEffect(() => {
     const completionAbortController = new AbortController();
     const curCleanedQuery = queryFiltersRemoved();
-    const curStories = stories();
+    const curStories = aIStories().length ? aIStories() : stories();
     setAIMessages([]);
 
     const handleCompletion = async () => {
@@ -439,12 +440,12 @@ export const SearchPage = () => {
       await handleReader(reader);
     };
 
-    if (curCleanedQuery && getAISummary()) {
+    if (curCleanedQuery && curStories.length && getAISummary()) {
       void handleCompletion();
     }
 
     onCleanup(() => {
-      completionAbortController.abort();
+      completionAbortController.abort("new stream started");
     });
   });
 
@@ -1028,61 +1029,77 @@ export const SearchPage = () => {
               when={
                 queryFiltersRemoved() &&
                 getAISummary() &&
-                !aIMessages().join("") &&
-                loadingAiSummary()
-              }
-            >
-              <div class="border-t" />
-              <div class="m-3 animate-pulse border border-stone-300">
-                <p class="p-3">Loading...</p>
-              </div>
-            </Show>
-            <Show
-              when={
-                queryFiltersRemoved() &&
-                getAISummary() &&
                 (loadingAiSummary() || aIMessages().join(""))
               }
             >
               <>
                 <div class="border-t" />
                 <div class="flex w-fit flex-wrap gap-1 px-3 pt-3 text-xs">
-                  <For each={aIStories()}>
-                    {(story) => (
-                      <a
-                        class="flex gap-0.5 border border-stone-300 px-1 py-0.5 hover:border-stone-600 hover:bg-[#FFFFF0]"
-                        href={
-                          "https://news.ycombinator.com/item?id=" +
-                          story.id
-                            .replaceAll("<mark><b>", "")
-                            .replaceAll("</b></mark>", "")
-                        }
-                        target="_blank"
-                      >
-                        <p>
-                          {story.title?.slice(0, 100) ??
-                            story.body_html
-                              ?.replaceAll("<mark><b>", "")
-                              .replaceAll("</mark></b>", "")
-                              .slice(0, 100)}
-                          ...
-                        </p>
-                        <button
-                          class="hover:text-[#FF6600]"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setAIStories((prev) =>
-                              prev.filter((s) => s.id !== story.id),
-                            );
-                          }}
-                        >
-                          <VsClose />
-                        </button>
-                      </a>
-                    )}
-                  </For>
+                  <Switch>
+                    <Match when={aIStories().length > 0}>
+                      <For each={aIStories()}>
+                        {(story) => (
+                          <a
+                            class="flex gap-0.5 border border-stone-300 px-1 py-0.5 hover:border-stone-600 hover:bg-[#FFFFF0]"
+                            href={
+                              "https://news.ycombinator.com/item?id=" +
+                              story.id
+                                .replaceAll("<mark><b>", "")
+                                .replaceAll("</b></mark>", "")
+                            }
+                            target="_blank"
+                          >
+                            <p>
+                              {story.title?.slice(0, 75) ??
+                                story.body_html
+                                  ?.replaceAll("<mark><b>", "")
+                                  .replaceAll("</mark></b>", "")
+                                  .slice(0, 75)}
+                              <Show
+                                when={
+                                  (
+                                    story.title ??
+                                    story.body_html
+                                      ?.replaceAll("<mark><b>", "")
+                                      .replaceAll("</mark></b>", "") ??
+                                    ""
+                                  ).length > 75
+                                }
+                              >
+                                ...
+                              </Show>
+                            </p>
+                            <button
+                              class="hover:text-[#FF6600]"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setLoadingAiSummary(true);
+                                setAIStories((prev) =>
+                                  prev.filter((s) => s.id !== story.id),
+                                );
+                              }}
+                            >
+                              <VsClose />
+                            </button>
+                          </a>
+                        )}
+                      </For>
+                    </Match>
+                    <Match when={aIStories().length === 0}>
+                      <p class="flex items-center gap-x-1 border border-stone-300 px-1 py-0.5">
+                        <BsInfoCircle class="h-3 w-3 pb-[1px]" /> Response is
+                        currently informed by all search results. Click "Add to
+                        Chat" on any of the results for more specificity.
+                      </p>
+                    </Match>
+                  </Switch>
                 </div>
+                <Show when={loadingAiSummary() && !aIMessages().join("")}>
+                  <div class="m-3 animate-pulse border border-stone-300">
+                    <p class="p-3">Loading...</p>
+                  </div>
+                </Show>
                 <For each={aIMessages()}>
                   {(message, i) => (
                     <div
@@ -1267,7 +1284,7 @@ export const SearchPage = () => {
                 <div class="flex items-center gap-x-2 p-3">
                   <textarea
                     id="ai-followup"
-                    class="h-10 w-full resize-none rounded-md border border-stone-300 p-2 focus:outline-none"
+                    class="h-10 w-full resize-none border border-stone-300 p-2 focus:outline-none"
                     placeholder="Continue the conversation..."
                     disabled={loadingAiSummary()}
                     onKeyDown={(e: any) => {
@@ -1310,8 +1327,9 @@ export const SearchPage = () => {
             <div classList={{ "pb-2": true, "animate-pulse": loading() }}>
               <For each={stories()}>
                 {(story, i) => (
-                  <Story
+                  <StoryComponent
                     story={story}
+                    aiStories={aIStories}
                     sendCTR={() => {
                       void fetch(trieveBaseURL + `/analytics/ctr`, {
                         method: "PUT",
@@ -1334,7 +1352,14 @@ export const SearchPage = () => {
                       setShowRecModal(true);
                     }}
                     onClickAddToAI={() => {
-                      setAIStories((prev) => [...prev, story]);
+                      setLoadingAiSummary(true);
+                      setAIStories((prev) => {
+                        if (prev.find((s) => s.id === story.id)) {
+                          return prev.filter((s) => s.id !== story.id);
+                        } else {
+                          return [...prev, story];
+                        }
+                      });
                     }}
                   />
                 )}
@@ -1402,16 +1427,12 @@ export const SearchPage = () => {
               <div class="border-t pt-2">
                 <For each={recommendedStories()}>
                   {(story) => (
-                    <Story
+                    <StoryComponent
                       story={story}
-                      sendCTR={() => {}}
                       onClickRecommend={() => {
                         setRecommendedStories([]);
                         setPositiveRecStory(story);
                         setShowRecModal(true);
-                      }}
-                      onClickAddToAI={() => {
-                        setAIStories((prev) => [...prev, story]);
                       }}
                     />
                   )}

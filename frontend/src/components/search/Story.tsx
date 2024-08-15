@@ -1,5 +1,5 @@
 /* eslint-disable solid/reactivity */
-import { Show } from "solid-js";
+import { Accessor, Show } from "solid-js";
 import { formatDistanceToNowStrict } from "date-fns";
 
 const formatLink = (url: string) => {
@@ -39,11 +39,12 @@ export interface Story {
   trieve_id?: string;
 }
 
-export const Story = (props: {
+export const StoryComponent = (props: {
   story: Story;
-  sendCTR: () => void;
+  aiStories?: Accessor<Story[]>;
+  sendCTR?: () => void;
   onClickRecommend: () => void;
-  onClickAddToAI: () => void;
+  onClickAddToAI?: () => void;
 }) => {
   const articleLink =
     "https://news.ycombinator.com/item?id=" +
@@ -55,7 +56,7 @@ export const Story = (props: {
         <Show when={props.story.title_html}>
           <div
             class="break-word mb-[-6px] w-full text-wrap leading-[14pt] text-[#828282]"
-            onClick={() => props.sendCTR()}
+            onClick={() => props.sendCTR?.()}
           >
             <a
               href={articleLink}
@@ -112,12 +113,17 @@ export const Story = (props: {
             <span>Score {props.story.score?.toFixed(3)}</span>
           </Show>
           <span class="px-1">|</span>
-          <span
-            class="cursor-pointer font-semibold hover:underline"
-            onClick={() => props.onClickAddToAI()}
-          >
-            Add to Chat
-          </span>
+          <Show when={props.aiStories && props.onClickAddToAI}>
+            <span
+              class="cursor-pointer font-semibold hover:underline"
+              onClick={() => props.onClickAddToAI?.()}
+            >
+              {props.aiStories?.().find((story) => story.id === props.story.id)
+                ? "Remove from"
+                : "Add to"}{" "}
+              Chat
+            </span>
+          </Show>
           <Show when={props.story.type != "comment"}>
             <span class="px-1">|</span>
             <span
