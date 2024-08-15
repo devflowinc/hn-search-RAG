@@ -127,7 +127,7 @@ export const SearchPage = () => {
     null,
   );
   const [recommendedStories, setRecommendedStories] = createSignal<Story[]>([]);
-  const [getAISummary, setGetAISummary] = createSignal(
+  const [aiEnabled, setAiEnabled] = createSignal(
     urlParams.get("getAISummary") === "true",
   );
   const [loadingAiSummary, setLoadingAiSummary] = createSignal(false);
@@ -392,7 +392,7 @@ export const SearchPage = () => {
       await handleReader(reader);
     };
 
-    if (getAISummary() && curCleanedQuery && curUserFollowup) {
+    if (aiEnabled() && curCleanedQuery && curUserFollowup) {
       void handleCompletion();
     }
 
@@ -440,7 +440,7 @@ export const SearchPage = () => {
       await handleReader(reader);
     };
 
-    if (curCleanedQuery && curStories.length && getAISummary()) {
+    if (curCleanedQuery && curStories.length && aiEnabled()) {
       void handleCompletion();
     }
 
@@ -559,7 +559,7 @@ export const SearchPage = () => {
         sortBy() == "Relevance" ? "Popularity" : sortBy()
       }&type=${selectedStoryType()}&page=0&prefix=false`,
     );
-    urlParams.set("getAISummary", getAISummary().toString());
+    urlParams.set("getAISummary", aiEnabled().toString());
 
     window.history.pushState(
       {
@@ -989,8 +989,9 @@ export const SearchPage = () => {
           setQuery={setQuery}
           algoliaLink={algoliaLink}
           setOpenRateQueryModal={setOpenRateQueryModal}
-          getAISummary={getAISummary}
-          setGetAISummary={setGetAISummary}
+          aiEnabled={aiEnabled}
+          setLoadingAi={setLoadingAiSummary}
+          setAiEnabled={setAiEnabled}
           aiSummaryPrompt={aiSummaryPrompt}
           setAiSummaryPrompt={setAISummaryPrompt}
           aiMaxTokens={aiMaxTokens}
@@ -1025,345 +1026,361 @@ export const SearchPage = () => {
             </Switch>
           </Match>
           <Match when={stories().length > 0}>
-            <Show
-              when={
-                queryFiltersRemoved() &&
-                getAISummary() &&
-                (loadingAiSummary() || aIMessages().join(""))
-              }
-            >
-              <>
-                <div class="border-t" />
-                <div class="flex w-fit flex-wrap gap-1 px-3 pt-3 text-xs">
-                  <Switch>
-                    <Match when={aIStories().length > 0}>
-                      <For each={aIStories()}>
-                        {(story) => (
-                          <a
-                            class="flex gap-0.5 border border-stone-300 px-1 py-0.5 hover:border-stone-600 hover:bg-[#FFFFF0]"
-                            href={
-                              "https://news.ycombinator.com/item?id=" +
-                              story.id
-                                .replaceAll("<mark><b>", "")
-                                .replaceAll("</b></mark>", "")
-                            }
-                            target="_blank"
-                          >
-                            <p>
-                              {story.title?.slice(0, 75) ??
-                                story.body_html
-                                  ?.replaceAll("<mark><b>", "")
-                                  .replaceAll("</mark></b>", "")
-                                  .slice(0, 75)}
-                              <Show
-                                when={
-                                  (
-                                    story.title ??
-                                    story.body_html
-                                      ?.replaceAll("<mark><b>", "")
-                                      .replaceAll("</mark></b>", "") ??
-                                    ""
-                                  ).length > 75
-                                }
-                              >
-                                ...
-                              </Show>
-                            </p>
-                            <button
-                              class="hover:text-[#FF6600]"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setLoadingAiSummary(true);
-                                setAIStories((prev) =>
-                                  prev.filter((s) => s.id !== story.id),
-                                );
-                              }}
-                            >
-                              <VsClose />
-                            </button>
-                          </a>
-                        )}
-                      </For>
-                    </Match>
-                    <Match when={aIStories().length === 0}>
-                      <p class="flex items-center gap-x-1 border border-stone-300 px-1 py-0.5">
-                        <BsInfoCircle class="h-3 w-3 pb-[1px]" /> Response is
-                        currently informed by all search results. Click "Add to
-                        Chat" on any of the results for more specificity.
-                      </p>
-                    </Match>
-                  </Switch>
-                </div>
-                <Show when={loadingAiSummary() && !aIMessages().join("")}>
-                  <div class="m-3 animate-pulse border border-stone-300">
-                    <p class="p-3">Loading...</p>
-                  </div>
-                </Show>
-                <For each={aIMessages()}>
-                  {(message, i) => (
-                    <div
-                      classList={{
-                        "select-text gap-y-2 m-3 border border-stone-300 flex w-fit max-w-[75%]":
-                          true,
-                        "ml-auto": i() % 2 === 1,
-                      }}
-                    >
-                      <div class="pl-1 pt-[15px]">
-                        <Switch>
-                          <Match when={i() % 2 === 0}>
-                            <AiOutlineRobot class="h-4 w-4" />
-                          </Match>
-                          <Match when={i() % 2 === 1}>
-                            <BiSolidUserRectangle class="h-4 w-4" />
-                          </Match>
-                        </Switch>
-                      </div>
-                      <SolidMarkdown
-                        remarkPlugins={[remarkBreaks, remarkGfm]}
-                        rehypePlugins={[rehypeSanitize]}
-                        class="select-text space-y-2 p-3"
-                        components={{
-                          h1: (props) => {
-                            return (
-                              <h1 class="mb-4 text-4xl font-bold dark:bg-neutral-700 dark:text-white">
-                                {props.children}
-                              </h1>
-                            );
-                          },
-                          h2: (props) => {
-                            return (
-                              <h2 class="mb-3 text-3xl font-semibold dark:text-white">
-                                {props.children}
-                              </h2>
-                            );
-                          },
-                          h3: (props) => {
-                            return (
-                              <h3 class="mb-2 text-2xl font-medium dark:text-white">
-                                {props.children}
-                              </h3>
-                            );
-                          },
-                          h4: (props) => {
-                            return (
-                              <h4 class="mb-2 text-xl font-medium dark:text-white">
-                                {props.children}
-                              </h4>
-                            );
-                          },
-                          h5: (props) => {
-                            return (
-                              <h5 class="mb-1 text-lg font-medium dark:text-white">
-                                {props.children}
-                              </h5>
-                            );
-                          },
-                          h6: (props) => {
-                            return (
-                              <h6 class="mb-1 text-base font-medium dark:text-white">
-                                {props.children}
-                              </h6>
-                            );
-                          },
-                          code: (props) => {
-                            const [codeBlock, setCodeBlock] = createSignal();
-                            const [isCopied, setIsCopied] = createSignal(false);
-
-                            createEffect(() => {
-                              if (isCopied()) {
-                                const timeout = setTimeout(() => {
-                                  setIsCopied(false);
-                                }, 800);
-                                return () => {
-                                  clearTimeout(timeout);
-                                };
+            <div class="flex-row-reverse lg:flex">
+              <Show
+                when={
+                  queryFiltersRemoved() &&
+                  aiEnabled() &&
+                  (loadingAiSummary() || aIMessages().join(""))
+                }
+              >
+                <div class="lg:w-5/12 lg:border-l lg:border-stone-300">
+                  <div class="border-t lg:hidden" />
+                  <div class="flex w-fit flex-wrap gap-1 px-3 pt-3 text-xs lg:pt-0">
+                    <Switch>
+                      <Match when={aIStories().length > 0}>
+                        <For each={aIStories()}>
+                          {(story) => (
+                            <a
+                              class="flex gap-0.5 border border-stone-300 px-1 py-0.5 hover:border-stone-600 hover:bg-[#FFFFF0]"
+                              href={
+                                "https://news.ycombinator.com/item?id=" +
+                                story.id
+                                  .replaceAll("<mark><b>", "")
+                                  .replaceAll("</b></mark>", "")
                               }
-                            });
-
-                            return (
-                              <div class="relative w-full rounded-lg bg-gray-100 px-4 py-2 dark:bg-neutral-700">
-                                <button
-                                  class="absolute right-2 top-2 p-1 text-xs hover:text-fuchsia-500 dark:text-white dark:hover:text-fuchsia-500"
-                                  onClick={() => {
-                                    const code = (codeBlock() as any).innerText;
-
-                                    navigator.clipboard.writeText(code).then(
-                                      () => {
-                                        setIsCopied(true);
-                                      },
-                                      (err) => {
-                                        console.error("failed to copy", err);
-                                      },
-                                    );
-                                  }}
+                              target="_blank"
+                            >
+                              <p>
+                                {story.title?.slice(0, 75) ??
+                                  story.body_html
+                                    ?.replaceAll("<mark><b>", "")
+                                    .replaceAll("</mark></b>", "")
+                                    .slice(0, 75)}
+                                <Show
+                                  when={
+                                    (
+                                      story.title ??
+                                      story.body_html
+                                        ?.replaceAll("<mark><b>", "")
+                                        .replaceAll("</mark></b>", "") ??
+                                      ""
+                                    ).length > 75
+                                  }
                                 >
-                                  <Switch>
-                                    <Match when={isCopied()}>
-                                      <BiSolidCheckSquare class="h-5 w-5 text-green-500" />
-                                    </Match>
-                                    <Match when={!isCopied()}>
-                                      <BiRegularClipboard class="h-5 w-5" />
-                                    </Match>
-                                  </Switch>
-                                </button>
-
-                                <code ref={setCodeBlock}>{props.children}</code>
-                              </div>
-                            );
-                          },
-                          a: (props) => {
-                            return (
-                              <a class="underline" href={props.href}>
-                                {props.children}
-                              </a>
-                            );
-                          },
-                          blockquote: (props) => {
-                            return (
-                              <blockquote class="my-4 border-l-4 border-gray-300 bg-gray-100 p-2 py-2 pl-4 italic text-gray-700 dark:bg-neutral-700 dark:text-white">
-                                {props.children}
-                              </blockquote>
-                            );
-                          },
-                          ul: (props) => {
-                            return (
-                              <ul class="my-4 list-outside list-disc space-y-2 pl-5">
-                                {props.children}
-                              </ul>
-                            );
-                          },
-                          ol: (props) => {
-                            return (
-                              <ol class="my-4 list-outside list-decimal space-y-2 pl-5">
-                                {props.children}
-                              </ol>
-                            );
-                          },
-                          img: (props) => {
-                            return (
-                              <img
-                                src={props.src}
-                                alt={props.alt}
-                                class="my-4 h-auto max-w-full rounded-lg shadow-md"
-                              />
-                            );
-                          },
-                          table: (props) => (
-                            <table class="my-4 border-collapse">
-                              {props.children}
-                            </table>
-                          ),
-                          thead: (props) => (
-                            <thead class="bg-gray-100">{props.children}</thead>
-                          ),
-                          tbody: (props) => (
-                            <tbody class="bg-white">{props.children}</tbody>
-                          ),
-                          tr: (props) => (
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                              {props.children}
-                            </tr>
-                          ),
-                          th: (props) => (
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              {props.children}
-                            </th>
-                          ),
-                          td: (props) => (
-                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                              {props.children}
-                            </td>
-                          ),
-                        }}
-                        children={message}
-                      />
+                                  ...
+                                </Show>
+                              </p>
+                              <button
+                                class="hover:text-[#FF6600]"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setLoadingAiSummary(true);
+                                  setAIStories((prev) =>
+                                    prev.filter((s) => s.id !== story.id),
+                                  );
+                                }}
+                              >
+                                <VsClose />
+                              </button>
+                            </a>
+                          )}
+                        </For>
+                      </Match>
+                      <Match when={aIStories().length === 0}>
+                        <p class="flex items-center gap-x-2 border border-stone-300 px-1 py-0.5">
+                          <BsInfoCircle class="h-3 w-3 pb-[1px]" /> Response
+                          currently informed by all search results. Click "Add
+                          to AI Context" on any result(s) for more specificity.
+                        </p>
+                      </Match>
+                    </Switch>
+                  </div>
+                  <Show when={loadingAiSummary() && !aIMessages().join("")}>
+                    <div class="m-3 animate-pulse border border-stone-300">
+                      <p class="p-3">Loading...</p>
                     </div>
-                  )}
-                </For>
-                <div class="flex items-center gap-x-2 p-3">
-                  <textarea
-                    id="ai-followup"
-                    class="h-10 w-full resize-none border border-stone-300 p-2 focus:outline-none"
-                    placeholder="Continue the conversation..."
-                    disabled={loadingAiSummary()}
-                    onKeyDown={(e: any) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
+                  </Show>
+                  <For each={aIMessages()}>
+                    {(message, i) => (
+                      <div
+                        classList={{
+                          "select-text gap-y-2 m-3 border border-stone-300 flex w-fit max-w-[75%]":
+                            true,
+                          "ml-auto": i() % 2 === 1,
+                        }}
+                      >
+                        <div class="pl-1 pt-[15px]">
+                          <Switch>
+                            <Match when={i() % 2 === 0}>
+                              <AiOutlineRobot class="h-4 w-4" />
+                            </Match>
+                            <Match when={i() % 2 === 1}>
+                              <BiSolidUserRectangle class="h-4 w-4" />
+                            </Match>
+                          </Switch>
+                        </div>
+                        <SolidMarkdown
+                          remarkPlugins={[remarkBreaks, remarkGfm]}
+                          rehypePlugins={[rehypeSanitize]}
+                          class="select-text space-y-2 p-3"
+                          components={{
+                            h1: (props) => {
+                              return (
+                                <h1 class="mb-4 text-4xl font-bold dark:bg-neutral-700 dark:text-white">
+                                  {props.children}
+                                </h1>
+                              );
+                            },
+                            h2: (props) => {
+                              return (
+                                <h2 class="mb-3 text-3xl font-semibold dark:text-white">
+                                  {props.children}
+                                </h2>
+                              );
+                            },
+                            h3: (props) => {
+                              return (
+                                <h3 class="mb-2 text-2xl font-medium dark:text-white">
+                                  {props.children}
+                                </h3>
+                              );
+                            },
+                            h4: (props) => {
+                              return (
+                                <h4 class="mb-2 text-xl font-medium dark:text-white">
+                                  {props.children}
+                                </h4>
+                              );
+                            },
+                            h5: (props) => {
+                              return (
+                                <h5 class="mb-1 text-lg font-medium dark:text-white">
+                                  {props.children}
+                                </h5>
+                              );
+                            },
+                            h6: (props) => {
+                              return (
+                                <h6 class="mb-1 text-base font-medium dark:text-white">
+                                  {props.children}
+                                </h6>
+                              );
+                            },
+                            code: (props) => {
+                              const [codeBlock, setCodeBlock] = createSignal();
+                              const [isCopied, setIsCopied] =
+                                createSignal(false);
+
+                              createEffect(() => {
+                                if (isCopied()) {
+                                  const timeout = setTimeout(() => {
+                                    setIsCopied(false);
+                                  }, 800);
+                                  return () => {
+                                    clearTimeout(timeout);
+                                  };
+                                }
+                              });
+
+                              return (
+                                <div class="relative w-full rounded-lg bg-gray-100 px-4 py-2 dark:bg-neutral-700">
+                                  <button
+                                    class="absolute right-2 top-2 p-1 text-xs hover:text-fuchsia-500 dark:text-white dark:hover:text-fuchsia-500"
+                                    onClick={() => {
+                                      const code = (codeBlock() as any)
+                                        .innerText;
+
+                                      navigator.clipboard.writeText(code).then(
+                                        () => {
+                                          setIsCopied(true);
+                                        },
+                                        (err) => {
+                                          console.error("failed to copy", err);
+                                        },
+                                      );
+                                    }}
+                                  >
+                                    <Switch>
+                                      <Match when={isCopied()}>
+                                        <BiSolidCheckSquare class="h-5 w-5 text-green-500" />
+                                      </Match>
+                                      <Match when={!isCopied()}>
+                                        <BiRegularClipboard class="h-5 w-5" />
+                                      </Match>
+                                    </Switch>
+                                  </button>
+
+                                  <code ref={setCodeBlock}>
+                                    {props.children}
+                                  </code>
+                                </div>
+                              );
+                            },
+                            a: (props) => {
+                              return (
+                                <a class="underline" href={props.href}>
+                                  {props.children}
+                                </a>
+                              );
+                            },
+                            blockquote: (props) => {
+                              return (
+                                <blockquote class="my-4 border-l-4 border-gray-300 bg-gray-100 p-2 py-2 pl-4 italic text-gray-700 dark:bg-neutral-700 dark:text-white">
+                                  {props.children}
+                                </blockquote>
+                              );
+                            },
+                            ul: (props) => {
+                              return (
+                                <ul class="my-4 list-outside list-disc space-y-2 pl-5">
+                                  {props.children}
+                                </ul>
+                              );
+                            },
+                            ol: (props) => {
+                              return (
+                                <ol class="my-4 list-outside list-decimal space-y-2 pl-5">
+                                  {props.children}
+                                </ol>
+                              );
+                            },
+                            img: (props) => {
+                              return (
+                                <img
+                                  src={props.src}
+                                  alt={props.alt}
+                                  class="my-4 h-auto max-w-full rounded-lg shadow-md"
+                                />
+                              );
+                            },
+                            table: (props) => (
+                              <table class="my-4 border-collapse">
+                                {props.children}
+                              </table>
+                            ),
+                            thead: (props) => (
+                              <thead class="bg-gray-100">
+                                {props.children}
+                              </thead>
+                            ),
+                            tbody: (props) => (
+                              <tbody class="bg-white">{props.children}</tbody>
+                            ),
+                            tr: (props) => (
+                              <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                {props.children}
+                              </tr>
+                            ),
+                            th: (props) => (
+                              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                {props.children}
+                              </th>
+                            ),
+                            td: (props) => (
+                              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                {props.children}
+                              </td>
+                            ),
+                          }}
+                          children={message}
+                        />
+                      </div>
+                    )}
+                  </For>
+                  <div class="flex items-center gap-x-2 p-3">
+                    <textarea
+                      id="ai-followup"
+                      class="h-10 w-full resize-none border border-stone-300 p-2 focus:outline-none"
+                      placeholder="Continue the conversation..."
+                      disabled={loadingAiSummary()}
+                      onKeyDown={(e: any) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          const element =
+                            e.currentTarget as HTMLTextAreaElement;
+                          const followup = element.value;
+                          setAIMessages([...aIMessages(), followup]);
+                          setUserFollowup(followup);
+                          element.value = "";
+                        }
+
                         const element = e.currentTarget as HTMLTextAreaElement;
+                        element.style.height = "auto";
+                        element.style.height = element.scrollHeight - 16 + "px";
+                      }}
+                    />
+                    <button
+                      class="btn btn-primary"
+                      onClick={() => {
+                        const element = document.getElementById(
+                          "ai-followup",
+                        ) as HTMLTextAreaElement;
                         const followup = element.value;
                         setAIMessages([...aIMessages(), followup]);
                         setUserFollowup(followup);
                         element.value = "";
-                      }
 
-                      const element = e.currentTarget as HTMLTextAreaElement;
-                      element.style.height = "auto";
-                      element.style.height = element.scrollHeight - 16 + "px";
-                    }}
-                  />
-                  <button
-                    class="btn btn-primary"
-                    onClick={() => {
-                      const element = document.getElementById(
-                        "ai-followup",
-                      ) as HTMLTextAreaElement;
-                      const followup = element.value;
-                      setAIMessages([...aIMessages(), followup]);
-                      setUserFollowup(followup);
-                      element.value = "";
-
-                      element.style.height = "auto";
-                      element.style.height = element.scrollHeight - 16 + "px";
-                    }}
-                    disabled={loadingAiSummary()}
-                  >
-                    <FiSend class="h-4 w-4" />
-                  </button>
+                        element.style.height = "auto";
+                        element.style.height = element.scrollHeight - 16 + "px";
+                      }}
+                      disabled={loadingAiSummary()}
+                    >
+                      <FiSend class="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div class="border-t pb-4 lg:hidden" />
                 </div>
-                <div class="border-t pb-4" />
-              </>
-            </Show>
-            <div classList={{ "pb-2": true, "animate-pulse": loading() }}>
-              <For each={stories()}>
-                {(story, i) => (
-                  <StoryComponent
-                    story={story}
-                    aiStories={aIStories}
-                    sendCTR={() => {
-                      void fetch(trieveBaseURL + `/analytics/ctr`, {
-                        method: "PUT",
-                        body: JSON.stringify({
-                          request_id: searchID(),
-                          clicked_chunk_tracking_id: story.id,
-                          position: i() + 1,
-                          ctr_type: "search",
-                        }),
-                        headers: {
-                          "Content-Type": "application/json",
-                          "TR-Dataset": trieveDatasetId,
-                          Authorization: trieveApiKey,
-                        },
-                      });
-                    }}
-                    onClickRecommend={() => {
-                      setRecommendedStories([]);
-                      setPositiveRecStory(story);
-                      setShowRecModal(true);
-                    }}
-                    onClickAddToAI={() => {
-                      setLoadingAiSummary(true);
-                      setAIStories((prev) => {
-                        if (prev.find((s) => s.id === story.id)) {
-                          return prev.filter((s) => s.id !== story.id);
-                        } else {
-                          return [...prev, story];
-                        }
-                      });
-                    }}
-                  />
-                )}
-              </For>
+              </Show>
+              <div
+                classList={{
+                  "pb-2 w-full": true,
+                  "lg:w-7/12": queryFiltersRemoved() != "" && aiEnabled(),
+                  "animate-pulse": loading(),
+                }}
+              >
+                <For each={stories()}>
+                  {(story, i) => (
+                    <StoryComponent
+                      story={story}
+                      aiEnabled={aiEnabled}
+                      aiStories={aIStories}
+                      sendCTR={() => {
+                        void fetch(trieveBaseURL + `/analytics/ctr`, {
+                          method: "PUT",
+                          body: JSON.stringify({
+                            request_id: searchID(),
+                            clicked_chunk_tracking_id: story.id,
+                            position: i() + 1,
+                            ctr_type: "search",
+                          }),
+                          headers: {
+                            "Content-Type": "application/json",
+                            "TR-Dataset": trieveDatasetId,
+                            Authorization: trieveApiKey,
+                          },
+                        });
+                      }}
+                      onClickRecommend={() => {
+                        setRecommendedStories([]);
+                        setPositiveRecStory(story);
+                        setShowRecModal(true);
+                      }}
+                      onClickAddToAI={() => {
+                        setLoadingAiSummary(true);
+                        setAIStories((prev) => {
+                          if (prev.find((s) => s.id === story.id)) {
+                            return prev.filter((s) => s.id !== story.id);
+                          } else {
+                            return [...prev, story];
+                          }
+                        });
+                      }}
+                    />
+                  )}
+                </For>
+              </div>
             </div>
           </Match>
         </Switch>
@@ -1448,7 +1465,7 @@ export const SearchPage = () => {
       >
         <div class="min-w-[250px] sm:min-w-[300px]">
           <div class="mb-4 text-center text-xl">
-            Rate the quality of the results for this query:
+            Rate the quality of the search results for this query:
           </div>
           <div>
             <label class="block text-lg">Rating: {rating().rating}</label>

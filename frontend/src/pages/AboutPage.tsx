@@ -199,9 +199,9 @@ export const AboutPage = () => {
               </p>
               <p>
                 We punted on some frontend for CTR analytics, advanced
-                recommendations, and the "Add to chat" functionality similar to
-                what Exa offers due to time bounds. We'll add those features if
-                this demo gets traction and people use it.
+                recommendations, and the "Add to AI Context" functionality
+                similar to what Exa offers due to time bounds. We'll add those
+                features if this demo gets traction and people use it.
               </p>
               <p>
                 Tons of respect to the Algolia folks for building such a great
