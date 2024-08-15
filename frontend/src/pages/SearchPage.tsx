@@ -168,6 +168,18 @@ export const SearchPage = () => {
   ) => {
     setLoadingAiSummary(true);
     let done = false;
+    const lastEvenIndex =
+      aIMessages().length % 2 === 0
+        ? aIMessages().length
+        : aIMessages().length - 1;
+    if (lastEvenIndex != 0) {
+      setAIMessages((prev) => [
+        ...prev.slice(0, lastEvenIndex),
+        "Loading...",
+        ...prev.slice(lastEvenIndex + 1),
+      ]);
+    }
+
     while (!done) {
       const { value, done: doneReading } = await reader.read();
       if (doneReading) {
@@ -180,7 +192,10 @@ export const SearchPage = () => {
         setAIMessages((prev) => {
           const lastEvenIndex =
             prev.length % 2 === 0 ? prev.length : prev.length - 1;
-          const currentMessage = prev[lastEvenIndex];
+          let currentMessage = prev[lastEvenIndex];
+          if (currentMessage && currentMessage.includes("Loading")) {
+            currentMessage = currentMessage.replace("Loading...", "");
+          }
           const newMessage = (currentMessage ? currentMessage : "") + newText;
           return [
             ...prev.slice(0, lastEvenIndex),
@@ -1292,6 +1307,7 @@ export const SearchPage = () => {
                   <div class="flex items-center gap-x-2 p-3">
                     <textarea
                       id="ai-followup"
+                      autocomplete="do-not-autofill"
                       class="h-10 w-full resize-none border border-stone-300 p-2 focus:outline-none"
                       placeholder="Continue the conversation..."
                       disabled={loadingAiSummary()}
