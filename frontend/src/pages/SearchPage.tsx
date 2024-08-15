@@ -345,7 +345,7 @@ export const SearchPage = () => {
   });
 
   createEffect(() => {
-    userFollowup();
+    const curUserFollowup = userFollowup();
     const curCleanedQuery = queryFiltersRemoved();
     const curStories = stories();
 
@@ -390,7 +390,9 @@ export const SearchPage = () => {
       await handleReader(reader);
     };
 
-    void handleCompletion();
+    if (curCleanedQuery && curUserFollowup) {
+      void handleCompletion();
+    }
 
     onCleanup(() => {
       completionAbortController.abort();
@@ -479,7 +481,9 @@ export const SearchPage = () => {
         search_type:
           searchType() === "hybrid" || searchType() === "autocomplete"
             ? "fulltext"
-            : searchType(),
+            : searchType() === "keyword"
+              ? "bm25"
+              : searchType(),
       }),
     }).then((response) =>
       response
@@ -574,7 +578,12 @@ export const SearchPage = () => {
 
     const reqBody = {
       query: queryFiltersRemoved(),
-      search_type: searchType() === "autocomplete" ? "fulltext" : searchType(),
+      search_type:
+        searchType() === "autocomplete"
+          ? "fulltext"
+          : searchType() === "keyword"
+            ? "bm25"
+            : searchType(),
       page: page(),
       highlight_options: {
         highlight_strategy: "exactmatch",
@@ -1235,7 +1244,7 @@ export const SearchPage = () => {
 
                       const element = e.currentTarget as HTMLTextAreaElement;
                       element.style.height = "auto";
-                      element.style.height = element.scrollHeight + "px";
+                      element.style.height = element.scrollHeight - 16 + "px";
                     }}
                   />
                   <button
@@ -1250,7 +1259,7 @@ export const SearchPage = () => {
                       element.value = "";
 
                       element.style.height = "auto";
-                      element.style.height = element.scrollHeight + "px";
+                      element.style.height = element.scrollHeight - 16 + "px";
                     }}
                     disabled={loadingAiSummary()}
                   >
