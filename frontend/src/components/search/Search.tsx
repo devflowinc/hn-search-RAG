@@ -75,7 +75,7 @@ export const Search = (props: SearchProps) => {
         </div>
         <div class="mx-2 flex flex-wrap items-center justify-end gap-2">
           <div class="flex items-center space-x-2">
-            <p class="text-sm text-zinc-600">Get AI Answer</p>
+            <p class="text-sm text-zinc-600">AI Features</p>
             <button
               type="button"
               class="focus:ring-none group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full outline-[#ff6600]"
