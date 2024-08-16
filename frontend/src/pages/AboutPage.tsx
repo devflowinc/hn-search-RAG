@@ -7,7 +7,7 @@ import { BiRegularChevronDown, BiRegularChevronUp } from "solid-icons/bi";
 export const HowToUse = () => {
   return (
     <FAQCard
-      question="How to Use"
+      question="Using the search modes"
       answer={
         <>
           <p>
@@ -374,44 +374,49 @@ export const AboutPage = () => {
   );
 };
 
+export const AdvancedSearchSyntax = () => {
+  return (
+    <FAQCard
+      question="Advanced search syntax"
+      answer={
+        <>
+          <ul>
+            <li>
+              Use <code>"</code> to match a particular sequence of terms{" "}
+              <code>"search engine"</code>
+            </li>
+            <li>
+              Use <code>-</code> to ensure a word won't appear in the result set{" "}
+              <code>search -optimization</code>,
+            </li>
+            <li>
+              Use <code>author:USERNAME</code> or <code>by:USERNAME</code> to
+              filter by author,
+            </li>
+            <li>
+              Use <code>story:ID</code> to filter by story,
+            </li>
+            <li>
+              Use <code>points&gt;NUMBER</code> or <code>points&lt;NUMBER</code>{" "}
+              to filter by points,
+            </li>
+            <li>
+              Use <code>comments&gt;NUMBER</code> or{" "}
+              <code>comments&lt;NUMBER</code> to filter by number of comments,
+            </li>
+          </ul>
+        </>
+      }
+    />
+  );
+};
+
 export const HelpPage = () => {
   return (
     <main class="mx-auto bg-[#F6F6F0] font-verdana text-[13.33px] sm:bg-hn md:m-2 md:mx-auto md:w-[85%]">
       <Header />
       <div class="my-6 flex flex-col gap-y-5">
-        <FAQCard
-          question="Advanced search syntax"
-          answer={
-            <>
-              <ul>
-                <li>
-                  Use <code>"</code> to match a particular sequence of terms{" "}
-                  <code>"search engine"</code>
-                </li>
-                <li>
-                  Use <code>-</code> to ensure a word won't appear in the result
-                  set <code>search -optimization</code>,
-                </li>
-                <li>
-                  Use <code>author:USERNAME</code> or <code>by:USERNAME</code>{" "}
-                  to filter by author,
-                </li>
-                <li>
-                  Use <code>story:ID</code> to filter by story,
-                </li>
-                <li>
-                  Use <code>points&gt;NUMBER</code> or{" "}
-                  <code>points&lt;NUMBER</code> to filter by points,
-                </li>
-                <li>
-                  Use <code>comments&gt;NUMBER</code> or{" "}
-                  <code>comments&lt;NUMBER</code> to filter by number of
-                  comments,
-                </li>
-              </ul>
-            </>
-          }
-        />
+        <AdvancedSearchSyntax />
         <HowToUse />
         <FAQCard
           question="Contact Us"

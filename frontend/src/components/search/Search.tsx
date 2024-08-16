@@ -4,7 +4,11 @@ import {
   HiSolidMagnifyingGlass,
 } from "solid-icons/hi";
 import { Accessor, createSignal, onMount, Setter, Show } from "solid-js";
-import { HowToUse, WhyMakeThis } from "../../pages/AboutPage";
+import {
+  AdvancedSearchSyntax,
+  HowToUse,
+  WhyMakeThis,
+} from "../../pages/AboutPage";
 import { FullScreenModal } from "../FullScreenModal";
 import { createToast } from "../ShowToast";
 
@@ -38,7 +42,7 @@ export interface AiParams {
 
 export const Search = (props: SearchProps) => {
   const [openWhyMakeThisModal, setOpenWhyMakeThisModal] = createSignal(false);
-  const [openHowToUseModal, setOpenHowToUseModal] = createSignal(false);
+  const [openHelpModal, setOpenHelpModal] = createSignal(false);
   const [openAiSettingsModal, setOpenAiSettingsModal] = createSignal(false);
   const [tempAiParams, setTempAiParams] = createSignal<AiParams>({
     aiSummaryPrompt: "",
@@ -147,9 +151,9 @@ export const Search = (props: SearchProps) => {
           </button>
           <button
             class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
-            onClick={() => setOpenHowToUseModal(true)}
+            onClick={() => setOpenHelpModal(true)}
           >
-            How to Use?
+            Help
           </button>
           <button
             class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
@@ -166,8 +170,9 @@ export const Search = (props: SearchProps) => {
           </a>
         </div>
       </div>
-      <FullScreenModal show={openHowToUseModal} setShow={setOpenHowToUseModal}>
-        <div class="min-w-[250px] sm:min-w-[300px] sm:max-w-[50vw]">
+      <FullScreenModal show={openHelpModal} setShow={setOpenHelpModal}>
+        <div class="flex min-w-[250px] flex-col gap-y-4 sm:min-w-[300px] sm:max-w-[50vw]">
+          <AdvancedSearchSyntax />
           <HowToUse />
           <p class="mt-6 text-xs text-gray-600">
             {" "}
