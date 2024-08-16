@@ -94,6 +94,20 @@ export const SearchPage = () => {
       .map((name) => name.trim())
       .filter((name) => name !== "") ?? [],
   );
+  const [matchAnySiteURLs, setMatchAnySiteURLs] = createSignal(
+    urlParams
+      .get("matchAnySiteURLs")
+      ?.split(",")
+      .map((url) => url.trim())
+      .filter((url) => url !== "") ?? [],
+  );
+  const [matchNoneSiteURLs, setMatchNoneSiteURLs] = createSignal(
+    urlParams
+      .get("matchNoneSiteURLs")
+      ?.split(",")
+      .map((url) => url.trim())
+      .filter((url) => url !== "") ?? [],
+  );
   const [popularityFilters, setPopularityFilters] = createSignal<any>(
     urlParams.get("popularityFilters")
       ? JSON.parse(urlParams.get("popularityFilters") as string)
@@ -242,10 +256,12 @@ export const SearchPage = () => {
 
   const queryFiltersRemoved = createMemo(() => {
     return query()
-      .replace(/author:-\w+/g, "")
-      .replace(/author:\w+/g, "")
-      .replace(/by:-\w+/g, "")
-      .replace(/by:\w+/g, "")
+      .replace(/author:-[\w.-]+/g, "")
+      .replace(/author:[\w.-]+/g, "")
+      .replace(/by:-[\w.-]+/g, "")
+      .replace(/by:[\w.-]+/g, "")
+      .replace(/site:-[\w.-]+/g, "")
+      .replace(/site:[\w.-]+/g, "")
       .replace(/story:\d+/g, "")
       .replace(/points>:\d+/g, "")
       .replace(/points<:\d+/g, "")
@@ -261,14 +277,20 @@ export const SearchPage = () => {
     const uncleanedQuery = query();
     let curAnyAuthorNames = matchAnyAuthorNames();
     let curNoneAuthorNames = matchNoneAuthorNames();
+    let curAnySiteURLs = matchAnySiteURLs();
+    let curNoneSiteURLs = matchNoneSiteURLs();
     const byNegatedMatches =
-      (uncleanedQuery.match(/by:-\w+/g) as string[]) ?? [];
+      (uncleanedQuery.match(/by:-[\w.-]+/g) as string[]) ?? [];
     const byNonNegatedMatches =
-      (uncleanedQuery.match(/by:\w+/g) as string[]) ?? [];
+      (uncleanedQuery.match(/by:(?!-)[\w.-]+/g) as string[]) ?? [];
     const authorNegatedMatches =
-      (uncleanedQuery.match(/author:-\w+/g) as string[]) ?? [];
+      (uncleanedQuery.match(/author:-[\w.-]+/g) as string[]) ?? [];
     const authorNonNegatedMatches =
-      (uncleanedQuery.match(/author:\w+/g) as string[]) ?? [];
+      (uncleanedQuery.match(/author:(?!-)[\w.-]+/g) as string[]) ?? [];
+    const siteNonNegatedMatches =
+      (uncleanedQuery.match(/site:(?!-)[\w.-]+/g) as string[]) ?? [];
+    const siteNegatedMatches =
+      (uncleanedQuery.match(/site:-[\w.-]+/g) as string[]) ?? [];
 
     if (byNegatedMatches.length > 0) {
       curNoneAuthorNames = [
@@ -303,6 +325,25 @@ export const SearchPage = () => {
         ...new Set(
           [...curAnyAuthorNames, ...authorNonNegatedMatches].map((a) =>
             a.replace("author:-", "").replace("author:", "").trim(),
+          ),
+        ),
+      ];
+    }
+
+    if (siteNegatedMatches.length > 0) {
+      curNoneSiteURLs = [
+        ...new Set(
+          [...curNoneSiteURLs, ...siteNegatedMatches].map((a) =>
+            a.replace("site:-", "").replace("site:", "").trim(),
+          ),
+        ),
+      ];
+    }
+    if (siteNonNegatedMatches.length > 0) {
+      curAnySiteURLs = [
+        ...new Set(
+          [...curAnySiteURLs, ...siteNonNegatedMatches].map((a) =>
+            a.replace("site:-", "").replace("site:", "").trim(),
           ),
         ),
       ];
@@ -351,6 +392,8 @@ export const SearchPage = () => {
       selectedStoryType: selectedStoryType(),
       matchAnyAuthorNames: curAnyAuthorNames,
       matchNoneAuthorNames: curNoneAuthorNames,
+      matchAnySiteNames: curAnySiteURLs,
+      matchNoneSiteNames: curNoneSiteURLs,
       gtStoryPoints: curNumValues?.gt,
       ltStoryPoints: curNumValues?.lt,
       gtStoryComments: curNumComments?.gt,
@@ -854,6 +897,8 @@ export const SearchPage = () => {
       selectedStoryType: selectedStoryType(),
       matchAnyAuthorNames: matchAnyAuthorNames(),
       matchNoneAuthorNames: matchNoneAuthorNames(),
+      matchAnySiteNames: matchAnySiteURLs(),
+      matchNoneSiteNames: matchNoneSiteURLs(),
       gtStoryPoints: popularityFilters()["num_value"]?.gt,
       ltStoryPoints: popularityFilters()["num_value"]?.lt,
       gtStoryComments: popularityFilters()["num_comments"]?.gt,
@@ -996,6 +1041,10 @@ export const SearchPage = () => {
           setMatchAnyAuthorNames={setMatchAnyAuthorNames}
           matchNoneAuthorNames={matchNoneAuthorNames}
           setMatchNoneAuthorNames={setMatchNoneAuthorNames}
+          matchAnySiteURLs={matchAnySiteURLs}
+          matchNoneSiteURLs={matchNoneSiteURLs}
+          setMatchAnySiteURLs={setMatchAnySiteURLs}
+          setMatchNoneSiteURLs={setMatchNoneSiteURLs}
           popularityFilters={popularityFilters}
           setPopularityFilters={setPopularityFilters}
         />

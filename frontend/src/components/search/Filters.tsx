@@ -32,6 +32,10 @@ export interface FiltersProps {
   setMatchNoneAuthorNames: Setter<string[]>;
   matchAnyAuthorNames: Accessor<string[]>;
   matchNoneAuthorNames: Accessor<string[]>;
+  matchAnySiteURLs: Accessor<string[]>;
+  setMatchAnySiteURLs: Setter<string[]>;
+  matchNoneSiteURLs: Accessor<string[]>;
+  setMatchNoneSiteURLs: Setter<string[]>;
   setPopularityFilters: Setter<any>;
   popularityFilters: Accessor<any>;
 }
@@ -130,7 +134,7 @@ export default function Filters(props: FiltersProps) {
 
   return (
     <div class="flex items-center gap-2 p-2">
-      <div class="flex flex-wrap items-center gap-2 text-black">
+      <div class="w-[1130px]:justify-start flex flex-wrap items-center justify-end gap-2 text-black">
         <span>Search</span>
         <div>
           <label for="stories" class="sr-only">
@@ -297,7 +301,7 @@ export default function Filters(props: FiltersProps) {
               onClick={() => setOpenAuthorFilterModal((prev) => !prev)}
               class="form-select flex w-fit items-center gap-1 bg-hn text-xs"
             >
-              Author Filters
+              Author/Site Filters
               <FaSolidChevronDown size={10} />
             </button>
           </div>
@@ -411,6 +415,102 @@ export default function Filters(props: FiltersProps) {
                   </div>
                 )}
               </For>
+              <div class="h-0.5 bg-stone-300" />
+              <label for="matchAnySiteURLs">Any of the following sites:</label>
+              <div class="flex items-center gap-2 border border-stone-300 bg-hn px-1 py-0.5 focus:border-black">
+                <input
+                  id="matchAnySiteURLs"
+                  class="form-input border-none bg-transparent text-zinc-600 focus:border-none focus:outline-none focus:ring-0"
+                  type="text"
+                  placeholder="Site URL"
+                  value={props.matchAnySiteURLs().join(",")}
+                  onInput={(e) =>
+                    props.setMatchAnySiteURLs(e.currentTarget.value.split(","))
+                  }
+                  onFocus={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid black";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid #d2d6dc";
+                  }}
+                />
+                <button
+                  class="rounded-full border border-stone-300 bg-hn px-2 py-0.5 hover:border-black"
+                  onClick={() => {
+                    props.setMatchAnySiteURLs([]);
+                  }}
+                >
+                  +
+                </button>
+                <For each={props.matchAnySiteURLs()}>
+                  {(site) => (
+                    <div class="flex items-center gap-2">
+                      <p>{site}</p>
+                      <button
+                        class="rounded-full border border-stone-300 bg-hn px-2 py-0.5 hover:border-black"
+                        onClick={() => {
+                          props.setMatchAnySiteURLs((prev) =>
+                            prev.filter((a) => a !== site),
+                          );
+                        }}
+                      >
+                        -
+                      </button>
+                    </div>
+                  )}
+                </For>
+              </div>
+              <div class="h-0.5 bg-stone-300" />
+              <label for="matchNoneSiteURLs">
+                None of the following sites:
+              </label>
+              <div class="flex items-center gap-2 border border-stone-300 bg-hn px-1 py-0.5 focus:border-black">
+                <input
+                  id="matchNoneSiteURLs"
+                  class="form-input border-none bg-transparent text-zinc-600 focus:border-none focus:outline-none focus:ring-0"
+                  type="text"
+                  placeholder="Site URL"
+                  value={props.matchNoneSiteURLs().join(",")}
+                  onInput={(e) =>
+                    props.setMatchNoneSiteURLs(e.currentTarget.value.split(","))
+                  }
+                  onFocus={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid black";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.parentElement!.style.border =
+                      "1px solid #d2d6dc";
+                  }}
+                />
+                <button
+                  class="rounded-full border border-stone-300 bg-hn px-2 py-0.5 hover:border-black"
+                  onClick={() => {
+                    props.setMatchNoneSiteURLs([]);
+                  }}
+                >
+                  +
+                </button>
+                <For each={props.matchNoneSiteURLs()}>
+                  {(site) => (
+                    <div class="flex items-center gap-2">
+                      <p>{site}</p>
+                      <button
+                        class="rounded-full border border-stone-300 bg-hn px-2 py-0.5 hover:border-black"
+                        onClick={() => {
+                          props.setMatchNoneSiteURLs((prev) =>
+                            prev.filter((a) => a !== site),
+                          );
+                        }}
+                      >
+                        -
+                      </button>
+                    </div>
+                  )}
+                </For>
+              </div>
             </div>
           </Show>
         </div>

@@ -391,10 +391,21 @@ export const AdvancedSearchSyntax = () => {
             </li>
             <li>
               Use <code>author:USERNAME</code> or <code>by:USERNAME</code> to
-              filter by author,
+              only show results from a particular author(s),
             </li>
             <li>
-              Use <code>story:ID</code> to filter by story,
+              Use <code>author:-USERNAME</code> or <code>by:-USERNAME</code> to
+              exclude particular author(s),
+            </li>
+            <li>
+              Use <code>site:WEBSITE</code> to only show results from a
+              particular website(s),
+            </li>
+            <li>
+              Use <code>site:-WEBSITE</code> to exclude particular website(s),
+            </li>
+            <li>
+              Use <code>story:ID</code> to filter by story ID,
             </li>
             <li>
               Use <code>points&gt;NUMBER</code> or <code>points&lt;NUMBER</code>{" "}
@@ -403,6 +414,11 @@ export const AdvancedSearchSyntax = () => {
             <li>
               Use <code>comments&gt;NUMBER</code> or{" "}
               <code>comments&lt;NUMBER</code> to filter by number of comments,
+            </li>
+            <li>
+              While boolean search is not directly supported, you can use
+              keyword search (all terms OR'd together with BM25 scoring)
+              combined with the <code>"</code> operator to AND certain terms.
             </li>
           </ul>
         </>

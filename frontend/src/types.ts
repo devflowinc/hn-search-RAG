@@ -97,6 +97,8 @@ export interface GetFiltersParams {
   selectedStoryType: string | null;
   matchAnyAuthorNames: string[] | null;
   matchNoneAuthorNames: string[] | null;
+  matchAnySiteNames: string[] | null;
+  matchNoneSiteNames: string[] | null;
   gtStoryPoints: number | null;
   ltStoryPoints: number | null;
   gtStoryComments: number | null;
@@ -109,6 +111,8 @@ export const getFilters = ({
   selectedStoryType,
   matchAnyAuthorNames,
   matchNoneAuthorNames,
+  matchAnySiteNames,
+  matchNoneSiteNames,
   gtStoryPoints,
   ltStoryPoints,
   gtStoryComments,
@@ -124,6 +128,16 @@ export const getFilters = ({
     mustFilters.push({
       field: "tag_set",
       match_any: matchAnyAuthorNames,
+    });
+  }
+  if (
+    matchAnySiteNames &&
+    matchAnySiteNames.length > 0 &&
+    matchAnySiteNames[0] !== ""
+  ) {
+    mustFilters.push({
+      field: "tag_set",
+      match_any: matchAnySiteNames,
     });
   }
   if (dateRange) {
@@ -148,6 +162,16 @@ export const getFilters = ({
     mustNotFilters.push({
       field: "tag_set",
       match_any: matchNoneAuthorNames,
+    });
+  }
+  if (
+    matchNoneSiteNames &&
+    matchNoneSiteNames.length > 0 &&
+    matchNoneSiteNames[0] !== ""
+  ) {
+    mustNotFilters.push({
+      field: "tag_set",
+      match_any: matchNoneSiteNames,
     });
   }
 
