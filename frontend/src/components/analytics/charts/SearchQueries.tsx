@@ -81,7 +81,6 @@ export const SearchQueries = (props: SearchQueriesProps) => {
 
   return (
     <ChartCard
-      title="All Search Queries"
       class="flex flex-col px-4"
       width={2}
       tooltipText="Autocomplete search-as-you-type sub-sentences are collapsed on a 10-minute interval. Queries which are a substring of another query which occurred within 30 seconds are collapsed into the longest parent query. At most 10 queries are collapsed into a single parent."
