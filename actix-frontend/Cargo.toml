@@ -1,0 +1,10 @@
+[package]
+name = "hn-discovery-webserver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-files = "0.6.6"
+actix-web = "4.9.0"
+minijinja = "2.1.2"
+trieve-client = "0.11.7"
