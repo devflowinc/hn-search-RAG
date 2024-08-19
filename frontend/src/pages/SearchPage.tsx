@@ -636,7 +636,7 @@ export const SearchPage = () => {
       sort_by_field = undefined;
     }
 
-    const reqBody = {
+    const reqBody: any = {
       query: queryFiltersRemoved(),
       search_type:
         searchType() === "autocomplete"
@@ -798,6 +798,11 @@ export const SearchPage = () => {
     if (searchType() === "autocomplete") {
       apiPath = "autocomplete";
     }
+    if (searchType() === "semantic") {
+      apiPath = "autocomplete";
+      reqBody["extend_results"] = true;
+    }
+
     fetch(`${trieveBaseURL}/chunk/${apiPath}`, {
       method: "POST",
       body: JSON.stringify(reqBody),
