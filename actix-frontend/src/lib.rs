@@ -1,8 +1,18 @@
 use actix_cors::Cors;
-use actix_web::{get, middleware::Compress, web, App, HttpServer};
+use actix_web::{
+    get,
+    middleware::Compress,
+    web::{self, Data},
+    App, HttpServer,
+};
 use handlers::search_handler;
+use minijinja::Environment;
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
+
+use crate::handlers::page_handler;
+
+type Templates<'a> = Data<Environment<'a>>;
 
 pub mod handlers;
 
@@ -47,13 +57,19 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 
 pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
-        HttpServer::new(|| {
+        HttpServer::new(move || {
+            // Load templates
+            let mut env = Environment::new();
+            minijinja_embed::load_templates!(&mut env);
+
             App::new()
+                .app_data(web::Data::new(env))
                 .wrap(Cors::permissive())
                 .wrap(Compress::default())
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .service(get_openapi_spec_handler)
                 .service(search_handler::search)
+                .service(page_handler::homepage)
         })
         .bind(("0.0.0.0", 9000))?
         .run()
