@@ -1,4 +1,5 @@
-use actix_web::{get, web, App, HttpServer};
+use actix_cors::Cors;
+use actix_web::{get, middleware::Compress, web, App, HttpServer};
 use handlers::search_handler;
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
@@ -48,6 +49,8 @@ pub fn main() -> std::io::Result<()> {
     actix_web::rt::System::new().block_on(async move {
         HttpServer::new(|| {
             App::new()
+                .wrap(Cors::permissive())
+                .wrap(Compress::default())
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .service(get_openapi_spec_handler)
                 .service(search_handler::search)
