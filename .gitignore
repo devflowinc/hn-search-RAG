@@ -1,2 +1,4 @@
+.env
+target
+node_modules
 frontend/dist
-actix-frontend/target
