@@ -12,7 +12,9 @@ minijinja = { version = "2.1.2", features = ["loader"] }
 trieve-client = "0.11.7"
 actix-cors = "0.7.0"
 minijinja-embed = "2.1.2"
-serde = { version = "1.0.208", features = ["derive"]}
+serde = { version = "1.0.208", features = ["derive"] }
+dotenvy = "0.15.7"
+reqwest = "0.11.27"
 
 [build-dependencies]
 minijinja-embed = "2.1.2"

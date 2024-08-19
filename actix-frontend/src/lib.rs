@@ -8,6 +8,7 @@ use actix_web::{
 };
 use handlers::search_handler;
 use minijinja::Environment;
+use reqwest::ClientBuilder;
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
 
@@ -57,6 +58,12 @@ pub async fn get_openapi_spec_handler() -> impl actix_web::Responder {
 }
 
 pub fn main() -> std::io::Result<()> {
+    dotenvy::dotenv().ok();
+
+    let trieve_reqwest_client = ClientBuilder::new()
+        .build()
+        .expect("Failed to create reqwest client");
+
     actix_web::rt::System::new().block_on(async move {
         HttpServer::new(move || {
             // Load templates
@@ -67,6 +74,7 @@ pub fn main() -> std::io::Result<()> {
                 .app_data(web::Data::new(env))
                 .wrap(Cors::permissive())
                 .wrap(Compress::default())
+                .app_data(web::Data::new(trieve_reqwest_client.clone()))
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .service(get_openapi_spec_handler)
                 .service(search_handler::search)
