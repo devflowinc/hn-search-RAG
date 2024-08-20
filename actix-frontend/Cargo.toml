@@ -11,10 +11,11 @@ actix-web = "4.9.0"
 minijinja = { version = "2.1.2", features = ["loader"] }
 trieve-client = "0.11.7"
 actix-cors = "0.7.0"
-minijinja-embed = "2.1.2"
 serde = { version = "1.0.208", features = ["derive"] }
 dotenvy = "0.15.7"
 reqwest = "0.11.27"
+regex = "1.10.6"
+chrono = "0.4.38"
 
 [build-dependencies]
 minijinja-embed = "2.1.2"
