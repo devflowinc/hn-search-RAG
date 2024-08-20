@@ -1,11 +1,11 @@
 {% extends "index.html" %}
 {% block body %}
-<form action="/" method="post">
+<form action="/">
   {% include "components/filterbar.html" %}
 </form>
 
 {% if query %}
-<div>Your query: {{ query }}</div>
+<div class="p-8 font-bold">Your query: {{ query }}</div>
 {% endif %}
 
 {% endblock %}

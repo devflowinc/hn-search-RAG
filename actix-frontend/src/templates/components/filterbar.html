@@ -1,6 +1,7 @@
 <div class="flex items-center gap-2 p-2">
   <div class="w-[1130px]:justify-start flex flex-wrap items-center justify-end gap-2 text-black"><span>Search</span>
-    <div><label for="stories" class="sr-only">Stories</label><select name="post_type" id="type"
+    <div>
+      <label for="stories" class="sr-only">Stories</label><select name="post_type" id="type"
         class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
         <option value="all">All</option>
         <option selected="" value="story">Stories</option>
@@ -9,7 +10,8 @@
         <option value="show">Show HN</option>
         <option value="job">Jobs</option>
         <option value="poll">Polls</option>
-      </select></div><span>by</span>
+      </select>
+    </div><span>by</span>
     <div><label for="popularity" class="sr-only">Popularity</label><select name="sort_by" id="popularity"
         class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
         <option>Relevance</option>
