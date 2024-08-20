@@ -1,2 +1,3 @@
 frontend/dist
 actix-frontend/target
+actix-frontend/static/output.css
