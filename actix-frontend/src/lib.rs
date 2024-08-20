@@ -72,6 +72,7 @@ pub fn main() -> std::io::Result<()> {
                 .service(search_handler::search)
                 .service(page_handler::homepage)
                 .service(page_handler::about)
+                .service(page_handler::help)
                 .service(Files::new("/static", "./static"))
         })
         .bind(("0.0.0.0", 9000))?

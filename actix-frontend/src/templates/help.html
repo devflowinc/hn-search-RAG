@@ -1,0 +1,97 @@
+{% extends "index.html" %}
+{% block body %}
+<div class="my-6 flex flex-col gap-y-5">
+  <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+    <h3 class="mb-1"><button
+        class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+        <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+            style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+          </svg></p>
+        <p>Advanced search syntax</p>
+      </button></h3>
+    <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+      <ul>
+        <li><code>"</code> to match a particular sequence of terms <code>"search engine"</code></li>
+        <li><code>-</code> to ensure a word won't appear in the result set <code>search -optimization</code>,</li>
+        <li><code>author:USERNAME</code> or <code>by:USERNAME</code> to only show results from a particular author(s),
+        </li>
+        <li><code>author:-USERNAME</code> or <code>by:-USERNAME</code> to exclude particular author(s),</li>
+        <li><code>site:WEBSITE</code> to only show results from a particular website(s),</li>
+        <li><code>site:-WEBSITE</code> to exclude particular website(s),</li>
+        <li><code>story:ID</code> to filter by story ID,</li>
+        <li><code>points&gt;NUMBER</code> or <code>points&lt;NUMBER</code> to filter by points,</li>
+        <li><code>comments&gt;NUMBER</code> or <code>comments&lt;NUMBER</code> to filter by number of comments,</li>
+        <li><code>OR</code> can be done with the keyword search mode (all terms OR'd together with BM25 scoring)
+          combined with the <code>"</code> operator to require certain terms.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+    <h3 class="mb-1"><button
+        class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+        <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+            style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+          </svg></p>
+        <p>Using the search modes</p>
+      </button></h3>
+    <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+      <p>There aren't specific strings of words (AKA search queries) which you should use for fulltext and not semantic
+        search. Really, it's about the type of results you want to see. Here's an explanation of what the search index
+        will do in different modes with a query like "React vs. SolidJS":</p>
+      <div class="flex flex-col gap-y-2 pl-2">
+        <p>- <u><b>Fulltext</b>:</u> There are 6 tokens in the query: "React", "vs.", "JS", "Solid", and "SolidJS".
+          Fulltext is powered by a neural net called SPLADE which will rank these tokens by importance in the order:
+          "SolidJS", "React", "vs.", "Solid", "JS". It will then return results which have tokens biasing towards the
+          front of the list. It understands that you want documents with "SolidJS" and "React", but it doesn't
+          understand that you specifically want results comparing them. Therefore, it may return documents mentioning
+          "React" and "SolidJS" in random, seemingly unrelated contexts.</p>
+        <p>- <u><b>Semantic</b>:</u> In this mode, the query "React vs. SolidJS" will be transformed into a vector
+          (array of floating point numbers) which represents the meaning of the query. The search index will then return
+          documents which are closest to this vector. The vector will reflect that you want documents about comparing
+          "React" and "SolidJS", but also comparisons and JS frameworks in general. Understandably, the search results
+          may rank documents comparing "Vue" and "Angular" higher than a doc talking about "SolidJS performance".</p>
+        <p>- <u><b>Hybrid</b></u> search performs both a fulltext and semantic search then ranks the results with a
+          cross-encoder (bge-large-en re-reranker) to merge them. Usually, it's the best of both words, but it can take
+          500+ms to return results and is therefore not the default search method.</p>
+        <p>- <u><b>Keyword</b></u> search takes the tokens for the query — React", "vs.", and "SolidJS" — OR'ed together
+          and returns results which have at least one matching token sorted by BM25 scores. There is some bias towards
+          tokens which are less present in the dataset overall, but no understanding of the meaning of the query.</p>
+        <p>- <u><b>Autocomplete</b></u> matches the query against prefix expansions of the tokens in each of the
+          documents in the search index with a filter for a prefix expanded version being present for all terms in the
+          query like an AND for all terms. "React" in a document will match "Rea" in the query. Results matching the
+          filter are then ranked by SPLADE token frequency scoring.</p>
+        <p>- Click on the advanced button for low-level control over ranking, highlights, and more. Check out our <a
+            class="underline" href="https://docs.trieve.ai/api-reference/chunk/search" target="_blank">API Docs for the
+            search endpoint</a> for more information.</p>
+      </div>
+    </div>
+  </div>
+  <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+    <h3 class="mb-1"><button
+        class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+        <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+            style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+          </svg></p>
+        <p>Contact Us</p>
+      </button></h3>
+    <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+      <p>Email: <a class="underline" href="mailto:humans@trieve.ai">humans@trieve.ai</a></p>
+      <p>𝕏: <a class="underline" href="https://x.com/trieveai">@trieveai</a></p>
+      <p><svg stroke-width="2" color="currentColor" style="overflow: visible;" fill="none" stroke="currentColor"
+          stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="inline-block h-4 w-4" height="1em"
+          width="1em" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+          <path d="M2 9H6V21H2z"></path>
+          <path d="M4 2A2 2 0 1 0 4 6 2 2 0 1 0 4 2z"></path>
+        </svg>: <a class="underline" href="https://www.linkedin.com/company/trieveai">linkedin.com/company/trieveai</a>
+      </p>
+      <p>Discord: <a class="underline" href="https://discord.gg/eBJXXZDB8z">discord.gg/eBJXXZDB8z</a></p>
+      <p>Matrix: <a class="underline"
+          href="https://matrix.to/#/#trieve-general:trieve.ai">matrix.to/#/#trieve-general:trieve.ai</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
