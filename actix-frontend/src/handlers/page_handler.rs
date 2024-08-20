@@ -25,9 +25,13 @@ pub async fn help(templates: Templates<'_>) -> impl actix_web::Responder {
     HttpResponse::Ok().body(response_body)
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct SearchFormData {
     pub query: String,
+    pub post_type: String,
+    pub sort_by: String,
+    pub date_range: String,
+    pub search_type: String,
 }
 
 #[post("/")]
@@ -36,6 +40,8 @@ pub async fn post(
     form_data: actix_web::web::Form<SearchFormData>,
 ) -> impl actix_web::Responder {
     let templ = templates.get_template("homepage.html").unwrap();
+
+    println!("Form data: {:?}", form_data);
 
     let response_body = templ
         .render(context! {
