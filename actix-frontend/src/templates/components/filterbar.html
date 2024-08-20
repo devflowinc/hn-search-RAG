@@ -1,0 +1,85 @@
+<div class="flex items-center gap-2 p-2">
+  <div class="w-[1130px]:justify-start flex flex-wrap items-center justify-end gap-2 text-black"><span>Search</span>
+    <div><label for="stories" class="sr-only">Stories</label><select id="stories"
+        class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
+        <option value="all">All</option>
+        <option selected="" value="story">Stories</option>
+        <option value="comment">Comments</option>
+        <option value="ask">Ask HN</option>
+        <option value="show">Show HN</option>
+        <option value="job">Jobs</option>
+        <option value="poll">Polls</option>
+      </select></div><span>by</span>
+    <div><label for="popularity" class="sr-only">Popularity</label><select id="popularity"
+        class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
+        <option>Relevance</option>
+        <option>Popularity</option>
+        <option>Date</option>
+      </select></div><span>for</span>
+    <div class="flex-col"><label for="date-range" class="sr-only">Date Range</label>
+      <div>
+        <div class="date-picker-input-wrapper">
+          <div class="date-picker-input-area" data-scope="date-picker" data-part="control"
+            data-date-picker-input-area="true"><select id="date-range"
+              class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
+              <option value="all">All Time</option>
+              <option value="last24h">Last 24h</option>
+              <option value="pastWeek">Past Week</option>
+              <option value="pastMonth">Past Month</option>
+              <option value="pastYear">Past Year</option>
+              <option value="custom">Custom</option>
+            </select></div>
+        </div>
+      </div>
+    </div><span>using</span>
+    <div><select id="stories" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
+        <option selected="" value="hybrid">Hybrid</option>
+        <option value="semantic">Semantic</option>
+        <option value="fulltext">Fulltext</option>
+        <option value="keyword">Keyword</option>
+        <option value="autocomplete">Autocomplete</option>
+      </select></div>
+    <!--   <div class="relative"> -->
+    <!--     <div class="flex items-center gap-1"> -->
+    <!--       <div class="rounded-full w-3 h-3 text-[8px] text-center leading-[10px] pt-[1px] bg-stone-200 text-neutral-500">0 -->
+    <!--       </div><button class="form-select flex w-fit items-center gap-1 bg-hn text-xs">Author/Site Filters<svg -->
+    <!--           stroke-width="0" color="currentColor" fill="currentColor" style="overflow: visible;" viewBox="0 0 512 512" -->
+    <!--           size="10" height="10" width="10" xmlns="http://www.w3.org/2000/svg"> -->
+    <!--           <path -->
+    <!--             d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"> -->
+    <!--           </path> -->
+    <!--         </svg></button> -->
+    <!--     </div> -->
+    <!--   </div> -->
+    <!--   <div class="relative"> -->
+    <!--     <div class="flex items-center gap-1"> -->
+    <!--       <div class="rounded-full w-3 h-3 text-[8px] text-center leading-[10px] pt-[1px] bg-stone-200 text-neutral-500">0 -->
+    <!--       </div><button class="form-select flex w-fit items-center gap-1 bg-hn text-xs">Other Filters<svg stroke-width="0" -->
+    <!--           color="currentColor" fill="currentColor" style="overflow: visible;" viewBox="0 0 512 512" size="10" -->
+    <!--           height="10" width="10" xmlns="http://www.w3.org/2000/svg"> -->
+    <!--           <path -->
+    <!--             d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"> -->
+    <!--           </path> -->
+    <!--         </svg></button> -->
+    <!--     </div> -->
+    <!--   </div> -->
+    <!--   <div class="relative"><button class="form-select flex w-fit items-center gap-1 bg-hn text-xs">Advanced<svg -->
+    <!--         stroke-width="0" color="currentColor" fill="currentColor" style="overflow: visible;" viewBox="0 0 512 512" -->
+    <!--         size="10" height="10" width="10" xmlns="http://www.w3.org/2000/svg"> -->
+    <!--         <path -->
+    <!--           d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"> -->
+    <!--         </path> -->
+    <!--       </svg></button></div> -->
+  </div>
+</div>
+
+<div
+  class="mx-2 flex items-center justify-center rounded-md border border-stone-300 p-2 focus-within:border-stone-500 active:border-stone-500">
+  <svg stroke-width="0" color="currentColor" style="overflow: visible;" fill="none" stroke="currentColor"
+    viewBox="0 0 24 24" class="h-5 w-5 text-gray-500" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" fill-rule="evenodd"
+      d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+      clip-rule="evenodd"></path>
+  </svg><input name="query" type="text" id="primary-search-input"
+    class="ml-2 w-full bg-transparent focus:outline-none active:outline-none" placeholder="Search">
+</div>
