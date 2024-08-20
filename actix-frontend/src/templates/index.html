@@ -11,8 +11,35 @@
 </head>
 
 <body>
-  {% block body %}
-  {% endblock %}
+  <main class="mx-auto bg-[#F6F6F0] font-verdana text-[13.33px] sm:bg-hn md:m-2 md:mx-auto md:w-[85%]">
+    {% block navbar %}
+    <header class="flex min-h-[24px] items-center justify-between bg-[#ff6600] px-2 py-[2px]">
+      <div class="flex"><a class="flex items-center" href="/"><span class="pr-2"><img
+              src="https://cdn.trieve.ai/trieve-logo.png" alt="Trieve Logo"
+              class="h-[18px] w-[18px] border border-white"></span>
+          <div class="text-wrap"><span class="mr-[5px] font-bold">Trieve HN Discovery</span></div>
+        </a></div>
+      <div class="flex flex-wrap items-center"><a href="/" class="pr-1 hover:text-white hover:underline">Search</a><span
+          class="pr-1">|</span><a href="/chat" class="pr-1 hover:text-white hover:underline">AI Chat</a><span
+          class="pr-1">|</span><a href="/analytics" class="pr-1 hover:text-white hover:underline">Analytics</a><span
+          class="pr-1">|</span><a href="/about" class="pr-1 hover:text-white hover:underline">About</a><span
+          class="pr-1">|</span><a href="/help" class="pr-1 hover:text-white hover:underline">Help</a><span
+          class="pr-1">|</span><a href="https://news.ycombinator.com/"
+          class="pr-1 hover:text-white hover:underline">Front Page</a><span class="pr-1">|</span><a
+          class="flex items-center hover:text-white hover:underline" href="https://github.com/devflowinc/trieve"><svg
+            stroke-width="2" color="currentColor" style="overflow: visible;" fill="none" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="mr-0.5 h-3 w-3" height="1em"
+            width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+            </path>
+          </svg> Star Us</a></div>
+      <div class="z-100 fixed right-5 top-10 flex flex-col space-y-2 rounded"></div>
+    </header>
+    {% endblock %}
+    {% block body %}
+    {% endblock %}
+  </main>
 </body>
 
 </html>
