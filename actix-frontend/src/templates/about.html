@@ -1,0 +1,287 @@
+<div id="root">
+  <main class="mx-auto bg-[#F6F6F0] font-verdana text-[13.33px] sm:bg-hn md:m-2 md:mx-auto md:w-[85%]">
+    <header class="flex min-h-[24px] items-center justify-between bg-[#ff6600] px-2 py-[2px]">
+      <div class="flex"><a class="flex items-center" href="/"><span class="pr-2"><img
+              src="https://cdn.trieve.ai/trieve-logo.png" alt="Trieve Logo"
+              class="h-[18px] w-[18px] border border-white"></span>
+          <div class="text-wrap"><span class="mr-[5px] font-bold">Trieve HN Discovery</span></div>
+        </a></div>
+      <div class="flex flex-wrap items-center"><a href="/" class="pr-1 hover:text-white hover:underline">Search</a><span
+          class="pr-1">|</span><a href="/chat" class="pr-1 hover:text-white hover:underline">AI Chat</a><span
+          class="pr-1">|</span><a href="/analytics" class="pr-1 hover:text-white hover:underline">Analytics</a><span
+          class="pr-1">|</span><a href="/about" class="pr-1 hover:text-white hover:underline">About</a><span
+          class="pr-1">|</span><a href="/help" class="pr-1 hover:text-white hover:underline">Help</a><span
+          class="pr-1">|</span><a href="https://news.ycombinator.com/"
+          class="pr-1 hover:text-white hover:underline">Front Page</a><span class="pr-1">|</span><a
+          class="flex items-center hover:text-white hover:underline" href="https://github.com/devflowinc/trieve"><svg
+            stroke-width="2" color="currentColor" style="overflow: visible;" fill="none" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="mr-0.5 h-3 w-3" height="1em"
+            width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+            </path>
+          </svg> Star Us</a></div>
+      <div class="z-100 fixed right-5 top-10 flex flex-col space-y-2 rounded"></div>
+    </header>
+    <div class="my-6 flex flex-col gap-y-5">
+      <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+        <h3 class="mb-1"><button
+            class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+            <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+                style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+              </svg></p>
+            <p>What is Trieve?</p>
+          </button></h3>
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+          <p>Trieve is all-in-one infrastructure for search, recommendations, RAG, and analytics offered via API. We
+            also offer UI's for exploring your data and adjusting ranking and relevance.</p>
+          <p>Using SOTA search tech requires architecting and maintaining a large stack (vector inference, re-ranking,
+            ingest workers, delete workers, playgrounds, OLAP analytics db, etc.) around a search db. Trieve
+            consolidates all of this into a SaaS-style API or licenseable code with terraform and helm depending on your
+            preference and security requirements.</p>
+        </div>
+      </div>
+      <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+        <h3 class="mb-1"><button
+            class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+            <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+                style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+              </svg></p>
+            <p>Using the search modes</p>
+          </button></h3>
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+          <p>There aren't specific strings of words (AKA search queries) which you should use for fulltext and not
+            semantic search. Really, it's about the type of results you want to see. Here's an explanation of what the
+            search index will do in different modes with a query like "React vs. SolidJS":</p>
+          <div class="flex flex-col gap-y-2 pl-2">
+            <p>- <u><b>Fulltext</b>:</u> There are 6 tokens in the query: "React", "vs.", "JS", "Solid", and "SolidJS".
+              Fulltext is powered by a neural net called SPLADE which will rank these tokens by importance in the order:
+              "SolidJS", "React", "vs.", "Solid", "JS". It will then return results which have tokens biasing towards
+              the front of the list. It understands that you want documents with "SolidJS" and "React", but it doesn't
+              understand that you specifically want results comparing them. Therefore, it may return documents
+              mentioning "React" and "SolidJS" in random, seemingly unrelated contexts.</p>
+            <p>- <u><b>Semantic</b>:</u> In this mode, the query "React vs. SolidJS" will be transformed into a vector
+              (array of floating point numbers) which represents the meaning of the query. The search index will then
+              return documents which are closest to this vector. The vector will reflect that you want documents about
+              comparing "React" and "SolidJS", but also comparisons and JS frameworks in general. Understandably, the
+              search results may rank documents comparing "Vue" and "Angular" higher than a doc talking about "SolidJS
+              performance".</p>
+            <p>- <u><b>Hybrid</b></u> search performs both a fulltext and semantic search then ranks the results with a
+              cross-encoder (bge-large-en re-reranker) to merge them. Usually, it's the best of both words, but it can
+              take 500+ms to return results and is therefore not the default search method.</p>
+            <p>- <u><b>Keyword</b></u> search takes the tokens for the query — React", "vs.", and "SolidJS" — OR'ed
+              together and returns results which have at least one matching token sorted by BM25 scores. There is some
+              bias towards tokens which are less present in the dataset overall, but no understanding of the meaning of
+              the query.</p>
+            <p>- <u><b>Autocomplete</b></u> matches the query against prefix expansions of the tokens in each of the
+              documents in the search index with a filter for a prefix expanded version being present for all terms in
+              the query like an AND for all terms. "React" in a document will match "Rea" in the query. Results matching
+              the filter are then ranked by SPLADE token frequency scoring.</p>
+            <p>- Click on the advanced button for low-level control over ranking, highlights, and more. Check out our <a
+                class="underline" href="https://docs.trieve.ai/api-reference/chunk/search" target="_blank">API Docs for
+                the search endpoint</a> for more information.</p>
+          </div>
+        </div>
+      </div>
+      <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+        <h3 class="mb-1"><button
+            class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+            <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+                style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+              </svg></p>
+            <p>Why Make This?</p>
+          </button></h3>
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+          <p>1. Dense vector semantic search, re-rankers, SPLADE, and other techniques have gotten a lot of hype
+            recently, but it's hard to figure out where each technique is best applied. We're hackers and built hacker'y
+            features into Trieve to make it easier to test and experiment with this new tech, and needed a dataset us
+            and our friends would have knowledge of to mess with. We're hoping to build lots of cool shareable projects
+            on top of this demo to learn and collect feedback with.</p>
+          <p>2. Make HN search more explorable with recommendations plus RAG and more open with public analytics. We
+            added a feedback button under the search bar and are collecting CTR data such that we can continously
+            fine-tune our models to improve the search experience. If you have some time, try out our <a
+              class="underline" href="https://hn-comparison.trieve.ai">blind comparison at hn-comparison.trieve.ai</a>
+            to help us collect higher quality training data.</p>
+          <p>3. Open up a more fully-featured discovery API for others who want to build on top of HN data. The firebase
+            HN API is great, but storing all the data yourself is expensive and time-consuming. We are hoping to lower
+            that barrier in the old <a class="underline" href="https://news.ycombinator.com/item?id=2619892">Octopart
+              HNSearch spirit</a>.</p>
+          <p>4. Show what's possible with Trieve, work out scaling/stability bugs, and pressure test.</p>
+          <p>5. HN is a cool place where we like to spend time and showing what we are working on to this community we
+            feel apart is something we're excited about!</p>
+        </div>
+      </div>
+      <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+        <h3 class="mb-1"><button
+            class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+            <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+                style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+              </svg></p>
+            <p>How Hard was it to Build This?</p>
+          </button></h3>
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+          <p>It was moderately difficult. You can see from the repo that our <a class="underline"
+              href="https://github.com/devflowinc/trieve-hn-discovery/commits/main/?after=60a4f4049c47eeb97d25c971b996408d3f5a794a+104">first
+              commit to the repo for this project</a> was early in our YC batch in Feb 2024. Took us 5 months to get
+            Trieve stable enough to handle ingesting and storing all the HN data then 1 more to polish this webapp. It
+            feels awesome to finally have this up and running.</p>
+          <p>The painful portion was that unique one-off work was required for the frontend and ingest of this demo; it
+            took 100+ commits. The AI Chat RAG bit could be higher quality, but for now we just copied the code from our
+            RAG playground at <a class="underline" href="https://chat.trieve.ai">chat.trieve.ai</a>.</p>
+          <p>We punted on some frontend for CTR analytics, advanced recommendations, and the "Add to AI Context"
+            functionality similar to what Exa offers due to time bounds. We'll add those features if this demo gets
+            traction and people use it.</p>
+          <p>Tons of respect to the Algolia folks for building such a great building HN search experience and
+            maintaining it for over a decade. It's not easy.</p>
+        </div>
+      </div>
+      <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+        <h3 class="mb-1"><button
+            class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+            <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+                style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+              </svg></p>
+            <p>Where's the Code?</p>
+          </button></h3>
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+          <p>Demo itself is open source at <a class="underline"
+              href="https://github.com/devflowinc/trieve-hn-discovery">github.com/devflowinc/trieve-hn-discovery</a>
+            although <a class="underline" href="https://github.com/devflowinc/trieve">Trieve</a> is only source
+            available.</p>
+          <p>Within the <a class="underline"
+              href="https://github.com/devflowinc/trieve-hn-discovery">trieve-hn-discovery repo</a> there are two
+            important folders: <a class="underline"
+              href="https://github.com/devflowinc/trieve-hn-discovery/tree/main/hackernews-ingest">hackernews-ingest</a>
+            and <a class="underline"
+              href="https://github.com/devflowinc/trieve-hn-discovery/tree/main/frontend">frontend</a> . Respectively,
+            they contain the code for getting data from the <a class="underline"
+              href="https://hacker-news.firebaseio.com/v0/">firebase HN API</a> and sending it to the Trieve API, and
+            the code for the SolidJS SPA you see at this URL.</p>
+        </div>
+      </div>
+      <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+        <h3 class="mb-1"><button
+            class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+            <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+                style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+              </svg></p>
+            <p>How Much Does it Cost to Run This Per Month?</p>
+          </button></h3>
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-left">Machine Type</th>
+                <th class="text-left">vCPUs/ RAM (GB)</th>
+                <th class="text-left">Cost/Month</th>
+                <th class="text-left">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1x g2-standard-4</td>
+                <td>32cpu 256GB + T4 GPU</td>
+                <td>$508.90</td>
+                <td>Text-Embeddings-Inference Servers</td>
+              </tr>
+              <tr>
+                <td>4x c2d-highmem-32</td>
+                <td>32cpu 256GB</td>
+                <td>$5,643.36</td>
+                <td>4 node Qdrant Cluster (2x Replication)</td>
+              </tr>
+              <tr>
+                <td>1x e2-highcpu-4</td>
+                <td>4cpu 4GB</td>
+                <td>$72.23</td>
+                <td>Trieve Services</td>
+              </tr>
+              <tr>
+                <td>100gb Enterprise Plus Cloud SQL</td>
+                <td>2cpu 16GB</td>
+                <td>$513.90</td>
+                <td>Postgres OLTP Server</td>
+              </tr>
+              <tr>
+                <td>5gb Redis</td>
+                <td>2cpu 16GB</td>
+                <td>$97.20</td>
+                <td>Redis Cache</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="mt-0.5 font-semibold">Total: $6835.39/month.</p>
+          <p>Most of the cost is from storing the dense text embeddings in Qdrant. SPLADE is typically better for
+            search, but the dense vectors work significantly better for recommendations and are cool to show
+            functionality of. If recommendations don't get much usage, we will probably drop the dense vectors to
+            decrease costs.</p>
+        </div>
+      </div>
+      <div class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]">
+        <h3 class="mb-1"><button
+            class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]">
+            <p class="mr-2 block w-3"><svg stroke-width="0" color="currentColor" fill="currentColor"
+                style="overflow: visible;" viewBox="0 0 24 24" height="1em" width="1em"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="m6.293 13.293 1.414 1.414L12 10.414l4.293 4.293 1.414-1.414L12 7.586z"></path>
+              </svg></p>
+            <p>Contact Us</p>
+          </button></h3>
+        <div class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]">
+          <p>Email: <a class="underline" href="mailto:humans@trieve.ai">humans@trieve.ai</a></p>
+          <p>𝕏: <a class="underline" href="https://x.com/trieveai">@trieveai</a></p>
+          <p><svg stroke-width="2" color="currentColor" style="overflow: visible;" fill="none" stroke="currentColor"
+              stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="inline-block h-4 w-4"
+              height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+              <path d="M2 9H6V21H2z"></path>
+              <path d="M4 2A2 2 0 1 0 4 6 2 2 0 1 0 4 2z"></path>
+            </svg>: <a class="underline"
+              href="https://www.linkedin.com/company/trieveai">linkedin.com/company/trieveai</a></p>
+          <p>Discord: <a class="underline" href="https://discord.gg/eBJXXZDB8z">discord.gg/eBJXXZDB8z</a></p>
+          <p>Matrix: <a class="underline"
+              href="https://matrix.to/#/#trieve-general:trieve.ai">matrix.to/#/#trieve-general:trieve.ai</a></p>
+        </div>
+      </div>
+    </div>
+    <header class="flex min-h-[24px] items-center justify-center border-t border-[#ff6600] px-2 py-[2px]">
+      <div class="flex flex-wrap items-center justify-center py-4 text-[8pt]"><a
+          class="flex items-center hover:underline" href="https://github.com/devflowinc/trieve"><svg stroke-width="2"
+            color="currentColor" style="overflow: visible;" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24" class="mr-0.5 h-3 w-3" height="1em" width="1em"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+            </path>
+          </svg> Star Us</a><span class="px-1">|</span><a class="flex items-center hover:underline"
+          href="https://discord.gg/eBJXXZDB8z">Discord</a><span class="px-1">|</span><a
+          class="flex items-center hover:underline" href="https://matrix.to/#/#trieve-general:trieve.ai">Matrix</a><span
+          class="px-1">|</span><a class="flex items-center hover:underline"
+          href="mailto:humans@trieve.ai">humans@trieve.ai</a><span class="px-1">|</span><a
+          href="https://dashboard.trieve.ai" class="hover:underline">Get Started with Trieve (1k chunks free)</a><span
+          class="px-1">|</span><a href="https://docs.trieve.ai" class="hover:underline">Docs</a><span
+          class="px-1">|</span><a href="https://x.com/trieveai" class="hover:underline">𝕏</a><span
+          class="px-1">|</span><a href="https://www.linkedin.com/company/trieveai" class="hover:underline"><svg
+            stroke-width="0" color="currentColor" fill="currentColor" style="overflow: visible;" baseProfile="tiny"
+            version="1.2" viewBox="0 0 24 24" class="h-3 w-3" height="1em" width="1em"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M8 19H5V9h3v10zm11 0h-3v-5.342c0-1.392-.496-2.085-1.479-2.085-.779 0-1.273.388-1.521 1.165V19h-3s.04-9 0-10h2.368l.183 2h.062c.615-1 1.598-1.678 2.946-1.678 1.025 0 1.854.285 2.487 1.001.637.717.954 1.679.954 3.03V19z">
+            </path>
+            <path d="M6.5 5A1.55 1.5 0 1 0 6.5 8 1.55 1.5 0 1 0 6.5 5z"></path>
+          </svg></a><span class="px-1">|</span><span>38,022,984 items in index</span></div>
+    </header>
+  </main>
+</div>
