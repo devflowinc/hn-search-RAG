@@ -71,6 +71,7 @@ pub fn main() -> std::io::Result<()> {
                 .service(get_openapi_spec_handler)
                 .service(search_handler::search)
                 .service(page_handler::homepage)
+                .service(page_handler::about)
                 .service(Files::new("/static", "./static"))
         })
         .bind(("0.0.0.0", 9000))?
