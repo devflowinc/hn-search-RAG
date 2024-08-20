@@ -747,6 +747,7 @@ dependencies = [
  "actix-web",
  "minijinja",
  "minijinja-embed",
+ "serde",
  "trieve-client",
  "utoipa",
  "utoipa-redoc",
