@@ -8,6 +8,7 @@ utoipa = { version = "4.2", features = ["actix_extras"] }
 utoipa-redoc = { version = "4.0", features = ["actix-web"] }
 actix-files = "0.6.6"
 actix-web = "4.9.0"
+minijinja-embed = "2.1.2"
 minijinja = { version = "2.1.2", features = ["loader"] }
 trieve-client = "0.11.7"
 actix-cors = "0.7.0"

@@ -1,10 +1,18 @@
 use actix_web::{get, web, HttpResponse};
 use chrono::{NaiveDate, Utc};
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 use trieve_client::{
-    apis::configuration::{ApiKey, Configuration},
-    models::{self, ConditionType, FieldCondition, MatchCondition},
+    apis::{
+        chunk_api::search_chunks,
+        configuration::{ApiKey, Configuration},
+    },
+    models::{
+        self, ConditionType, FieldCondition, HasIdCondition, HighlightOptions, MatchCondition,
+        SearchChunksReqPayload, SearchResponseTypes, SortOrder,
+    },
 };
+use utoipa::ToSchema;
 
 pub fn get_trieve_config(trieve_client: reqwest::Client) -> Configuration {
     let trieve_api_url = std::env::var("TRIEVE_API_URL").expect("TRIEVE_API_URL must be set");
@@ -294,15 +302,9 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
         cleaned_query = cleaned_query.replace(story_id, "");
         let story_id = story_id.replace("id:", "");
 
-        must_filters.push(ConditionType::FieldCondition(Box::new(FieldCondition {
-            field: "tag_set".to_string(),
-            match_any: None,
-            date_range: None,
-            geo_bounding_box: None,
-            geo_polygon: None,
-            geo_radius: None,
-            match_all: Some(Some(vec![MatchCondition::String(story_id.to_string())])),
-            range: None,
+        must_filters.push(ConditionType::HasIdCondition(Box::new(HasIdCondition {
+            ids: None,
+            tracking_ids: Some(Some(vec![story_id.to_string()])),
         })));
     }
 
@@ -331,6 +333,15 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     }
 }
 
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
+pub struct SearchQueryParams {
+    pub q: String,
+    pub page: Option<i64>,
+    pub page_size: Option<i64>,
+    pub order_by: Option<String>,
+    pub search_type: Option<String>,
+}
+
 /// Search Hacker News
 ///
 /// Q query param is required for search and can include inline filters. Other query params are optional.
@@ -343,14 +354,103 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     ),
     params(
         ("q" = String, Query, description = "Search query with inline filters"),
-        ("page" = Option<i32>, Query, description = "Page number"),
-        ("page_size" = Option<i32>, Query, description = "Number of items per page"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("page_size" = Option<i64>, Query, description = "Number of items per page"),
         ("order_by" = Option<String>, Query, description = "Order by field"),
+        ("search_type" = Option<String>, Query, description = "`fulltext`, `semantic`, `hybrid`, or `keyword` for the search type")
     )
 )]
 #[get("/search")]
-pub async fn search(trieve_client: web::Data<reqwest::Client>) -> impl actix_web::Responder {
+pub async fn search(
+    trieve_client: web::Data<reqwest::Client>,
+    query_params: web::Query<SearchQueryParams>,
+) -> impl actix_web::Responder {
+    let dataset_id =
+        std::env::var("TRIEVE_DATASET_ID").expect("TRIEVE_DATASET_ID env must be present");
     let trieve_config = get_trieve_config(trieve_client.get_ref().clone());
+    let parsed_query = parse_search_payload_params(query_params.q.clone());
+    let search_method = match query_params.search_type.clone() {
+        Some(search_type) => match search_type.as_str() {
+            "fulltext" => models::SearchMethod::Fulltext,
+            "semantic" => models::SearchMethod::Semantic,
+            "hybrid" => models::SearchMethod::Hybrid,
+            "keyword" => models::SearchMethod::Bm25,
+            _ => models::SearchMethod::Fulltext,
+        },
+        _ => models::SearchMethod::Fulltext,
+    };
 
-    HttpResponse::Ok().body("search")
+    let search_results = search_chunks(
+        &trieve_config,
+        &dataset_id,
+        SearchChunksReqPayload {
+            content_only: None,
+            filters: Some(Some(Box::new(models::ChunkFilter {
+                must: Some(Some(parsed_query.must_filters)),
+                must_not: Some(Some(parsed_query.must_not_filters)),
+                jsonb_prefilter: Some(Some(false)),
+                should: None,
+            }))),
+            get_total_pages: None,
+            highlight_options: Some(Some(Box::new(HighlightOptions {
+                highlight_results: Some(Some(true)),
+                highlight_strategy: Some(Some(models::HighlightStrategy::Exactmatch)),
+                highlight_delimiters: Some(Some(vec![
+                    " ".to_string(),
+                    "-".to_string(),
+                    "_".to_string(),
+                    ".".to_string(),
+                    ",".to_string(),
+                ])),
+                highlight_threshold: Some(Some(0.85)),
+                highlight_max_num: Some(Some(50)),
+                highlight_window: Some(Some(0)),
+                highlight_max_length: Some(Some(50)),
+            }))),
+            page: Some(Some(query_params.page.unwrap_or(30))),
+            page_size: Some(Some(query_params.page_size.unwrap_or(30))),
+            query: Box::new(models::QueryTypes::String(parsed_query.cleaned_query)),
+            remove_stop_words: None,
+            score_threshold: None,
+            search_type: search_method,
+            slim_chunks: None,
+            sort_options: match query_params.order_by.clone() {
+                Some(order_by) => Some(Some(Box::new(models::SortOptions {
+                    location_bias: None,
+                    sort_by: Some(Some(Box::new(models::QdrantSortBy::SortByField(Box::new(
+                        models::SortByField {
+                            field: match order_by.as_str() {
+                                "points" => "num_value".to_string(),
+                                "comments" => "metadata.descendants".to_string(),
+                                "date" => "time_stamp".to_string(),
+                                _ => "num_value".to_string(),
+                            },
+                            direction: Some(Some(SortOrder::Desc)),
+                            prefetch_amount: Some(Some(query_params.page_size.unwrap_or(30))),
+                        },
+                    ))))),
+                    tag_weights: None,
+                    use_weights: None,
+                }))),
+                _ => None,
+            },
+            use_quote_negated_terms: Some(Some(true)),
+            user_id: None,
+        },
+        Some(models::ApiVersion::V2),
+    )
+    .await;
+
+    match search_results {
+        Ok(search_result_type) => match search_result_type {
+            SearchResponseTypes::SearchResponseBody(resp_body) => {
+                HttpResponse::Ok().json(resp_body.chunks)
+            }
+            _ => HttpResponse::InternalServerError().body("Internal Server Error"),
+        },
+        Err(e) => {
+            println!("Error: {:?}", e);
+            HttpResponse::InternalServerError().body("Internal Server Error")
+        }
+    }
 }
