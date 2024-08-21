@@ -15,7 +15,7 @@ use crate::handlers::page_handler;
 
 type Templates<'a> = Data<Environment<'a>>;
 
-pub mod format_time;
+pub mod formatting;
 pub mod handlers;
 
 #[derive(OpenApi)]
@@ -68,7 +68,8 @@ pub fn main() -> std::io::Result<()> {
         HttpServer::new(move || {
             // Load templates
             let mut env = Environment::new();
-            env.add_filter("time_ago", format_time::time_ago);
+            env.add_filter("time_ago", formatting::time_ago);
+            env.add_filter("format_link", formatting::format_link);
             minijinja_embed::load_templates!(&mut env);
 
             App::new()

@@ -1,8 +1,10 @@
 <div class="rounded-md px-2 pb-3">
   <div class="flex flex-wrap items-center">
     <div class="break-word mb-[-6px] w-full text-wrap leading-[14pt] text-[#828282]">
+
+
       <a class="mr-1 text-wrap text-[11pt] text-black sm:text-[10pt]"
-        href="https://news.ycombinator.com/item?id=41311997">
+        href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
 
         {% if result.chunk.metadata.title %}
         {{result.chunk.metadata.title}}
@@ -11,16 +13,25 @@
         {% elif result.chunk.metadata.text|safe %}
         {{result.chunk.metadata.text}}
         {% endif %}
+      </a>
 
+
+      {% if result.chunk.metadata.url %}
+      <a class="break-all text-[8pt] text-[#828282] hover:underline" href="{{result.chunk.metadata.url}}">
+        ({{result.chunk.metadata.url|format_link}})
       </a>
-      <a class="break-all text-[8pt] text-[#828282] hover:underline" href="https://raphamorim.io/rio/">(raphamorim.io)
-      </a>
+      {% endif %}
+
+
+
+
     </div>
     <div class="w-full items-center pt-1 text-[9pt] text-[#828282] sm:text-[7pt]">
       <span>{{result.chunk.metadata.score}} points by
-        <a class="hover:underline" href="https://news.ycombinator.com/user?id=nitinreddy88">{{result.chunk.metadata.by}}
+        <a class="hover:underline"
+          href="https://news.ycombinator.com/user?id={{result.chunk.metadata.by}}">{{result.chunk.metadata.by}}
         </a>
-        <a class="hover:underline" href="https://news.ycombinator.com/item?id=41311997">
+        <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
           {{ result.chunk.metadata.time|time_ago }}
         </a>
       </span>
