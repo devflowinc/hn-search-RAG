@@ -42,8 +42,8 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     let mut must_not_filters: Vec<ConditionType> = vec![];
 
     // Process author filters
-    let any_author_names_regex = Regex::new(r"by:-[\w.-]+/g").unwrap();
-    let none_author_names_regex = Regex::new(r"by:-[\w.-]+/g").unwrap();
+    let any_author_names_regex = Regex::new(r"by:-[\w.-]+").unwrap();
+    let none_author_names_regex = Regex::new(r"by:-[\w.-]+").unwrap();
     let any_author_matches = any_author_names_regex
         .find_iter(&query)
         .map(|m| m.as_str())
@@ -96,8 +96,8 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     }
 
     // Process site filters
-    let any_site_regex = Regex::new(r"site:[\w.-]+/g").unwrap();
-    let none_site_regex = Regex::new(r"site:-[\w.-]+/g").unwrap();
+    let any_site_regex = Regex::new(r"site:[\w.-]+").unwrap();
+    let none_site_regex = Regex::new(r"site:-[\w.-]+").unwrap();
     let any_site_matches = any_site_regex
         .find_iter(&query)
         .map(|m| m.as_str())
@@ -184,8 +184,8 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
         })));
     };
 
-    let comment_count_gt_regex = Regex::new(r"comments>\d+/g").unwrap();
-    let comment_count_lt_regex = Regex::new(r"comments<\d+/g").unwrap();
+    let comment_count_gt_regex = Regex::new(r"comments>\d+").unwrap();
+    let comment_count_lt_regex = Regex::new(r"comments<\d+").unwrap();
     let comments_gt_match = comment_count_gt_regex.find(&query).map(|m| {
         cleaned_query = cleaned_query.replace(m.as_str(), "");
         let m = m.as_str().replace("comments>", "");
@@ -218,8 +218,8 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
         })));
     };
 
-    let date_gt_regex = Regex::new(r"date>\d{2}-\d{2}-\d{4}/g").unwrap();
-    let date_lt_regex = Regex::new(r"date<\d{2}-\d{2}-\d{4}/g").unwrap();
+    let date_gt_regex = Regex::new(r"date>\d{2}-\d{2}-\d{4}").unwrap();
+    let date_lt_regex = Regex::new(r"date<\d{2}-\d{2}-\d{4}").unwrap();
     let timestamp_lt_match = date_lt_regex
         .find(&query)
         .map(|m| {
@@ -296,7 +296,7 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
         })));
     }
 
-    let story_id_regex = Regex::new(r"id:\d+/g").unwrap();
+    let story_id_regex = Regex::new(r"id:\d+").unwrap();
     let story_id_match = story_id_regex.find(&query).map(|m| m.as_str());
     if let Some(story_id) = story_id_match {
         cleaned_query = cleaned_query.replace(story_id, "");
@@ -308,7 +308,7 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
         })));
     }
 
-    let type_regex = Regex::new(r"type:[\w.-]+/g").unwrap();
+    let type_regex = Regex::new(r"type:[\w.-]+").unwrap();
     let type_match = type_regex.find(&query).map(|m| m.as_str());
     if let Some(story_type) = type_match {
         cleaned_query = cleaned_query.replace(story_type, "");
@@ -329,7 +329,7 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     CleanedQueriesAndSearchFilters {
         must_filters,
         must_not_filters,
-        cleaned_query,
+        cleaned_query: cleaned_query.trim().to_string(),
     }
 }
 
