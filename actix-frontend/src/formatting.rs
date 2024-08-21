@@ -40,3 +40,30 @@ pub fn time_ago(timestamp: i64) -> String {
         format!("{} year{} ago", years, if years != 1 { "s" } else { "" })
     }
 }
+
+pub fn format_link(url: &str) -> String {
+    let mut hostname = url;
+
+    if let Some(idx) = url.find("://") {
+        hostname = &url[idx + 3..];
+    }
+
+    if let Some(idx) = hostname.find('/') {
+        hostname = &hostname[..idx];
+    }
+
+    if hostname == "github.com" {
+        if let Some(idx) = url.find('/') {
+            let path_parts: Vec<_> = url[idx + 1..]
+                .split('/')
+                .filter(|part| !part.is_empty())
+                .collect();
+            if !path_parts.is_empty() {
+                return format!("github.com/{}", path_parts[0]);
+            }
+        }
+        return "github.com".to_string();
+    }
+
+    hostname.to_string()
+}
