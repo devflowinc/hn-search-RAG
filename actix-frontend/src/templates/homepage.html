@@ -1,9 +1,12 @@
-{% extends "index.html" %} {% block body %}
+{% extends "index.html" %}
+{% block body %}
 <form action="/">{% include "components/filterbar.html" %}</form>
-  <span id="pagespace" title="" class="h-[10px]"></tr>
-  {% if results %} {% for result in results %}
-    <p>
-      <a href="{{result.chunk.link}}"> {{result.chunk.metadata.title}} </a>
-    </p>
-  {% endfor %} {% endif %}
-{% endblock %}
+<span id="pagespace" title="" class="h-[10px]"></tr>
+  {% if results %}
+  <div class="pt-2 flex flex-col gap-1">
+    {% for result in results %}
+    {% include "components/searchresult.html" %}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endblock %}
