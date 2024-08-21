@@ -1,11 +1,9 @@
-{% extends "index.html" %}
-{% block body %}
-<form action="/">
-  {% include "components/filterbar.html" %}
-</form>
-
-{% if query %}
-<div class="p-8 font-bold">Your query: {{ query }}</div>
-{% endif %}
-
+{% extends "index.html" %} {% block body %}
+<form action="/">{% include "components/filterbar.html" %}</form>
+  <span id="pagespace" title="" class="h-[10px]"></tr>
+  {% if results %} {% for result in results %}
+    <p>
+      <a href="{{result.chunk.link}}"> {{result.chunk.metadata.title}} </a>
+    </p>
+  {% endfor %} {% endif %}
 {% endblock %}

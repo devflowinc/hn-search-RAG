@@ -1,7 +1,6 @@
-use actix_web::{get, web, HttpResponse};
+use actix_web::web;
 use chrono::{NaiveDate, Utc};
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use trieve_client::{
     apis::{
         chunk_api::search_chunks,
@@ -9,10 +8,11 @@ use trieve_client::{
     },
     models::{
         self, ConditionType, FieldCondition, HasIdCondition, HighlightOptions, MatchCondition,
-        SearchChunksReqPayload, SearchResponseTypes, SortOrder,
+        ScoreChunk, SearchChunksReqPayload, SearchResponseTypes, SortOrder,
     },
 };
-use utoipa::ToSchema;
+
+use super::page_handler::SearchQueryParams;
 
 pub fn get_trieve_config(trieve_client: reqwest::Client) -> Configuration {
     let trieve_api_url = std::env::var("TRIEVE_API_URL").expect("TRIEVE_API_URL must be set");
@@ -333,42 +333,15 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, ToSchema)]
-pub struct SearchQueryParams {
-    pub q: String,
-    pub page: Option<i64>,
-    pub page_size: Option<i64>,
-    pub order_by: Option<String>,
-    pub search_type: Option<String>,
-}
-
-/// Search Hacker News
-///
-/// Q query param is required for search and can include inline filters. Other query params are optional.
-#[utoipa::path(
-    get,
-    path = "/search",
-    tag = "search",
-    responses(
-        (status = 200, description = "HTML page with search results", body = String),
-    ),
-    params(
-        ("q" = String, Query, description = "Search query with inline filters"),
-        ("page" = Option<i64>, Query, description = "Page number"),
-        ("page_size" = Option<i64>, Query, description = "Number of items per page"),
-        ("order_by" = Option<String>, Query, description = "Order by field"),
-        ("search_type" = Option<String>, Query, description = "`fulltext`, `semantic`, `hybrid`, or `keyword` for the search type")
-    )
-)]
-#[get("/search")]
-pub async fn search(
+pub async fn get_search_results(
     trieve_client: web::Data<reqwest::Client>,
     query_params: web::Query<SearchQueryParams>,
-) -> impl actix_web::Responder {
+) -> Vec<ScoreChunk> {
     let dataset_id =
         std::env::var("TRIEVE_DATASET_ID").expect("TRIEVE_DATASET_ID env must be present");
     let trieve_config = get_trieve_config(trieve_client.get_ref().clone());
-    let parsed_query = parse_search_payload_params(query_params.q.clone());
+    let parsed_query =
+        parse_search_payload_params(query_params.q.clone().unwrap_or("hackernews".to_string()));
     let search_method = match query_params.search_type.clone() {
         Some(search_type) => match search_type.as_str() {
             "fulltext" => models::SearchMethod::Fulltext,
@@ -443,14 +416,12 @@ pub async fn search(
 
     match search_results {
         Ok(search_result_type) => match search_result_type {
-            SearchResponseTypes::SearchResponseBody(resp_body) => {
-                HttpResponse::Ok().json(resp_body.chunks)
-            }
-            _ => HttpResponse::InternalServerError().body("Internal Server Error"),
+            SearchResponseTypes::SearchResponseBody(resp_body) => resp_body.chunks,
+            _ => vec![],
         },
         Err(e) => {
             println!("Error: {:?}", e);
-            HttpResponse::InternalServerError().body("Internal Server Error")
+            vec![]
         }
     }
 }
