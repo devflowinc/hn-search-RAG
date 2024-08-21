@@ -40,6 +40,8 @@
       <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
         context
       </a>
+      <span class="px-1">|</span>
+      <span>Score {{ result.score|round_score }}</span>
     </div>
   </div>
 </div>
