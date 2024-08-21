@@ -70,6 +70,7 @@ pub fn main() -> std::io::Result<()> {
             let mut env = Environment::new();
             env.add_filter("time_ago", formatting::time_ago);
             env.add_filter("format_link", formatting::format_link);
+            env.add_filter("round_score", formatting::round_score);
             minijinja_embed::load_templates!(&mut env);
 
             App::new()

@@ -67,3 +67,7 @@ pub fn format_link(url: &str) -> String {
 
     hostname.to_string()
 }
+
+pub fn round_score(num: f64) -> f64 {
+    (num * 10000.0).round() / 10000.0
+}
