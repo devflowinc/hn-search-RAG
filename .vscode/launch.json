@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'hn-discovery-webserver'",
+      "cargo": {
+        "args": [
+          "+nightly",
+          "build",
+          "--manifest-path=./actix-frontend/Cargo.toml",
+          "--bin=hn-discovery-webserver",
+          "--package=hn-discovery-webserver"
+        ],
+        "filter": {
+          "name": "hn-discovery-webserver",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}/actix-frontend"
+    },
+  ]
+}
