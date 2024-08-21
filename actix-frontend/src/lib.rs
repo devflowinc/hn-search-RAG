@@ -6,7 +6,6 @@ use actix_web::{
     web::{self, Data},
     App, HttpServer,
 };
-use handlers::search_handler;
 use minijinja::Environment;
 use reqwest::ClientBuilder;
 use utoipa::OpenApi;
@@ -41,7 +40,7 @@ pub mod handlers;
         description = "Local development server"),
     ),
     paths(
-        handlers::search_handler::search,
+        handlers::page_handler::homepage,
     ),
     components(
         schemas(),
@@ -77,7 +76,6 @@ pub fn main() -> std::io::Result<()> {
                 .app_data(web::Data::new(trieve_reqwest_client.clone()))
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .service(get_openapi_spec_handler)
-                .service(search_handler::search)
                 .service(page_handler::homepage)
                 .service(page_handler::about)
                 .service(page_handler::help)

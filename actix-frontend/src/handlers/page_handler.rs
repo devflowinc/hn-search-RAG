@@ -1,34 +1,56 @@
+use crate::{handlers::search_handler::get_search_results, Templates};
 use actix_web::{get, web, HttpResponse};
 use minijinja::context;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-use crate::Templates;
-
-#[derive(Deserialize, Debug)]
-struct SearchFormData {
-    pub query: String,
-    pub post_type: String,
-    pub sort_by: String,
-    pub date_range: String,
-    pub search_type: String,
+#[derive(Debug, Deserialize, Serialize, ToSchema, Clone)]
+pub struct SearchQueryParams {
+    pub q: Option<String>,
+    pub page: Option<i64>,
+    pub page_size: Option<i64>,
+    pub order_by: Option<String>,
+    pub search_type: Option<String>,
 }
-
+/// Search Hacker News
+///
+/// Q query param is required for search and can include inline filters. Other query params are optional.
+#[utoipa::path(
+    get,
+    path = "/search",
+    tag = "search",
+    responses(
+        (status = 200, description = "HTML page with search results", body = String),
+    ),
+    params(
+        ("q" = Option<String>, Query, description = "Search query with inline filters"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("page_size" = Option<i64>, Query, description = "Number of items per page"),
+        ("order_by" = Option<String>, Query, description = "Order by field"),
+        ("search_type" = Option<String>, Query, description = "`fulltext`, `semantic`, `hybrid`, or `keyword` for the search type")
+    )
+)]
 #[get("/")]
 pub async fn homepage(
     templates: Templates<'_>,
-    form_data: Option<web::Query<SearchFormData>>,
+    trieve_client: web::Data<reqwest::Client>,
+    query_params: web::Query<SearchQueryParams>,
 ) -> impl actix_web::Responder {
     let templ = templates.get_template("homepage.html").unwrap();
+    let results = if query_params.q.is_some() {
+        get_search_results(trieve_client, query_params.clone()).await
+    } else {
+        vec![]
+    };
 
-    let form_data = form_data;
-
-    let response_body = match form_data {
-        Some(form_data) => templ
+    let response_body = if query_params.q.is_some() {
+        templ
             .render(context! {
-                query => form_data.query
+                results => results,
             })
-            .unwrap(),
-        None => templ.render(context! {}).unwrap(),
+            .expect("Should always render")
+    } else {
+        templ.render(context! {}).expect("Should always render")
     };
 
     HttpResponse::Ok().body(response_body)
