@@ -11,6 +11,7 @@ pub struct SearchQueryParams {
     pub page_size: Option<i64>,
     pub order_by: Option<String>,
     pub search_type: Option<String>,
+    pub post_type: Option<String>, // "all" | "story" | "show" | "job" | "poll"
 }
 /// Search Hacker News
 ///

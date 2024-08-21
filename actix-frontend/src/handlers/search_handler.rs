@@ -340,7 +340,7 @@ pub async fn get_search_results(
     let dataset_id =
         std::env::var("TRIEVE_DATASET_ID").expect("TRIEVE_DATASET_ID env must be present");
     let trieve_config = get_trieve_config(trieve_client.get_ref().clone());
-    let parsed_query =
+    let mut parsed_query =
         parse_search_payload_params(query_params.q.clone().unwrap_or("hackernews".to_string()));
     let search_method = match query_params.search_type.clone() {
         Some(search_type) => match search_type.as_str() {
@@ -352,6 +352,23 @@ pub async fn get_search_results(
         },
         _ => models::SearchMethod::Fulltext,
     };
+
+    if let Some(post_type) = query_params.post_type.clone() {
+        if post_type != "all" {
+            parsed_query
+                .must_filters
+                .push(ConditionType::FieldCondition(Box::new(FieldCondition {
+                    field: "tag_set".to_string(),
+                    match_any: None,
+                    match_all: Some(Some(vec![MatchCondition::String(post_type)])),
+                    date_range: None,
+                    geo_bounding_box: None,
+                    geo_polygon: None,
+                    geo_radius: None,
+                    range: None,
+                })));
+        }
+    }
 
     let search_results = search_chunks(
         &trieve_config,

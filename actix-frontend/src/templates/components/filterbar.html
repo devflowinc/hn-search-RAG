@@ -2,7 +2,7 @@
   <div class="w-[1130px]:justify-start flex flex-wrap items-center justify-end gap-2 text-black">
     <span>Search</span>
     <div>
-      <label for="stories" class="sr-only">Stories</label><select name="post_type" id="type"
+      <label for="stories" class="sr-only">Stories</label><select name="post_type" value="story" id="type"
         class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
         <option value="all">All</option>
         <option selected="" value="story">Stories</option>
@@ -11,29 +11,28 @@
         <option value="job">Jobs</option>
         <option value="poll">Polls</option>
       </select>
-    </div><span>by</span>
-    </select>
+      </select>
+    </div>
+    <span>by</span>
+    <div>
+      <label for="popularity" class="sr-only">Popularity</label><select name="sort_by" id="popularity"
+        class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
+        <option>Relevance</option>
+        <option>Popularity</option>
+        <option>Date</option>
+      </select>
+    </div>
+    <span>using</span>
+    <div>
+      <select id="stories" name="search_type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
+        <option selected="" value="hybrid">Hybrid</option>
+        <option value="semantic">Semantic</option>
+        <option value="fulltext">Fulltext</option>
+        <option value="keyword">Keyword</option>
+        <option value="autocomplete">Autocomplete</option>
+      </select>
+    </div>
   </div>
-  <span>by</span>
-  <div>
-    <label for="popularity" class="sr-only">Popularity</label><select name="sort_by" id="popularity"
-      class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
-      <option>Relevance</option>
-      <option>Popularity</option>
-      <option>Date</option>
-    </select>
-  </div>
-  <span>using</span>
-  <div>
-    <select id="stories" name="search_type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
-      <option selected="" value="hybrid">Hybrid</option>
-      <option value="semantic">Semantic</option>
-      <option value="fulltext">Fulltext</option>
-      <option value="keyword">Keyword</option>
-      <option value="autocomplete">Autocomplete</option>
-    </select>
-  </div>
-</div>
 </div>
 
 <div
