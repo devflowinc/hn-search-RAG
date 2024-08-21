@@ -58,8 +58,8 @@ pub fn format_link(url: &str) -> String {
                 .split('/')
                 .filter(|part| !part.is_empty())
                 .collect();
-            if !path_parts.is_empty() {
-                return format!("github.com/{}", path_parts[0]);
+            if !path_parts.is_empty() && path_parts.len() >= 2 {
+                return format!("github.com/{}", path_parts[1]);
             }
         }
         return "github.com".to_string();
