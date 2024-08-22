@@ -1,4 +1,4 @@
-<div class="rounded-md px-2 pb-3">
+<div class="rounded-md px-2 pb-2">
   <div class="flex flex-wrap items-center">
     <div class="break-word mb-[-6px] w-full text-wrap leading-[14pt] text-[#828282]">
 
@@ -35,11 +35,16 @@
           {{ result.chunk.metadata.time|time_ago }}
         </a>
       </span>
-      <span class="px-1">|
-      </span>
+      <span class="px-1">|</span>
+      {% if result.chunk.metadata.descendants %}
+      <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
+        {{result.chunk.metadata.descendants}} comment(s)
+      </a>
+      {% else %}
       <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
         context
       </a>
+      {% endif %}
       <span class="px-1">|</span>
       <span>Score {{ result.score|round_score }}</span>
     </div>
