@@ -39,7 +39,8 @@
     <select id="stories" name="search_type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
       <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='fulltext' else '' }}
         value="fulltext">Fulltext</option>
-      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='hybrid' else '' }} value="hybrid">
+      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='hybrid' else '' }} value="hybrid"
+        {% if filter is undefined %} selected="true" {% endif %}>
         Hybrid</option>
       <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='semantic' else '' }}
         value="semantic">Semantic</option>
