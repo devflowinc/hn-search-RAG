@@ -3,38 +3,51 @@
     <span>Search</span>
     <div>
       <label for="stories" class="sr-only">Stories</label>
-      <select name="post_type" value="story" id="type"
-        class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
-        <option value="all">All</option>
-        <option selected="" value="story">Stories</option>
+      <select name="post_type" id="type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
+        <option {{ 'selected=true' if filter and filter.post_type=='all' else '' }} value="all">All</option>
+        <option {{ 'selected=true' if filter and filter.post_type|default('story')=='story' else '' }} value="story" {%
+          if filter is undefined %} selected="true" {% endif %}>
+          Stories
+        </option>
         @@ -9,7 +10,8 @@
-        <option value="show">Show HN</option>
-        <option value="job">Jobs</option>
-        <option value="poll">Polls</option>
-      </select>
-      </select>
-    </div>
-    <span>by</span>
-    <div>
-      <label for="popularity" class="sr-only">Popularity</label>
-      <select name="order_by" id="popularity"
-        class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
-        <option value="relevance">Relevance</option>
-        <option value="points">Points</option>
-        <option value="recency">Date</option>
-        <option value="comments">Comments</option>
-      </select>
-    </div>
-    <span>using</span>
-    <div>
-      <select id="stories" name="search_type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
-        <option value="fulltext">Fulltext</option>
-        <option selected="" value="hybrid">Hybrid</option>
-        <option value="semantic">Semantic</option>
-        <option value="keyword">Keyword</option>
+        <option {{ 'selected=true' if filter and filter.post_type|default('story')=='show' else '' }} value="show">Show
+          HN
+        </option>
+        <option {{ 'selected=true' if filter and filter.post_type|default('story')=='job' else '' }} value="job">Jobs
+        </option>
+        <option {{ 'selected=true' if filter and filter.post_type|default('story')=='poll' else '' }} value="poll">Polls
+        </option>
       </select>
     </div>
   </div>
+  <span>by</span>
+  <div>
+    <label for="popularity" class="sr-only">Popularity</label>
+    <select name="order_by" id="popularity" class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
+      <option {{'selected=true' if filter and filter.order_by|default('relevance')=='relevance' else '' }}
+        value="relevance">Relevance</option>
+      <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='points' else '' }} value="points">
+        Points</option>
+      <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='recency' else '' }}
+        value="recency">Date</option>
+      <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='comments' else '' }}
+        value="comments">Comments</option>
+    </select>
+  </div>
+  <span>using</span>
+  <div>
+    <select id="stories" name="search_type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
+      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='fulltext' else '' }}
+        value="fulltext">Fulltext</option>
+      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='hybrid' else '' }} value="hybrid">
+        Hybrid</option>
+      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='semantic' else '' }}
+        value="semantic">Semantic</option>
+      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='keyword' else '' }}
+        value="keyword">Keyword</option>
+    </select>
+  </div>
+</div>
 </div>
 
 <div
@@ -45,8 +58,8 @@
       d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
       clip-rule="evenodd"></path>
   </svg>
-  <input name="q" type="text" id="primary-search-input"
+  <input name="q" type="search" id="primary-search-input"
     class="ml-2 align-middle w-full bg-transparent focus:outline-none active:outline-none" placeholder="Search..."
-    value="{{ query }}"
-  />
+    value="{{ query }}" />
+  <button type="submit">Search</button>
 </div>

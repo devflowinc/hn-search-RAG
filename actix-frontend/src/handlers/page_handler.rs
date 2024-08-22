@@ -49,6 +49,7 @@ pub async fn homepage(
         templ
             .render(context! {
                 results => results,
+                filter => query_params.clone().into_inner(),
                 query => query_params.q.clone().unwrap_or_default(),
             })
             .expect("Should always render")
