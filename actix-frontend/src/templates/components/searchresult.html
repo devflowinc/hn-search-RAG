@@ -10,8 +10,8 @@
         {{result.chunk.metadata.title}}
         {% elif result.chunk.parent_title %}
         {{result.chunk.metadata.parent_title}}
-        {% elif result.chunk.metadata.text|safe %}
-        {{result.chunk.metadata.text}}
+        {% elif result.chunk.metadata.text %}
+        {{result.chunk.metadata.text|safe}}
         {% endif %}
       </a>
 
