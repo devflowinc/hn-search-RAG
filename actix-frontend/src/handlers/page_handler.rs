@@ -38,16 +38,18 @@ pub async fn homepage(
     query_params: web::Query<SearchQueryParams>,
 ) -> impl actix_web::Responder {
     let templ = templates.get_template("homepage.html").unwrap();
-    let results = if query_params.q.is_some() {
-        get_search_results(trieve_client, query_params.clone()).await
-    } else {
-        vec![]
-    };
+    let results =
+        if query_params.q.is_some() && !query_params.q.clone().unwrap_or_default().is_empty() {
+            get_search_results(trieve_client, query_params.clone()).await
+        } else {
+            vec![]
+        };
 
     let response_body = if query_params.q.is_some() {
         templ
             .render(context! {
                 results => results,
+                query => query_params.q.clone().unwrap_or_default(),
             })
             .expect("Should always render")
     } else {

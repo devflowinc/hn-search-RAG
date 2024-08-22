@@ -274,7 +274,7 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
         .unwrap_or(None);
     if timestamp_lt_match.is_some() || timestamp_gt_match.is_some() {
         must_filters.push(ConditionType::FieldCondition(Box::new(FieldCondition {
-            field: "metadata.descendants".to_string(),
+            field: "time_stamp".to_string(),
             match_any: None,
             date_range: None,
             geo_bounding_box: None,
@@ -296,11 +296,11 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
         })));
     }
 
-    let story_id_regex = Regex::new(r"id:\d+").unwrap();
+    let story_id_regex = Regex::new(r"story:\d+").unwrap();
     let story_id_match = story_id_regex.find(&query).map(|m| m.as_str());
     if let Some(story_id) = story_id_match {
         cleaned_query = cleaned_query.replace(story_id, "");
-        let story_id = story_id.replace("id:", "");
+        let story_id = story_id.replace("story:", "");
 
         must_filters.push(ConditionType::HasIdCondition(Box::new(HasIdCondition {
             ids: None,
@@ -404,25 +404,31 @@ pub async fn get_search_results(
             score_threshold: None,
             search_type: search_method,
             slim_chunks: None,
-            sort_options: match query_params.order_by.clone() {
-                Some(order_by) => Some(Some(Box::new(models::SortOptions {
-                    location_bias: None,
-                    sort_by: Some(Some(Box::new(models::QdrantSortBy::SortByField(Box::new(
-                        models::SortByField {
-                            field: match order_by.as_str() {
-                                "points" => "num_value".to_string(),
-                                "comments" => "metadata.descendants".to_string(),
-                                "date" => "time_stamp".to_string(),
-                                _ => "num_value".to_string(),
+            sort_options: if !query_params.order_by.clone().unwrap_or_default().is_empty()
+                && query_params.order_by.clone().unwrap_or_default() != "relevance"
+            {
+                match query_params.order_by.clone() {
+                    Some(order_by) => Some(Some(Box::new(models::SortOptions {
+                        location_bias: None,
+                        sort_by: Some(Some(Box::new(models::QdrantSortBy::SortByField(Box::new(
+                            models::SortByField {
+                                field: match order_by.as_str() {
+                                    "points" => "num_value".to_string(),
+                                    "comments" => "metadata.descendants".to_string(),
+                                    "date" => "time_stamp".to_string(),
+                                    _ => "num_value".to_string(),
+                                },
+                                direction: Some(Some(SortOrder::Desc)),
+                                prefetch_amount: Some(Some(query_params.page_size.unwrap_or(30))),
                             },
-                            direction: Some(Some(SortOrder::Desc)),
-                            prefetch_amount: Some(Some(query_params.page_size.unwrap_or(30))),
-                        },
-                    ))))),
-                    tag_weights: None,
-                    use_weights: None,
-                }))),
-                _ => None,
+                        ))))),
+                        tag_weights: None,
+                        use_weights: None,
+                    }))),
+                    _ => None,
+                }
+            } else {
+                None
             },
             use_quote_negated_terms: Some(Some(true)),
             user_id: None,

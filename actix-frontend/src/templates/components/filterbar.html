@@ -2,7 +2,8 @@
   <div class="w-[1130px]:justify-start flex flex-wrap items-center justify-end gap-2 text-black">
     <span>Search</span>
     <div>
-      <label for="stories" class="sr-only">Stories</label><select name="post_type" value="story" id="type"
+      <label for="stories" class="sr-only">Stories</label>
+      <select name="post_type" value="story" id="type"
         class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
         <option value="all">All</option>
         <option selected="" value="story">Stories</option>
@@ -15,21 +16,22 @@
     </div>
     <span>by</span>
     <div>
-      <label for="popularity" class="sr-only">Popularity</label><select name="sort_by" id="popularity"
+      <label for="popularity" class="sr-only">Popularity</label>
+      <select name="order_by" id="popularity"
         class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
-        <option>Relevance</option>
-        <option>Popularity</option>
-        <option>Date</option>
+        <option value="relevance">Relevance</option>
+        <option value="points">Points</option>
+        <option value="recency">Date</option>
+        <option value="comments">Comments</option>
       </select>
     </div>
     <span>using</span>
     <div>
       <select id="stories" name="search_type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
+        <option value="fulltext">Fulltext</option>
         <option selected="" value="hybrid">Hybrid</option>
         <option value="semantic">Semantic</option>
-        <option value="fulltext">Fulltext</option>
         <option value="keyword">Keyword</option>
-        <option value="autocomplete">Autocomplete</option>
       </select>
     </div>
   </div>
@@ -44,5 +46,7 @@
       clip-rule="evenodd"></path>
   </svg>
   <input name="q" type="text" id="primary-search-input"
-    class="ml-2 w-full bg-transparent focus:outline-none active:outline-none" placeholder="Search" />
+    class="ml-2 align-middle w-full bg-transparent focus:outline-none active:outline-none" placeholder="Search..."
+    value="{{ query }}"
+  />
 </div>

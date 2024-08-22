@@ -1,0 +1,58 @@
+<div
+  class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]"
+>
+  <h3 class="mb-1">
+    <button
+      class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]"
+    >
+      <p>Advanced search syntax</p>
+    </button>
+  </h3>
+  <div
+    class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]"
+  >
+    <ul>
+      <li>
+        <code>"</code> to match a particular sequence of terms
+        <code>"ring"</code>
+      </li>
+      <li>
+        <code>-</code> to ensure a word won't appear in the result set
+        <code>ring -wedding</code>,
+      </li>
+      <li>
+        <code>by:USERNAME</code> to only show results from a particular
+        author(s),
+      </li>
+      <li><code>by:-USERNAME</code> to exclude particular author(s),</li>
+      <li>
+        <code>site:WEBSITE</code> to only show results from a particular
+        website(s),
+      </li>
+      <li><code>site:-WEBSITE</code> to exclude particular website(s),</li>
+      <li><code>story:ID</code> to filter by story ID,</li>
+      <li>
+        <code>points&gt;NUMBER</code> or <code>points&lt;NUMBER</code> to filter
+        by points,
+      </li>
+      <li>
+        <code>comments&gt;NUMBER</code> or <code>comments&lt;NUMBER</code> to
+        filter by number of comments,
+      </li>
+      <li>
+        <code>date&gt;mm-dd-YYYY</code> or <code>date&lt;mm-dd-YYYY</code> to
+        filter by date,
+      </li>
+      <li>
+        <code>type:{post-type}</code> where {post-type} is one of
+        <code>story</code>, <code>comment</code>, <code>ask</code>,
+        <code>show</code>, <code>job</code>, or <code>poll</code>
+      </li>
+      <li>
+        <code>OR</code> can be done with the keyword search mode (all terms OR'd
+        together with BM25 scoring) combined with the <code>"</code> operator to
+        require certain terms.
+      </li>
+    </ul>
+  </div>
+</div>
