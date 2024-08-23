@@ -1,33 +1,24 @@
+use super::page_handler::SearchQueryParams;
 use actix_web::web;
 use chrono::{NaiveDate, Utc};
 use regex::Regex;
-use trieve_client::{
-    apis::{
-        chunk_api::search_chunks,
-        configuration::{ApiKey, Configuration},
-    },
-    models::{
-        self, ConditionType, FieldCondition, HasIdCondition, HighlightOptions, MatchCondition,
-        ScoreChunk, SearchChunksReqPayload, SearchResponseTypes, SortOrder,
-    },
+use serde::{Deserialize, Serialize};
+use trieve_client::models::{
+    self, ChunkMetadata, ConditionType, FieldCondition, HasIdCondition, HighlightOptions,
+    MatchCondition, SearchChunksReqPayload, SortOrder,
 };
 
-use super::page_handler::SearchQueryParams;
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct ScoreChunkMetadata {
+    pub chunk: ChunkMetadata,
+    pub highlights: Option<Option<Vec<String>>>,
+    pub score: f32,
+}
 
-pub fn get_trieve_config(trieve_client: reqwest::Client) -> Configuration {
-    let trieve_api_url = std::env::var("TRIEVE_API_URL").expect("TRIEVE_API_URL must be set");
-    let trieve_api_key = std::env::var("TRIEVE_API_KEY").expect("TRIEVE_API_KEY must be set");
-
-    Configuration {
-        api_key: Some(ApiKey {
-            prefix: None,
-            key: trieve_api_key,
-        }),
-        base_path: trieve_api_url,
-        // this is not a required field and will be automatically set by ..Default::default() which would initialize a new client in 100ms
-        client: trieve_client,
-        ..Default::default()
-    }
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct SimplifiedSearchResponse {
+    pub chunks: Vec<ScoreChunkMetadata>,
+    pub total_pages: Option<i64>,
 }
 
 pub struct CleanedQueriesAndSearchFilters {
@@ -336,10 +327,12 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
 pub async fn get_search_results(
     trieve_client: web::Data<reqwest::Client>,
     query_params: web::Query<SearchQueryParams>,
-) -> Vec<ScoreChunk> {
+) -> Vec<ScoreChunkMetadata> {
     let dataset_id =
         std::env::var("TRIEVE_DATASET_ID").expect("TRIEVE_DATASET_ID env must be present");
-    let trieve_config = get_trieve_config(trieve_client.get_ref().clone());
+    let trieve_api_url = std::env::var("TRIEVE_API_URL").expect("TRIEVE_API_URL must be set");
+    let trieve_api_key = std::env::var("TRIEVE_API_KEY").expect("TRIEVE_API_KEY must be set");
+
     let mut parsed_query =
         parse_search_payload_params(query_params.q.clone().unwrap_or("hackernews".to_string()));
     let search_method = match query_params.search_type.clone() {
@@ -370,80 +363,105 @@ pub async fn get_search_results(
         }
     }
 
-    let search_results = search_chunks(
-        &trieve_config,
-        &dataset_id,
-        SearchChunksReqPayload {
-            content_only: None,
-            filters: Some(Some(Box::new(models::ChunkFilter {
-                must: Some(Some(parsed_query.must_filters)),
-                must_not: Some(Some(parsed_query.must_not_filters)),
-                jsonb_prefilter: Some(Some(false)),
-                should: None,
-            }))),
-            get_total_pages: None,
-            highlight_options: Some(Some(Box::new(HighlightOptions {
-                highlight_results: Some(Some(true)),
-                highlight_strategy: Some(Some(models::HighlightStrategy::Exactmatch)),
-                highlight_delimiters: Some(Some(vec![
-                    " ".to_string(),
-                    "-".to_string(),
-                    "_".to_string(),
-                    ".".to_string(),
-                    ",".to_string(),
-                ])),
-                highlight_threshold: Some(Some(0.85)),
-                highlight_max_num: Some(Some(50)),
-                highlight_window: Some(Some(0)),
-                highlight_max_length: Some(Some(50)),
-            }))),
-            page: Some(Some(query_params.page.unwrap_or(30))),
-            page_size: Some(Some(query_params.page_size.unwrap_or(30))),
-            query: Box::new(models::QueryTypes::String(parsed_query.cleaned_query)),
-            remove_stop_words: None,
-            score_threshold: None,
-            search_type: search_method,
-            slim_chunks: None,
-            sort_options: if !query_params.order_by.clone().unwrap_or_default().is_empty()
-                && query_params.order_by.clone().unwrap_or_default() != "relevance"
-            {
-                match query_params.order_by.clone() {
-                    Some(order_by) => Some(Some(Box::new(models::SortOptions {
-                        location_bias: None,
-                        sort_by: Some(Some(Box::new(models::QdrantSortBy::SortByField(Box::new(
-                            models::SortByField {
-                                field: match order_by.as_str() {
-                                    "points" => "num_value".to_string(),
-                                    "comments" => "metadata.descendants".to_string(),
-                                    "date" => "time_stamp".to_string(),
-                                    _ => "num_value".to_string(),
-                                },
-                                direction: Some(Some(SortOrder::Desc)),
-                                prefetch_amount: Some(Some(query_params.page_size.unwrap_or(30))),
+    let search_req_payload = SearchChunksReqPayload {
+        content_only: None,
+        filters: Some(Some(Box::new(models::ChunkFilter {
+            must: Some(Some(parsed_query.must_filters)),
+            must_not: Some(Some(parsed_query.must_not_filters)),
+            jsonb_prefilter: Some(Some(false)),
+            should: None,
+        }))),
+        get_total_pages: None,
+        highlight_options: Some(Some(Box::new(HighlightOptions {
+            highlight_results: Some(Some(true)),
+            highlight_strategy: Some(Some(models::HighlightStrategy::Exactmatch)),
+            highlight_delimiters: Some(Some(vec![
+                " ".to_string(),
+                "-".to_string(),
+                "_".to_string(),
+                ".".to_string(),
+                ",".to_string(),
+            ])),
+            highlight_threshold: Some(Some(0.85)),
+            highlight_max_num: Some(Some(50)),
+            highlight_window: Some(Some(0)),
+            highlight_max_length: Some(Some(50)),
+        }))),
+        page: Some(Some(query_params.page.unwrap_or(30))),
+        page_size: Some(Some(query_params.page_size.unwrap_or(30))),
+        query: Box::new(models::QueryTypes::String(parsed_query.cleaned_query)),
+        remove_stop_words: None,
+        score_threshold: None,
+        search_type: search_method,
+        slim_chunks: None,
+        sort_options: if !query_params.order_by.clone().unwrap_or_default().is_empty()
+            && query_params.order_by.clone().unwrap_or_default() != "relevance"
+        {
+            match query_params.order_by.clone() {
+                Some(order_by) => Some(Some(Box::new(models::SortOptions {
+                    location_bias: None,
+                    sort_by: Some(Some(Box::new(models::QdrantSortBy::SortByField(Box::new(
+                        models::SortByField {
+                            field: match order_by.as_str() {
+                                "points" => "num_value".to_string(),
+                                "comments" => "metadata.descendants".to_string(),
+                                "date" => "time_stamp".to_string(),
+                                _ => "num_value".to_string(),
                             },
-                        ))))),
-                        tag_weights: None,
-                        use_weights: None,
-                    }))),
-                    _ => None,
-                }
-            } else {
-                None
-            },
-            use_quote_negated_terms: Some(Some(true)),
-            user_id: None,
+                            direction: Some(Some(SortOrder::Desc)),
+                            prefetch_amount: Some(Some(query_params.page_size.unwrap_or(30))),
+                        },
+                    ))))),
+                    tag_weights: None,
+                    use_weights: None,
+                }))),
+                _ => None,
+            }
+        } else {
+            None
         },
-        Some(models::ApiVersion::V2),
-    )
-    .await;
+        use_quote_negated_terms: Some(Some(true)),
+        user_id: None,
+    };
 
-    match search_results {
-        Ok(search_result_type) => match search_result_type {
-            SearchResponseTypes::SearchResponseBody(resp_body) => resp_body.chunks,
-            _ => vec![],
-        },
+    let mut header_map: reqwest::header::HeaderMap = reqwest::header::HeaderMap::new();
+    header_map.insert(
+        "Content-Type",
+        reqwest::header::HeaderValue::from_static("application/json"),
+    );
+    header_map.insert(
+        "Authorization",
+        reqwest::header::HeaderValue::from_str(&trieve_api_key).unwrap(),
+    );
+    header_map.insert(
+        "TR-Dataset",
+        reqwest::header::HeaderValue::from_str(&dataset_id).unwrap(),
+    );
+    header_map.insert(
+        "X-API-Version",
+        reqwest::header::HeaderValue::from_static("V2"),
+    );
+
+    let search_req_resp = trieve_client
+        .post(trieve_api_url + "/api/chunk/search")
+        .headers(header_map)
+        .body(serde_json::to_string(&search_req_payload).unwrap())
+        .send()
+        .await;
+
+    match search_req_resp {
+        Ok(resp) => {
+            let resp_text = resp.text().await.unwrap();
+            match serde_json::from_str::<SimplifiedSearchResponse>(&resp_text) {
+                Ok(simple_search_resp) => simple_search_resp.chunks,
+                e => {
+                    println!("Error: {:?}", e);
+                    vec![]
+                }
+            }
+        }
         Err(e) => {
-            println!("Error: {:?}", e);
+            println!("Error parsing search results: {:?}", e);
             vec![]
         }
     }
