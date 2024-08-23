@@ -6,7 +6,9 @@
       <a class="mr-1 text-wrap text-[11pt] text-black sm:text-[10pt]"
         href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
 
-        {% if result.chunk.metadata.title %}
+        {% if result.chunk.chunk_html %}
+        {{result.chunk.chunk_html|safe}}
+        {% elif result.chunk.metadata.title %}
         {{result.chunk.metadata.title}}
         {% elif result.chunk.parent_title %}
         {{result.chunk.metadata.parent_title}}
