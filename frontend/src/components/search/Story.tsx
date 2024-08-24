@@ -122,11 +122,7 @@ export const StoryComponent = (props: {
               Get Recommendations
             </span>
           </Show>
-          <Show
-            when={
-              props.aiEnabled?.() && props.aiStories && props.onClickAddToAI
-            }
-          >
+          <Show when={props.aiStories && props.onClickAddToAI}>
             <span class="px-1">|</span>
             <span
               class="cursor-pointer font-semibold hover:underline"

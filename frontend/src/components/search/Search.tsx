@@ -3,7 +3,7 @@ import {
   HiOutlineAdjustmentsVertical,
   HiSolidMagnifyingGlass,
 } from "solid-icons/hi";
-import { Accessor, createSignal, onMount, Setter, Show } from "solid-js";
+import { Accessor, createSignal, For, onMount, Setter, Show } from "solid-js";
 import {
   AdvancedSearchSyntax,
   HowToUse,
@@ -15,6 +15,8 @@ import { createToast } from "../ShowToast";
 export interface SearchProps {
   query: Accessor<string>;
   setQuery: Setter<string>;
+  suggestedQueries: Accessor<string[]>;
+  loadingSuggestedQueries: Accessor<boolean>;
   algoliaLink: Accessor<string>;
   setOpenRateQueryModal: Setter<boolean>;
   aiEnabled: Accessor<boolean>;
@@ -71,7 +73,7 @@ export const Search = (props: SearchProps) => {
             type="text"
             id="primary-search-input"
             class="ml-2 w-full bg-transparent focus:outline-none active:outline-none"
-            placeholder="Search"
+            placeholder="Ctrl + K to focus and search"
             value={props.query()}
             onInput={(e) => {
               props.setQuery(e.currentTarget.value);
@@ -169,6 +171,32 @@ export const Search = (props: SearchProps) => {
             Try With Algolia <FiExternalLink class="h-4 w-4" />
           </a>
         </div>
+        <div class="mx-2 flex flex-wrap items-center gap-2">
+          <p class="text-sm text-zinc-600">Suggested queries: </p>
+          <Show
+            when={props.suggestedQueries().length > 0}
+            fallback={
+              <p class="animate-pulse text-sm text-stone-600">Loading...</p>
+            }
+          >
+            <For each={props.suggestedQueries()}>
+              {(suggestedQuery) => (
+                <button
+                  onClick={() => {
+                    props.setQuery(suggestedQuery);
+                  }}
+                  classList={{
+                    "border border-stone-300 px-1 py-0.5 text-neutral-600 hover:border-stone-600 hover:bg-[#FFFFF0]":
+                      true,
+                    "animate-pulse": props.loadingSuggestedQueries(),
+                  }}
+                >
+                  {suggestedQuery}
+                </button>
+              )}
+            </For>
+          </Show>
+        </div>
       </div>
       <FullScreenModal show={openHelpModal} setShow={setOpenHelpModal}>
         <div class="flex min-w-[250px] flex-col gap-y-4 sm:min-w-[300px] sm:max-w-[50vw]">
@@ -206,8 +234,12 @@ export const Search = (props: SearchProps) => {
       >
         <div class="min-w-[250px] sm:min-w-[400px] sm:max-w-[50vw]">
           <div class="flex flex-col gap-y-2">
+            <div class="flex items-center gap-x-2 text-sm">
+              <p>Model:</p>
+              <p>gpt-4o</p>
+            </div>
             <label aria-label="AI Summary Prompt" class="text-sm">
-              LLM Summary Prompt
+              LLM Prompt
             </label>
             <textarea
               class="h-[230px] w-full border border-stone-300 bg-transparent p-1"
