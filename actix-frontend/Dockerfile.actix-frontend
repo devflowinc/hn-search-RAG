@@ -1,0 +1,52 @@
+FROM rust:1.80-slim-bookworm AS chef
+
+# We only pay the installation cost once, 
+# it will be cached from the second build onwards
+RUN apt-get update -y && apt-get -y install pkg-config libssl-dev libpq-dev g++ curl
+
+# Install Node.js for tailwindcss compilation
+RUN mkdir /usr/local/nvm
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 20.17.0
+RUN curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+RUN cargo install cargo-chef 
+WORKDIR app
+
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare  --recipe-path recipe.json
+
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json --bin "hn-discovery-webserver"
+# Build application
+COPY . .
+RUN cargo build --release --bin "hn-discovery-webserver"
+
+FROM debian:bookworm-slim as runtime
+WORKDIR /app
+
+RUN apt-get update -y; \
+    apt-get install -y \
+    pkg-config \
+    build-essential\
+    libssl-dev \
+    libpq-dev \
+    ca-certificates \
+    ; \
+    mkdir -p /app/tmp
+
+COPY --from=builder /app/static /app/static
+COPY --from=builder /app/target/release/hn-discovery-webserver /app/hn-discovery-webserver
+
+EXPOSE 9000
+ENTRYPOINT ["/app/hn-discovery-webserver"]

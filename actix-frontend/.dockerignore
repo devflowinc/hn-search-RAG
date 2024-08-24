@@ -1,0 +1,7 @@
+target
+.env
+Dockerfile.server
+Dockerfile
+tmp
+images
+venv
