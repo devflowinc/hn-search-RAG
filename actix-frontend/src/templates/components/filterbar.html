@@ -9,6 +9,7 @@
           if filter is undefined %} selected="true" {% endif %}>
           Stories
         </option>
+        <option {{ 'selected=true' if filter and filter.post_type|default('story')=='comment' else '' }} value="comment"> Comments </option>
         @@ -9,7 +10,8 @@
         <option {{ 'selected=true' if filter and filter.post_type|default('story')=='show' else '' }} value="show">Show
           HN
@@ -20,7 +21,7 @@
       </select>
     </div>
   </div>
-  <span>by</span>
+  <span>ordered by</span>
   <div>
     <label for="popularity" class="sr-only">Popularity</label>
     <select name="order_by" id="popularity" class="form-select border border-stone-300 bg-hn p-1 text-zinc-600">
@@ -28,8 +29,8 @@
         value="relevance">Relevance</option>
       <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='points' else '' }} value="points">
         Points</option>
-      <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='recency' else '' }}
-        value="recency">Date</option>
+      <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='date' else '' }}
+        value="date">Date</option>
       <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='comments' else '' }}
         value="comments">Comments</option>
     </select>
@@ -37,30 +38,36 @@
   <span>using</span>
   <div>
     <select id="stories" name="search_type" class="form-select w-fit border border-stone-300 bg-hn p-1 text-zinc-600">
-      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='fulltext' else '' }}
-        value="fulltext">Fulltext</option>
-      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='hybrid' else '' }} value="hybrid"
-        {% if filter is undefined %} selected="true" {% endif %}>
-        Hybrid</option>
-      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='semantic' else '' }}
-        value="semantic">Semantic</option>
-      <option {{ 'selected=true' if filter and filter.search_type|default('hybrid')=='keyword' else '' }}
-        value="keyword">Keyword</option>
+      <option {{ 'selected=true' if filter and filter.search_type|default('fulltext')=='fulltext' else '' }} value="fulltext" {% if filter is undefined %} selected="true" {% endif %}>
+        Fulltext
+      </option>
+      <option {{ 'selected=true' if filter and filter.search_type|default('fulltext')=='hybrid' else '' }} value="hybrid">
+        Hybrid
+      </option>
+      <option {{ 'selected=true' if filter and filter.search_type|default('fulltext')=='semantic' else '' }} value="semantic">
+        Semantic
+      </option>
+      <option {{ 'selected=true' if filter and filter.search_type|default('fulltext')=='keyword' else '' }} value="keyword">
+        Keyword
+      </option>
     </select>
   </div>
 </div>
 </div>
 
-<div
-  class="mx-2 flex items-center justify-center rounded-md border border-stone-300 p-2 focus-within:border-stone-500 active:border-stone-500">
-  <svg stroke-width="0" color="currentColor" style="overflow: visible" fill="none" stroke="currentColor"
-    viewBox="0 0 24 24" class="h-5 w-5 text-gray-500" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-    <path fill="currentColor" fill-rule="evenodd"
-      d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-      clip-rule="evenodd"></path>
-  </svg>
-  <input name="q" type="search" id="primary-search-input"
-    class="ml-2 align-middle w-full bg-transparent focus:outline-none active:outline-none" placeholder="Search..."
-    value="{{ query }}" />
-  <button type="submit">Search</button>
+<div class="flex space-x-2 w-full mx-2">
+  <div class="flex items-center justify-center rounded-md border border-stone-300 p-2 focus-within:border-stone-500 active:border-stone-500 w-5/6 sm:w-11/12">
+    <svg stroke-width="0" color="currentColor" style="overflow: visible" fill="none" stroke="currentColor"
+      viewBox="0 0 24 24" class="h-5 w-5 text-gray-500" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" fill-rule="evenodd"
+        d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+        clip-rule="evenodd">
+      </path>
+    </svg>
+    <input name="q" type="search" id="primary-search-input"
+      class="ml-2 align-middle w-full bg-transparent focus:outline-none active:outline-none" placeholder="Search..."
+      value="{{ query }}" 
+    />
+  </div>
+  <button class="p-2 rounded-md shadow-sm bg-[buttonface] border border-stone-300 hover:border-stone-600" type="submit">Search</button>
 </div>
