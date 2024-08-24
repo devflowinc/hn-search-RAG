@@ -387,7 +387,7 @@ pub async fn get_search_results(
             highlight_window: Some(Some(0)),
             highlight_max_length: Some(Some(50)),
         }))),
-        page: Some(Some(query_params.page.unwrap_or(30))),
+        page: Some(Some(query_params.page.unwrap_or(1))),
         page_size: Some(Some(query_params.page_size.unwrap_or(30))),
         query: Box::new(models::QueryTypes::String(parsed_query.cleaned_query)),
         remove_stop_words: None,
@@ -397,8 +397,8 @@ pub async fn get_search_results(
         sort_options: if !query_params.order_by.clone().unwrap_or_default().is_empty()
             && query_params.order_by.clone().unwrap_or_default() != "relevance"
         {
-            match query_params.order_by.clone() {
-                Some(order_by) => Some(Some(Box::new(models::SortOptions {
+            query_params.order_by.clone().map(|order_by| {
+                Some(Box::new(models::SortOptions {
                     location_bias: None,
                     sort_by: Some(Some(Box::new(models::QdrantSortBy::SortByField(Box::new(
                         models::SortByField {
@@ -409,14 +409,13 @@ pub async fn get_search_results(
                                 _ => "num_value".to_string(),
                             },
                             direction: Some(Some(SortOrder::Desc)),
-                            prefetch_amount: Some(Some(query_params.page_size.unwrap_or(30))),
+                            prefetch_amount: None,
                         },
                     ))))),
                     tag_weights: None,
                     use_weights: None,
-                }))),
-                _ => None,
-            }
+                }))
+            })
         } else {
             None
         },
