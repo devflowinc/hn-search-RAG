@@ -1,3 +1,4 @@
+import { AiOutlineClose } from "solid-icons/ai";
 import { Accessor, onCleanup, onMount, Show } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 import { Portal } from "solid-js/web";
@@ -69,19 +70,30 @@ export const FullScreenModal = (props: FullScreenModalProps) => {
               leaveTo="opacity-0 scale-95"
             >
               <DialogPanel class="my-8 inline-block w-full transform overflow-hidden rounded border border-neutral-100 bg-[#F6F6F0] p-6 text-left align-middle shadow-xl transition-all">
-                <Show when={props.title}>
-                  {(title) => (
-                    <div class="flex items-center justify-between">
-                      <DialogTitle
-                        as="h3"
-                        class="text-lg font-medium leading-6 text-neutral-900"
-                      >
-                        {title()}
-                      </DialogTitle>
-                      <Show when={props.icon}>{props.icon}</Show>
-                    </div>
-                  )}
-                </Show>
+                <div
+                  classList={{
+                    "flex w-full": true,
+                    "justify-between": !!props.title,
+                    "justify-end": !props.title,
+                  }}
+                >
+                  <Show when={props.title}>
+                    {(title) => (
+                      <div class="flex items-center justify-between">
+                        <DialogTitle
+                          as="h3"
+                          class="text-lg font-medium leading-6 text-neutral-900"
+                        >
+                          {title()}
+                        </DialogTitle>
+                        <Show when={props.icon}>{props.icon}</Show>
+                      </div>
+                    )}
+                  </Show>
+                  <button onClick={() => props.setShow(false)}>
+                    <AiOutlineClose class="h-4 w-4 text-neutral-900" />
+                  </button>
+                </div>
                 {props.children}
               </DialogPanel>
             </TransitionChild>
