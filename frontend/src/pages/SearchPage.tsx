@@ -129,6 +129,9 @@ export const SearchPage = () => {
   const [userFollowup, setUserFollowup] = createSignal();
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
+  const [suggestedQueries, setSuggestedQueries] = createSignal<string[]>([]);
+  const [loadingSuggestedQueries, setLoadingSuggestedQueries] =
+    createSignal(false);
   const [searchType, setSearchType] = createSignal(
     urlParams.get("searchType") ?? "fulltext",
   );
@@ -146,9 +149,9 @@ export const SearchPage = () => {
   );
   const [loadingAiSummary, setLoadingAiSummary] = createSignal(false);
   const [aiSummaryPrompt, setAISummaryPrompt] = createSignal(
-    "The previous user message contains a query. Based on and using the provided documents, generate a 1-3 paragraph markdown completion that would be helpful to the user based on this query. Do not include citations or references.",
+    "The previous user message contains a search query. Based on and using the provided documents, generate a 1-3 paragraph markdown completion that would be helpful to the user. Summarize if the query is empty. Each paragraph should include at most 2 sentences. Do not include citations or references. Do not reference the query.",
   );
-  const [aiMaxTokens, setAiMaxTokens] = createSignal(1000);
+  const [aiMaxTokens, setAiMaxTokens] = createSignal(500);
   const [aiFrequencyPenalty, setAiFrequencyPenalty] = createSignal(0.7);
   const [aiPresencePenalty, setAiPresencePenalty] = createSignal(0.7);
   const [aiTemperature, setAiTemperature] = createSignal(0.5);
@@ -405,6 +408,53 @@ export const SearchPage = () => {
   });
 
   createEffect(() => {
+    const cleanedQuery = queryFiltersRemoved();
+    const suggestedQueriesAbortController = new AbortController();
+
+    setLoadingSuggestedQueries(true);
+    fetch(`${trieveBaseURL}/chunk/suggestions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "TR-Dataset": trieveDatasetId,
+        Authorization: trieveApiKey,
+      },
+      body: JSON.stringify({
+        query: cleanedQuery ? cleanedQuery : "Building with Rust",
+      }),
+      signal: suggestedQueriesAbortController.signal,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!Array.isArray(data.queries)) {
+          return;
+        }
+        const receivedQueries: string[] = data.queries;
+        const randomSuggestions: string[] = [];
+        const randomNumbers: number[] = [];
+        while (randomNumbers.length < 4) {
+          const randNum =
+            Math.floor(Math.random() * (data.queries.length - 2 + 1)) + 1;
+          if (!randomNumbers.includes(randNum)) {
+            randomNumbers.push(randNum);
+          }
+        }
+        console.log(randomNumbers);
+        randomNumbers.map((num) =>
+          randomSuggestions.push(receivedQueries[num]),
+        );
+
+        setSuggestedQueries(randomSuggestions);
+        setLoadingSuggestedQueries(false);
+      })
+      .catch((err) => console.error("Error getting suggested queries", err));
+
+    onCleanup(() => {
+      suggestedQueriesAbortController.abort("Aborting suggested queries fetch");
+    });
+  });
+
+  createEffect(() => {
     const curUserFollowup = userFollowup();
     const curCleanedQuery = queryFiltersRemoved();
     const curStories = aIStories().length ? aIStories() : stories();
@@ -433,7 +483,9 @@ export const SearchPage = () => {
               };
             }),
           ],
-          prompt: aiSummaryPrompt(),
+          prompt: curCleanedQuery
+            ? aiSummaryPrompt()
+            : "Summarize the document(s)",
           max_tokens: aiMaxTokens(),
           frequency_penalty: aiFrequencyPenalty(),
           presence_penalty: aiPresencePenalty(),
@@ -450,7 +502,7 @@ export const SearchPage = () => {
       await handleReader(reader);
     };
 
-    if (aiEnabled() && curCleanedQuery && curUserFollowup) {
+    if (aiEnabled() && curUserFollowup) {
       void handleCompletion();
     }
 
@@ -481,7 +533,9 @@ export const SearchPage = () => {
               role: "system",
             },
           ],
-          prompt: curCleanedQuery,
+          prompt: curCleanedQuery
+            ? aiSummaryPrompt()
+            : "Summarize the document(s)",
           max_tokens: aiMaxTokens(),
           frequency_penalty: aiFrequencyPenalty(),
           presence_penalty: aiPresencePenalty(),
@@ -498,7 +552,7 @@ export const SearchPage = () => {
       await handleReader(reader);
     };
 
-    if (curCleanedQuery && curStories.length && aiEnabled()) {
+    if (curStories.length && aiEnabled()) {
       void handleCompletion();
     }
 
@@ -1056,6 +1110,8 @@ export const SearchPage = () => {
         <Search
           query={query}
           setQuery={setQuery}
+          suggestedQueries={suggestedQueries}
+          loadingSuggestedQueries={loadingSuggestedQueries}
           algoliaLink={algoliaLink}
           setOpenRateQueryModal={setOpenRateQueryModal}
           aiEnabled={aiEnabled}
@@ -1096,13 +1152,7 @@ export const SearchPage = () => {
           </Match>
           <Match when={stories().length > 0}>
             <div class="flex-row-reverse lg:flex">
-              <Show
-                when={
-                  queryFiltersRemoved() &&
-                  aiEnabled() &&
-                  (loadingAiSummary() || aIMessages().join(""))
-                }
-              >
+              <Show when={aiEnabled()}>
                 <div class="lg:w-5/12 lg:border-l lg:border-stone-300">
                   <div class="border-t lg:hidden" />
                   <div class="flex w-fit flex-wrap gap-1 px-3 pt-3 text-xs lg:pt-0">
@@ -1438,6 +1488,7 @@ export const SearchPage = () => {
                         setShowRecModal(true);
                       }}
                       onClickAddToAI={() => {
+                        setAiEnabled(true);
                         setLoadingAiSummary(true);
                         setAIStories((prev) => {
                           if (prev.find((s) => s.id === story.id)) {
