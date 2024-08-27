@@ -132,6 +132,8 @@ export const SearchPage = () => {
   const [suggestedQueries, setSuggestedQueries] = createSignal<string[]>([]);
   const [loadingSuggestedQueries, setLoadingSuggestedQueries] =
     createSignal(false);
+  const [_suggestedQueriesAbortController, setSuggestedQueriesAbortController] =
+    createSignal<AbortController>();
   const [searchType, setSearchType] = createSignal(
     urlParams.get("searchType") ?? "fulltext",
   );
@@ -222,6 +224,60 @@ export const SearchPage = () => {
         });
       }
     }
+  };
+
+  const getSuggestions = (
+    cleanQuery: string,
+    filters: any,
+    suggestionType: string,
+    searchType: string,
+  ) => {
+    setLoadingSuggestedQueries(true);
+    const abortController = new AbortController();
+    setSuggestedQueriesAbortController((prev) => {
+      prev?.abort();
+      return abortController;
+    });
+
+    fetch(`${trieveBaseURL}/chunk/suggestions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "TR-Dataset": trieveDatasetId,
+        Authorization: trieveApiKey,
+      },
+      body: JSON.stringify({
+        query: cleanQuery ? cleanQuery : undefined,
+        suggestion_type: suggestionType,
+        search_type: searchType,
+        filters,
+      }),
+      signal: abortController.signal,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!Array.isArray(data.queries)) {
+          return;
+        }
+        const receivedQueries: string[] = data.queries;
+        const randomSuggestions: string[] = [];
+        const randomNumbers: number[] = [];
+        while (randomNumbers.length < 4) {
+          const randNum =
+            Math.floor(Math.random() * (data.queries.length - 2 + 1)) + 1;
+          if (!randomNumbers.includes(randNum)) {
+            randomNumbers.push(randNum);
+          }
+        }
+        console.log(randomNumbers);
+        randomNumbers.map((num) =>
+          randomSuggestions.push(receivedQueries[num]),
+        );
+
+        setSuggestedQueries(randomSuggestions);
+        setLoadingSuggestedQueries(false);
+      })
+      .catch((err) => console.error("Error getting suggested queries", err));
   };
 
   onMount(() => {
@@ -409,49 +465,20 @@ export const SearchPage = () => {
 
   createEffect(() => {
     const cleanedQuery = queryFiltersRemoved();
-    const suggestedQueriesAbortController = new AbortController();
+    const filters = curFilterValues();
+    const curSearchType = searchType();
+    let suggestionType = "keyword";
+    if (curSearchType === "semantic") {
+      suggestionType = "semantic";
+    }
+    const suggestSearchType =
+      curSearchType === "hybrid" || curSearchType === "autocomplete"
+        ? "fulltext"
+        : curSearchType === "keyword"
+          ? "bm25"
+          : curSearchType;
 
-    setLoadingSuggestedQueries(true);
-    fetch(`${trieveBaseURL}/chunk/suggestions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "TR-Dataset": trieveDatasetId,
-        Authorization: trieveApiKey,
-      },
-      body: JSON.stringify({
-        query: cleanedQuery ? cleanedQuery : "Building with Rust",
-      }),
-      signal: suggestedQueriesAbortController.signal,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!Array.isArray(data.queries)) {
-          return;
-        }
-        const receivedQueries: string[] = data.queries;
-        const randomSuggestions: string[] = [];
-        const randomNumbers: number[] = [];
-        while (randomNumbers.length < 4) {
-          const randNum =
-            Math.floor(Math.random() * (data.queries.length - 2 + 1)) + 1;
-          if (!randomNumbers.includes(randNum)) {
-            randomNumbers.push(randNum);
-          }
-        }
-        console.log(randomNumbers);
-        randomNumbers.map((num) =>
-          randomSuggestions.push(receivedQueries[num]),
-        );
-
-        setSuggestedQueries(randomSuggestions);
-        setLoadingSuggestedQueries(false);
-      })
-      .catch((err) => console.error("Error getting suggested queries", err));
-
-    onCleanup(() => {
-      suggestedQueriesAbortController.abort("Aborting suggested queries fetch");
-    });
+    getSuggestions(cleanedQuery, filters, suggestionType, suggestSearchType);
   });
 
   createEffect(() => {
@@ -1112,6 +1139,28 @@ export const SearchPage = () => {
           setQuery={setQuery}
           suggestedQueries={suggestedQueries}
           loadingSuggestedQueries={loadingSuggestedQueries}
+          getSuggestedQueries={() => {
+            const cleanedQuery = queryFiltersRemoved();
+            const filters = curFilterValues();
+            const curSearchType = searchType();
+            let suggestionType = "keyword";
+            if (curSearchType === "semantic") {
+              suggestionType = "semantic";
+            }
+            const suggestSearchType =
+              curSearchType === "hybrid" || curSearchType === "autocomplete"
+                ? "fulltext"
+                : curSearchType === "keyword"
+                  ? "bm25"
+                  : curSearchType;
+
+            getSuggestions(
+              cleanedQuery,
+              filters,
+              suggestionType,
+              suggestSearchType,
+            );
+          }}
           algoliaLink={algoliaLink}
           setOpenRateQueryModal={setOpenRateQueryModal}
           aiEnabled={aiEnabled}
