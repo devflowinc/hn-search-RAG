@@ -1,4 +1,4 @@
-import { FiExternalLink } from "solid-icons/fi";
+import { FiExternalLink, FiRefreshCw } from "solid-icons/fi";
 import {
   HiOutlineAdjustmentsVertical,
   HiSolidMagnifyingGlass,
@@ -17,6 +17,7 @@ export interface SearchProps {
   setQuery: Setter<string>;
   suggestedQueries: Accessor<string[]>;
   loadingSuggestedQueries: Accessor<boolean>;
+  getSuggestedQueries: () => void;
   algoliaLink: Accessor<string>;
   setOpenRateQueryModal: Setter<boolean>;
   aiEnabled: Accessor<boolean>;
@@ -172,6 +173,13 @@ export const Search = (props: SearchProps) => {
           </a>
         </div>
         <div class="mx-2 flex flex-wrap items-center gap-2">
+          <button
+            class="border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
+            onClick={() => props.getSuggestedQueries()}
+            disabled={props.loadingSuggestedQueries()}
+          >
+            <FiRefreshCw class="h-2 w-2" />
+          </button>
           <p class="text-sm text-zinc-600">Suggested queries: </p>
           <Show
             when={props.suggestedQueries().length > 0}
