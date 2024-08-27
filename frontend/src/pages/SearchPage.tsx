@@ -717,6 +717,9 @@ export const SearchPage = () => {
             }
           : undefined,
       },
+      typo_options: {
+        correct_typos: true
+      },
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
       filters: curFilterValues(),
       page_size: searchOptions.pageSize,
