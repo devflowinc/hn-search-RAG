@@ -185,13 +185,13 @@ export const Search = (props: SearchProps) => {
         </div>
         <div class="mx-2 flex flex-wrap items-center gap-2">
           <button
-            class="border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
+            class="h-full border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
             onClick={() => props.getSuggestedQueries()}
             disabled={props.loadingSuggestedQueries()}
           >
-            <FiRefreshCw class="h-2 w-2" />
+            <FiRefreshCw class="h-3 w-3" />
           </button>
-          <p class="text-sm text-zinc-600">Suggested queries: </p>
+          <p class="py-[.2rem] text-sm text-zinc-600">Suggested queries: </p>
           <Show
             when={props.suggestedQueries().length > 0}
             fallback={

@@ -67,12 +67,20 @@ export const StoryComponent = (props: {
             />
             <Show when={props.story.url}>
               <a
-                href={props.story.url
-                  .replaceAll("<mark><b>", "")
-                  .replaceAll("</b></mark>", "")}
+                href={`https://news.ycombinator.com/from?site=${formatLink(
+                  props.story.url
+                    .replaceAll("<mark><b>", "")
+                    .replaceAll("</b></mark>", ""),
+                )}`}
                 class="break-all text-[8pt] text-[#828282] hover:underline"
               >
-                ({formatLink(props.story.url)})
+                (
+                {formatLink(
+                  props.story.url
+                    .replaceAll("<mark><b>", "")
+                    .replaceAll("</b></mark>", ""),
+                )}
+                )
               </a>
             </Show>
           </div>
