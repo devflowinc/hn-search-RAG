@@ -39,16 +39,18 @@
       </span>
       <span class="px-1">|</span>
       {% if result.chunk.metadata.descendants %}
-      <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
-        {{result.chunk.metadata.descendants}} comment(s)
-      </a>
+        <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
+          {{result.chunk.metadata.descendants}} comment(s)
+        </a>
       {% else %}
-      <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
-        context
-      </a>
+        <a class="hover:underline" href="https://news.ycombinator.com/item?id={{result.chunk.metadata.id}}">
+          context
+        </a>
       {% endif %}
-      <span class="px-1">|</span>
-      <span>Score {{ result.score|round_score }}</span>
+      {% if result.score > 0 %}
+        <span class="px-1">|</span>
+        <span>Score {{ result.score|round_score }}</span>
+      {% endif %}
     </div>
   </div>
 </div>

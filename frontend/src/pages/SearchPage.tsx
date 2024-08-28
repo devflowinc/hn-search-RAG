@@ -59,6 +59,8 @@ const defaultScoreThreshold = (searchType: string): number => {
       return 0.01;
     case "fulltext":
       return 5;
+    case "keyword":
+      return 5;
     default:
       return 0.3;
   }
@@ -117,7 +119,7 @@ export const SearchPage = () => {
     urlParams.get("storyType") ?? "story",
   );
   const [sortBy, setSortBy] = createSignal(
-    urlParams.get("sortby") ?? "Relevance",
+    urlParams.get("sortby") ?? "relevance",
   );
   const [dateRange, setDateRange] = createSignal<string>(
     urlParams.get("dateRange") ?? "all",
@@ -130,6 +132,7 @@ export const SearchPage = () => {
   const [loading, setLoading] = createSignal(true);
   const [query, setQuery] = createSignal(urlParams.get("q") ?? "");
   const [suggestedQueries, setSuggestedQueries] = createSignal<string[]>([]);
+  const [suggestionContext, setSuggestionContext] = createSignal<string>("");
   const [loadingSuggestedQueries, setLoadingSuggestedQueries] =
     createSignal(false);
   const [_suggestedQueriesAbortController, setSuggestedQueriesAbortController] =
@@ -181,6 +184,7 @@ export const SearchPage = () => {
     useQuoteNegatedTerms:
       (urlParams.get("use_quote_negated_terms") ?? "true") === "true",
   });
+  const [typoCheck, setTypoCheck] = createSignal(true);
 
   const handleReader = async (
     reader: ReadableStreamDefaultReader<Uint8Array>,
@@ -251,6 +255,7 @@ export const SearchPage = () => {
         suggestion_type: suggestionType,
         search_type: searchType,
         filters,
+        context: suggestionContext() ? suggestionContext() : undefined,
       }),
       signal: abortController.signal,
     })
@@ -694,9 +699,7 @@ export const SearchPage = () => {
     setAlgoliaLink(
       `https://hn.algolia.com/?q=${encodeURIComponent(
         queryFiltersRemoved(),
-      )}&dateRange=${dateRange()}&sort=by${
-        sortBy() == "Relevance" ? "Popularity" : sortBy()
-      }&type=${selectedStoryType()}&page=0&prefix=false`,
+      )}&dateRange=${dateRange()}&sort=by${sortBy()}&type=${selectedStoryType()}&page=0&prefix=false`,
     );
     urlParams.set("getAISummary", aiEnabled().toString());
 
@@ -709,12 +712,10 @@ export const SearchPage = () => {
     );
 
     let sort_by_field;
-    if (sortBy() == "Date") {
-      sort_by_field = "time_stamp";
-    } else if (sortBy() == "Popularity") {
-      sort_by_field = "num_value";
-    } else {
+    if (sortBy() == "relevance" || /^[A-Z]/.test(sortBy())) {
       sort_by_field = undefined;
+    } else {
+      sort_by_field = sortBy();
     }
 
     const reqBody: any = {
@@ -745,7 +746,7 @@ export const SearchPage = () => {
           : undefined,
       },
       typo_options: {
-        correct_typos: true
+        correct_typos: typoCheck(),
       },
       use_quote_negated_terms: searchOptions.useQuoteNegatedTerms,
       filters: curFilterValues(),
@@ -1136,6 +1137,8 @@ export const SearchPage = () => {
           setMatchNoneSiteURLs={setMatchNoneSiteURLs}
           popularityFilters={popularityFilters}
           setPopularityFilters={setPopularityFilters}
+          typoCheck={typoCheck}
+          setTypoCheck={setTypoCheck}
         />
         <Search
           query={query}
@@ -1179,6 +1182,8 @@ export const SearchPage = () => {
           setAiPresencePenalty={setAiPresencePenalty}
           aiTemperature={aiTemperature}
           setAiTemperature={setAiTemperature}
+          suggestionContext={suggestionContext}
+          setSuggestionContext={setSuggestionContext}
         />
         <Switch>
           <Match when={stories().length === 0}>

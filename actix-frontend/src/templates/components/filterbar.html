@@ -32,7 +32,7 @@
       <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='date' else '' }}
         value="date">Date</option>
       <option {{ 'selected=true' if filter and filter.order_by|default('relevance')=='comments' else '' }}
-        value="comments">Comments</option>
+        value="comments">Descendants</option>
     </select>
   </div>
   <span>using</span>
@@ -55,8 +55,8 @@
 </div>
 </div>
 
-<div class="flex space-x-2 w-full mx-2">
-  <div class="flex items-center justify-center rounded-md border border-stone-300 p-2 focus-within:border-stone-500 active:border-stone-500 w-5/6 sm:w-11/12">
+<div class="flex w-full px-2 space-x-2">
+  <div class="flex items-center justify-center rounded-md border border-stone-300 p-2 focus-within:border-stone-500 active:border-stone-500 w-full">
     <svg stroke-width="0" color="currentColor" style="overflow: visible" fill="none" stroke="currentColor"
       viewBox="0 0 24 24" class="h-5 w-5 text-gray-500" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
       <path fill="currentColor" fill-rule="evenodd"

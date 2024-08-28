@@ -32,7 +32,7 @@ RUN cargo chef cook --release --recipe-path recipe.json --bin "hn-discovery-webs
 COPY . .
 RUN cargo build --release --bin "hn-discovery-webserver"
 
-FROM debian:bookworm-slim as runtime
+FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 
 RUN apt-get update -y; \

@@ -11,6 +11,7 @@ import {
 } from "../../pages/AboutPage";
 import { FullScreenModal } from "../FullScreenModal";
 import { createToast } from "../ShowToast";
+import { VsClose } from "solid-icons/vs";
 
 export interface SearchProps {
   query: Accessor<string>;
@@ -33,6 +34,8 @@ export interface SearchProps {
   setAiPresencePenalty: Setter<number>;
   aiTemperature: Accessor<number>;
   setAiTemperature: Setter<number>;
+  suggestionContext: Accessor<string>;
+  setSuggestionContext: Setter<string>;
 }
 
 export interface AiParams {
@@ -41,6 +44,7 @@ export interface AiParams {
   aiFrequencyPenalty: number;
   aiPresencePenalty: number;
   aiTemperature: number;
+  suggestionContext: string;
 }
 
 export const Search = (props: SearchProps) => {
@@ -53,6 +57,7 @@ export const Search = (props: SearchProps) => {
     aiFrequencyPenalty: 0,
     aiPresencePenalty: 0,
     aiTemperature: 0,
+    suggestionContext: "",
   });
 
   onMount(() => {
@@ -62,6 +67,7 @@ export const Search = (props: SearchProps) => {
       aiFrequencyPenalty: props.aiFrequencyPenalty(),
       aiPresencePenalty: props.aiPresencePenalty(),
       aiTemperature: props.aiTemperature(),
+      suggestionContext: "",
     });
   });
 
@@ -74,12 +80,17 @@ export const Search = (props: SearchProps) => {
             type="text"
             id="primary-search-input"
             class="ml-2 w-full bg-transparent focus:outline-none active:outline-none"
-            placeholder="Ctrl + K to focus and search"
+            placeholder="ctrl + k to focus | click help for info on search modes + filter syntax"
             value={props.query()}
             onInput={(e) => {
               props.setQuery(e.currentTarget.value);
             }}
           />
+          <Show when={props.query()}>
+            <button onClick={() => props.setQuery("")}>
+              <VsClose class="h-4 w-4 self-end text-gray-500" />
+            </button>
+          </Show>
         </div>
         <div class="mx-2 flex flex-wrap items-center justify-end gap-2">
           <div class="flex items-center space-x-2">
@@ -315,6 +326,20 @@ export const Search = (props: SearchProps) => {
                 }))
               }
             />
+            <label aria-label="AI Temperature" class="text-sm">
+              Query Suggestion Context
+            </label>
+            <input
+              type="text"
+              class="w-full border border-stone-300 bg-transparent p-1"
+              value={tempAiParams().suggestionContext}
+              onInput={(e) =>
+                setTempAiParams((prev) => ({
+                  ...prev,
+                  suggestionContext: e.currentTarget.value,
+                }))
+              }
+            />
           </div>
           <div class="mt-4 flex justify-end gap-x-2">
             <button
@@ -331,6 +356,7 @@ export const Search = (props: SearchProps) => {
                 props.setAiFrequencyPenalty(tempAiParams().aiFrequencyPenalty);
                 props.setAiPresencePenalty(tempAiParams().aiPresencePenalty);
                 props.setAiTemperature(tempAiParams().aiTemperature);
+                props.setSuggestionContext(tempAiParams().suggestionContext);
                 setOpenAiSettingsModal(false);
               }}
             >

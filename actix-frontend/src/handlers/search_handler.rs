@@ -5,7 +5,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use trieve_client::models::{
     self, ChunkMetadata, ConditionType, FieldCondition, HasIdCondition, HighlightOptions,
-    MatchCondition, SearchChunksReqPayload, SortOrder,
+    MatchCondition, SortOrder,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -27,13 +27,101 @@ pub struct CleanedQueriesAndSearchFilters {
     pub must_not_filters: Vec<ConditionType>,
 }
 
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TypoOptions {
+    pub correct_typos: Option<Option<bool>>,
+}
+
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CustomSearchChunksReqPayload {
+    /// Set content_only to true to only returning the chunk_html of the chunks. This is useful for when you want to reduce amount of data over the wire for latency improvement (typically 10-50ms). Default is false.
+    #[serde(
+        rename = "content_only",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub content_only: Option<Option<bool>>,
+    #[serde(rename = "filters", default, skip_serializing_if = "Option::is_none")]
+    pub filters: Option<Option<Box<models::ChunkFilter>>>,
+    /// Get total page count for the query accounting for the applied filters. Defaults to false, but can be set to true when the latency penalty is acceptable (typically 50-200ms).
+    #[serde(
+        rename = "get_total_pages",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub get_total_pages: Option<Option<bool>>,
+    #[serde(
+        rename = "highlight_options",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub highlight_options: Option<Option<Box<models::HighlightOptions>>>,
+    /// Page of chunks to fetch. Page is 1-indexed.
+    #[serde(rename = "page", default, skip_serializing_if = "Option::is_none")]
+    pub page: Option<Option<i64>>,
+    /// Page size is the number of chunks to fetch. This can be used to fetch more than 10 chunks at a time.
+    #[serde(rename = "page_size", default, skip_serializing_if = "Option::is_none")]
+    pub page_size: Option<Option<i64>>,
+    #[serde(rename = "query")]
+    pub query: Box<models::QueryTypes>,
+    /// If true, stop words (specified in server/src/stop-words.txt in the git repo) will be removed. Queries that are entirely stop words will be preserved.
+    #[serde(
+        rename = "remove_stop_words",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub remove_stop_words: Option<Option<bool>>,
+    /// Set score_threshold to a float to filter out chunks with a score below the threshold for cosine distance metric For Manhattan Distance, Euclidean Distance, and Dot Product, it will filter out scores above the threshold distance This threshold applies before weight and bias modifications. If not specified, this defaults to no threshold A threshold of 0 will default to no threashold
+    #[serde(
+        rename = "score_threshold",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub score_threshold: Option<Option<f32>>,
+    #[serde(rename = "search_type")]
+    pub search_type: models::SearchMethod,
+    /// Set slim_chunks to true to avoid returning the content and chunk_html of the chunks. This is useful for when you want to reduce amount of data over the wire for latency improvement (typically 10-50ms). Default is false.
+    #[serde(
+        rename = "slim_chunks",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub slim_chunks: Option<Option<bool>>,
+    #[serde(
+        rename = "sort_options",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub sort_options: Option<Option<Box<models::SortOptions>>>,
+    pub typo_options: Option<TypoOptions>,
+    /// If true, quoted and - prefixed words will be parsed from the queries and used as required and negated words respectively. Default is false.
+    #[serde(
+        rename = "use_quote_negated_terms",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub use_quote_negated_terms: Option<Option<bool>>,
+    /// User ID is the id of the user who is making the request. This is used to track user interactions with the search results.
+    #[serde(rename = "user_id", default, skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<Option<String>>,
+}
+
+pub fn get_default_score_threshold(search_method: models::SearchMethod) -> f32 {
+    match search_method {
+        models::SearchMethod::Fulltext => 5.0,
+        models::SearchMethod::Semantic => 0.5,
+        models::SearchMethod::Hybrid => 0.01,
+        models::SearchMethod::Bm25 => 5.0,
+    }
+}
+
 pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilters {
     let mut cleaned_query = query.clone();
     let mut must_filters: Vec<ConditionType> = vec![];
     let mut must_not_filters: Vec<ConditionType> = vec![];
 
     // Process author filters
-    let any_author_names_regex = Regex::new(r"by:-[\w.-]+").unwrap();
+    let any_author_names_regex = Regex::new(r"by:[a-zA-Z0-9_.][\w.-]+").unwrap();
     let none_author_names_regex = Regex::new(r"by:-[\w.-]+").unwrap();
     let any_author_matches = any_author_names_regex
         .find_iter(&query)
@@ -87,7 +175,7 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     }
 
     // Process site filters
-    let any_site_regex = Regex::new(r"site:[\w.-]+").unwrap();
+    let any_site_regex = Regex::new(r"site:[a-zA-Z0-9_.][\w.-]+").unwrap();
     let none_site_regex = Regex::new(r"site:-[\w.-]+").unwrap();
     let any_site_matches = any_site_regex
         .find_iter(&query)
@@ -345,6 +433,7 @@ pub async fn get_search_results(
         },
         _ => models::SearchMethod::Fulltext,
     };
+    let score_threshold = get_default_score_threshold(search_method);
 
     if let Some(post_type) = query_params.post_type.clone() {
         if post_type != "all" {
@@ -363,7 +452,7 @@ pub async fn get_search_results(
         }
     }
 
-    let search_req_payload = SearchChunksReqPayload {
+    let search_req_payload = CustomSearchChunksReqPayload {
         content_only: None,
         filters: Some(Some(Box::new(models::ChunkFilter {
             must: Some(Some(parsed_query.must_filters)),
@@ -391,7 +480,7 @@ pub async fn get_search_results(
         page_size: Some(Some(query_params.page_size.unwrap_or(30))),
         query: Box::new(models::QueryTypes::String(parsed_query.cleaned_query)),
         remove_stop_words: None,
-        score_threshold: None,
+        score_threshold: Some(Some(score_threshold)),
         search_type: search_method,
         slim_chunks: None,
         sort_options: if !query_params.order_by.clone().unwrap_or_default().is_empty()
@@ -419,6 +508,9 @@ pub async fn get_search_results(
         } else {
             None
         },
+        typo_options: Some(TypoOptions {
+            correct_typos: Some(Some(true)),
+        }),
         use_quote_negated_terms: Some(Some(true)),
         user_id: None,
     };

@@ -1,17 +1,18 @@
+use crate::handlers::page_handler;
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{
     get,
-    middleware::Compress,
+    middleware::{Compress, Logger},
     web::{self, Data},
     App, HttpServer,
 };
 use minijinja::Environment;
 use reqwest::ClientBuilder;
+use tracing_actix_web::TracingLogger;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
-
-use crate::handlers::page_handler;
 
 type Templates<'a> = Data<Environment<'a>>;
 
@@ -64,6 +65,15 @@ pub fn main() -> std::io::Result<()> {
         .build()
         .expect("Failed to create reqwest client");
 
+    tracing_subscriber::Registry::default()
+        .with(
+            tracing_subscriber::fmt::layer().with_filter(
+                EnvFilter::from_default_env()
+                    .add_directive(tracing_subscriber::filter::LevelFilter::INFO.into()),
+            ),
+        )
+        .init();
+
     actix_web::rt::System::new().block_on(async move {
         HttpServer::new(move || {
             // Load templates
@@ -75,8 +85,10 @@ pub fn main() -> std::io::Result<()> {
 
             App::new()
                 .app_data(web::Data::new(env))
+                .wrap(TracingLogger::default())
                 .wrap(Cors::permissive())
                 .wrap(Compress::default())
+                .wrap(Logger::new("%r %s %b %{Referer}i %{User-Agent}i %T"))
                 .app_data(web::Data::new(trieve_reqwest_client.clone()))
                 .service(Redoc::with_url("/redoc", ApiDoc::openapi()))
                 .service(get_openapi_spec_handler)

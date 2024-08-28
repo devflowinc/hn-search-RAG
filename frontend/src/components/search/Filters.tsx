@@ -38,6 +38,8 @@ export interface FiltersProps {
   setMatchNoneSiteURLs: Setter<string[]>;
   setPopularityFilters: Setter<any>;
   popularityFilters: Accessor<any>;
+  typoCheck: Accessor<boolean>;
+  setTypoCheck: Setter<boolean>;
 }
 
 export default function Filters(props: FiltersProps) {
@@ -166,11 +168,25 @@ export default function Filters(props: FiltersProps) {
             id="popularity"
             class="form-select border border-stone-300 bg-hn p-1 text-zinc-600"
             onChange={(e) => props.setSortBy(e.currentTarget.value)}
-            value={props.sortBy()}
           >
-            <option>Relevance</option>
-            <option>Popularity</option>
-            <option>Date</option>
+            <option selected={props.sortBy() === "relevance"} value="relevance">
+              Relevance
+            </option>
+            <option selected={props.sortBy() === "num_value"} value="num_value">
+              Points
+            </option>
+            <option
+              selected={props.sortBy() === "num_comments"}
+              value="time_stamp"
+            >
+              Date
+            </option>
+            <option
+              selected={props.sortBy() === "metadata.descendants"}
+              value="metadata.descendants"
+            >
+              Descendants
+            </option>
           </select>
         </div>
         <span>for</span>
@@ -768,7 +784,7 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
-                <label>Highlight Results (Latency Penalty)</label>
+                <label>Highlight Results</label>
                 <input
                   class="h-4 w-4"
                   type="checkbox"
@@ -782,7 +798,7 @@ export default function Filters(props: FiltersProps) {
                 />
               </div>
               <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
-                <label>Use Quote Negated Terms (Latency Penalty)</label>
+                <label>Use Quote Negated Terms</label>
                 <input
                   class="h-4 w-4"
                   type="checkbox"
@@ -792,6 +808,17 @@ export default function Filters(props: FiltersProps) {
                       "useQuoteNegatedTerms",
                       e.target.checked,
                     );
+                  }}
+                />
+              </div>
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
+                <label>Typo correction (50-100ms Latency Penalty)</label>
+                <input
+                  class="h-4 w-4"
+                  type="checkbox"
+                  checked={props.typoCheck()}
+                  onChange={(e) => {
+                    props.setTypoCheck(e.target.checked);
                   }}
                 />
               </div>

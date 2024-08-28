@@ -1,0 +1,44 @@
+<div
+  class="break-word flex w-full flex-col space-y-1 text-wrap px-2 leading-[14pt] text-[#828282]"
+>
+  <h3 class="mb-1">
+    <button
+      class="flex cursor-pointer items-center text-wrap text-[13pt] font-semibold text-black sm:text-[12pt]"
+    >
+      <p>How Hard was it to Build This?</p>
+    </button>
+  </h3>
+  <div
+    class="ml-3 flex flex-col gap-y-[6px] text-wrap text-[11pt] text-black sm:text-[10pt]"
+  >
+    <p>
+      It was moderately difficult. You can see from the repo that our
+      <a
+        class="underline"
+        href="https://github.com/devflowinc/trieve-hn-discovery/commits/main/?after=60a4f4049c47eeb97d25c971b996408d3f5a794a+104"
+        >first commit to the repo for this project</a
+      >
+      was early in our YC batch in Feb 2024. Took us 5 months to get Trieve
+      stable enough to handle ingesting and storing all the HN data then 1 more
+      to polish this webapp. It feels awesome to finally have this up and
+      running.
+    </p>
+    <p>
+      The painful portion was that unique one-off work was required for the
+      frontend and ingest of this demo; it took 100+ commits. The AI Chat RAG
+      bit could be higher quality, but for now we just copied the code from our
+      RAG playground at
+      <a class="underline" href="https://chat.trieve.ai">chat.trieve.ai</a>.
+    </p>
+    <p>
+      We punted on some frontend for CTR analytics, advanced recommendations,
+      and the "Add to AI Context" functionality similar to what Exa offers due
+      to time bounds. We'll add those features if this demo gets traction and
+      people use it.
+    </p>
+    <p>
+      Tons of respect to the Algolia folks for building such a great building HN
+      search experience and maintaining it for over a decade. It's not easy.
+    </p>
+  </div>
+</div>
