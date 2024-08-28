@@ -60,7 +60,9 @@ export const StoryComponent = (props: {
             onClick={() => props.sendCTR?.()}
           >
             <a
-              href={articleLink}
+              href={props.story.url
+                .replaceAll("<mark><b>", "")
+                .replaceAll("</b></mark>", "")}
               class="mr-1 text-wrap text-[11pt] text-black sm:text-[10pt]"
               // eslint-disable-next-line solid/no-innerhtml
               innerHTML={props.story.title_html}
@@ -71,7 +73,7 @@ export const StoryComponent = (props: {
                   props.story.url
                     .replaceAll("<mark><b>", "")
                     .replaceAll("</b></mark>", ""),
-                )}`}
+                ).replaceAll("www.", "")}`}
                 class="break-all text-[8pt] text-[#828282] hover:underline"
               >
                 (

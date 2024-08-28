@@ -274,7 +274,6 @@ export const SearchPage = () => {
             randomNumbers.push(randNum);
           }
         }
-        console.log(randomNumbers);
         randomNumbers.map((num) =>
           randomSuggestions.push(receivedQueries[num]),
         );
@@ -600,6 +599,7 @@ export const SearchPage = () => {
   createEffect(() => {
     query();
     setPage(1);
+    setAIStories([]);
   });
 
   createEffect(() => {

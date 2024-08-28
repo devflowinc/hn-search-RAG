@@ -65,7 +65,7 @@ pub fn format_link(url: &str) -> String {
         return "github.com".to_string();
     }
 
-    hostname.to_string()
+    hostname.to_string().replace("www.", "")
 }
 
 pub fn round_score(num: f64) -> f64 {
