@@ -267,7 +267,7 @@ export const SearchPage = () => {
         const receivedQueries: string[] = data.queries;
         const randomSuggestions: string[] = [];
         const randomNumbers: number[] = [];
-        while (randomNumbers.length < 4) {
+        while (randomNumbers.length < 3) {
           const randNum =
             Math.floor(Math.random() * (data.queries.length - 2 + 1)) + 1;
           if (!randomNumbers.includes(randNum)) {
