@@ -42,6 +42,7 @@ import { FiSend } from "solid-icons/fi";
 import { AiOutlineRobot } from "solid-icons/ai";
 import { VsClose } from "solid-icons/vs";
 import { BsInfoCircle } from "solid-icons/bs";
+import { HiOutlineAdjustmentsVertical } from "solid-icons/hi";
 
 const parseFloatOrNull = (val: string | null): number | null => {
   const num = parseFloat(val ?? "NaN");
@@ -164,6 +165,7 @@ export const SearchPage = () => {
   const [searchID, setSearchID] = createSignal("");
   const [openRateQueryModal, setOpenRateQueryModal] = createSignal(false);
   const [rating, setRating] = createSignal({ rating: 5, note: "" });
+  const [openAiSettingsModal, setOpenAiSettingsModal] = createSignal(false);
 
   const [searchOptions, setSearchOptions] = createStore<SearchOptions>({
     prefetchAmount: parseInt(urlParams.get("prefetch_amount") ?? "30"),
@@ -1184,6 +1186,8 @@ export const SearchPage = () => {
           setAiTemperature={setAiTemperature}
           suggestionContext={suggestionContext}
           setSuggestionContext={setSuggestionContext}
+          openAiSettingsModal={openAiSettingsModal}
+          setOpenAiSettingsModal={setOpenAiSettingsModal}
         />
         <Switch>
           <Match when={stories().length === 0}>
@@ -1505,6 +1509,13 @@ export const SearchPage = () => {
                       disabled={loadingAiSummary()}
                     >
                       <FiSend class="h-4 w-4" />
+                    </button>
+                    <button
+                      class="btn btn-primary"
+                      onClick={() => setOpenAiSettingsModal(true)}
+                      title="AI Settings"
+                    >
+                      <HiOutlineAdjustmentsVertical class="h-4 w-4" />
                     </button>
                   </div>
                   <div class="border-t pb-4 lg:hidden" />

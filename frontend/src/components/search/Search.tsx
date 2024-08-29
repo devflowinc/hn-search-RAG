@@ -36,6 +36,8 @@ export interface SearchProps {
   setAiTemperature: Setter<number>;
   suggestionContext: Accessor<string>;
   setSuggestionContext: Setter<string>;
+  openAiSettingsModal: Accessor<boolean>;
+  setOpenAiSettingsModal: Setter<boolean>;
 }
 
 export interface AiParams {
@@ -50,7 +52,6 @@ export interface AiParams {
 export const Search = (props: SearchProps) => {
   const [openWhyMakeThisModal, setOpenWhyMakeThisModal] = createSignal(false);
   const [openHelpModal, setOpenHelpModal] = createSignal(false);
-  const [openAiSettingsModal, setOpenAiSettingsModal] = createSignal(false);
   const [tempAiParams, setTempAiParams] = createSignal<AiParams>({
     aiSummaryPrompt: "",
     aiMaxTokens: 0,
@@ -138,7 +139,7 @@ export const Search = (props: SearchProps) => {
             <Show when={props.aiEnabled()}>
               <button
                 class="flex w-fit items-center gap-x-1 border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
-                onClick={() => setOpenAiSettingsModal(true)}
+                onClick={() => props.setOpenAiSettingsModal(true)}
                 title="AI Settings"
               >
                 <HiOutlineAdjustmentsVertical class="h-4 w-4" />
@@ -248,8 +249,8 @@ export const Search = (props: SearchProps) => {
         </div>
       </FullScreenModal>
       <FullScreenModal
-        show={openAiSettingsModal}
-        setShow={setOpenAiSettingsModal}
+        show={props.openAiSettingsModal}
+        setShow={props.setOpenAiSettingsModal}
       >
         <div class="min-w-[250px] sm:min-w-[400px] sm:max-w-[50vw]">
           <div class="flex flex-col gap-y-2">
@@ -344,7 +345,7 @@ export const Search = (props: SearchProps) => {
           <div class="mt-4 flex justify-end gap-x-2">
             <button
               class="border border-stone-300 bg-hn p-1 text-zinc-600 hover:border-stone-900 hover:text-zinc-900"
-              onClick={() => setOpenAiSettingsModal(false)}
+              onClick={() => props.setOpenAiSettingsModal(false)}
             >
               Cancel
             </button>
@@ -357,7 +358,7 @@ export const Search = (props: SearchProps) => {
                 props.setAiPresencePenalty(tempAiParams().aiPresencePenalty);
                 props.setAiTemperature(tempAiParams().aiTemperature);
                 props.setSuggestionContext(tempAiParams().suggestionContext);
-                setOpenAiSettingsModal(false);
+                props.setOpenAiSettingsModal(false);
               }}
             >
               Save
