@@ -229,8 +229,8 @@ pub fn parse_search_payload_params(query: String) -> CleanedQueriesAndSearchFilt
     }
 
     // Process points filters
-    let points_gt_regex = Regex::new(r"points>\d+/").unwrap();
-    let points_lt_regex = Regex::new(r"points<\d+/").unwrap();
+    let points_gt_regex = Regex::new(r"points>\d+").unwrap();
+    let points_lt_regex = Regex::new(r"points<\d+").unwrap();
     let points_gt_match = points_gt_regex.find(&query).map(|m| {
         cleaned_query = cleaned_query.replace(m.as_str(), "");
         let m = m.as_str().replace("points>", "");
