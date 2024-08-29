@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { SearchTypeCount, AnalyticsFilter } from "../../../types";
 import { getQueryCounts } from "../api/analytics";
@@ -19,7 +20,7 @@ const displaySearchType = (type: SearchTypeCount["search_type"]) => {
   }
 };
 
-export const displaySearchMethod = (type: SearchTypeCount["search_method"]) => {
+export const displaySearchMethod = (type: any) => {
   switch (type) {
     case "fulltext":
       return "Full Text";
@@ -28,6 +29,8 @@ export const displaySearchMethod = (type: SearchTypeCount["search_method"]) => {
     case "semantic":
       return "Semantic";
     case "keyword":
+      return "BM25";
+    case "bm25":
       return "BM25";
     default:
       return null;
@@ -64,7 +67,6 @@ export const QueryCounts = (props: QueryCountsProps) => {
           <div class="flex justify-around gap-2 py-2">
             <For each={data()}>
               {(search) => {
-                console.log(search);
                 if (search.search_method) {
                   return (
                     <div class="text-center">

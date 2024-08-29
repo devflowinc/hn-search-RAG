@@ -256,6 +256,8 @@ export interface AnalyticsFilter {
     | "search"
     | "autocomplete"
     | "rag"
+    | "bm25"
+    | "BM25"
     | "search_over_groups"
     | "search_within_groups";
 }
