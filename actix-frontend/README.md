@@ -1,5 +1,9 @@
 ## Local Dev Setup
 
+### Setup ENV's
+
+`cp .env.dist .env`
+
 ### Server
 
 `cargo watch -x run`

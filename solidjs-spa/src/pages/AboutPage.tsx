@@ -255,9 +255,9 @@ export const AboutPage = () => {
                 there are two important folders:{" "}
                 <a
                   class="underline"
-                  href="https://github.com/devflowinc/trieve-hn-discovery/tree/main/hackernews-ingest"
+                  href="https://github.com/devflowinc/trieve-hn-discovery/tree/main/ingest"
                 >
-                  hackernews-ingest
+                  ingest
                 </a>{" "}
                 and{" "}
                 <a
