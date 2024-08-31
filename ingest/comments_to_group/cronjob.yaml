@@ -16,7 +16,7 @@ spec:
           - name: TRIEVE_API_KEY
             value: <private-api-key>
           - name: DATASET_ID
-            value: b96b60eb-cfd1-42c4-9320-78ebef592cfd
+            value: 4284298b-bb52-4061-ba44-cd268c571a75
       restartPolicy: Never
   backoffLimit: 0
 
