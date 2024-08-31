@@ -49,6 +49,13 @@ export default function Header(props: HeaderProps) {
         </a>
         <span class="pr-1">|</span>
         <a
+          href="https://hnojs.trieve.ai"
+          class="pr-1 hover:text-white hover:underline"
+        >
+          NoJS Version
+        </a>
+        <span class="pr-1">|</span>
+        <a
           href="https://news.ycombinator.com/"
           class="pr-1 hover:text-white hover:underline"
         >
