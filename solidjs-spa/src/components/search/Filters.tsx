@@ -664,7 +664,7 @@ export default function Filters(props: FiltersProps) {
             />
             <div class="absolute right-0 top-[1.85rem] z-10 flex flex-col gap-2 border border-stone-300 bg-hn p-2">
               <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
-                <label>Score Threshold (0.0 to 1.0):</label>
+                <label>Score Threshold:</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
                   type="number"
