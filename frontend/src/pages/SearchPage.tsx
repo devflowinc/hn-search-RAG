@@ -61,7 +61,7 @@ const defaultScoreThreshold = (searchType: string): number => {
     case "fulltext":
       return 5;
     case "keyword":
-      return 5;
+      return 1.5;
     default:
       return 0.3;
   }

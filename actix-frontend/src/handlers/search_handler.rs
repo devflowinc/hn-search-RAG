@@ -111,7 +111,7 @@ pub fn get_default_score_threshold(search_method: models::SearchMethod) -> f32 {
         models::SearchMethod::Fulltext => 5.0,
         models::SearchMethod::Semantic => 0.5,
         models::SearchMethod::Hybrid => 0.01,
-        models::SearchMethod::Bm25 => 5.0,
+        models::SearchMethod::Bm25 => 1.5,
     }
 }
 
