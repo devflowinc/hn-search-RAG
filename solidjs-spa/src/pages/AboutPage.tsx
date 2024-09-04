@@ -338,6 +338,38 @@ export const AboutPage = () => {
           }
         />
         <FAQCard
+          question="Where can I read more?"
+          answer={
+            <>
+            <p>
+              Read Nick's intro to the launch and his review of change in HN search over the years:
+            </p>
+            <ul class="pl-2">
+              <li>
+                -{" "}<a
+                  href="https://trieve.ai/launching-trieve-hn-discovery"
+                  class="underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Launching Trieve HN Discovery - A Discovery Focused Search Engine for Hacker News
+                </a> (Aug 29, 2024)
+              </li>
+              <li>
+                -{" "}<a
+                  href="https://trieve.ai/history-of-hnsearch"
+                  class="underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  History of HackerNews Search: From 2007 to 2024
+                </a> (Aug 12, 2024)
+              </li>
+            </ul>
+            </>
+          }
+        />
+        <FAQCard
           question="Contact Us"
           answer={
             <>
