@@ -664,6 +664,17 @@ export default function Filters(props: FiltersProps) {
             />
             <div class="absolute right-0 top-[1.85rem] z-10 flex flex-col gap-2 border border-stone-300 bg-hn p-2">
               <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
+                <label>Typo correction</label>
+                <input
+                  class="h-4 w-4"
+                  type="checkbox"
+                  checked={props.typoCheck()}
+                  onChange={(e) => {
+                    props.setTypoCheck(e.target.checked);
+                  }}
+                />
+              </div>
+              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
                 <label>Score Threshold:</label>
                 <input
                   class="w-16 rounded border border-neutral-400 p-0.5 text-black"
@@ -808,17 +819,6 @@ export default function Filters(props: FiltersProps) {
                       "useQuoteNegatedTerms",
                       e.target.checked,
                     );
-                  }}
-                />
-              </div>
-              <div class="flex items-center justify-between space-x-2 whitespace-nowrap p-1">
-                <label>Typo correction (50-100ms Latency Penalty)</label>
-                <input
-                  class="h-4 w-4"
-                  type="checkbox"
-                  checked={props.typoCheck()}
-                  onChange={(e) => {
-                    props.setTypoCheck(e.target.checked);
                   }}
                 />
               </div>
