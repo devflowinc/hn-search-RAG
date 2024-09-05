@@ -186,7 +186,7 @@ export const SearchPage = () => {
     useQuoteNegatedTerms:
       (urlParams.get("use_quote_negated_terms") ?? "true") === "true",
   });
-  const [typoCheck, setTypoCheck] = createSignal(false);
+  const [typoCheck, setTypoCheck] = createSignal(true);
 
   const handleReader = async (
     reader: ReadableStreamDefaultReader<Uint8Array>,

@@ -509,7 +509,7 @@ pub async fn get_search_results(
             None
         },
         typo_options: Some(TypoOptions {
-            correct_typos: Some(Some(false)),
+            correct_typos: Some(Some(true)),
         }),
         use_quote_negated_terms: Some(Some(true)),
         user_id: None,
