@@ -49,7 +49,7 @@ export default function Header(props: HeaderProps) {
         </a>
         <span class="pr-1">|</span>
         <a
-          href="https://hnojs.trieve.ai"
+          href="https://hnnojs.trieve.ai"
           class="pr-1 hover:text-white hover:underline"
         >
           NoJS Version
