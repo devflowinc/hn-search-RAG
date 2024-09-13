@@ -22,9 +22,9 @@ export default function Header(props: HeaderProps) {
               class="h-[18px] w-[18px] border border-white"
             />
           </span>
-          <div class="text-wrap">
+          <h1 class="text-wrap">
             <span class="mr-[5px] font-bold">Trieve HN Discovery</span>
-          </div>
+          </h1>
         </a>
       </div>
       <div class="flex flex-wrap items-center">
