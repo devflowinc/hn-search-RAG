@@ -902,16 +902,20 @@ export const SearchPage = () => {
       signal,
     })
       .then((response) => {
-        const serverTiming = response.headers.get("Server-Timing");
-        if (serverTiming) {
-          const metrics = serverTiming.split(",");
-          const durations = metrics.map((metric) => {
-            const duration = parseFloat(metric.split(";")[1].split("=")[1]);
-            return duration;
-          });
-          const totalLatency = durations.reduce((a, b) => a + b, 0);
-          const latencyInSeconds = totalLatency / 1000;
-          setLatency(latencyInSeconds);
+        try {
+          const serverTiming = response.headers.get("Server-Timing");
+          if (serverTiming) {
+            const metrics = serverTiming.split(",");
+            const durations = metrics.map((metric) => {
+              const duration = parseFloat(metric.split(";")[1].split("=")[1]);
+              return duration;
+            });
+            const totalLatency = durations.reduce((a, b) => a + b, 0);
+            const latencyInSeconds = totalLatency / 1000;
+            setLatency(latencyInSeconds);
+          }
+        } catch (e) {
+          console.error("Error getting server timing", e);
         }
         return response.json();
       })
