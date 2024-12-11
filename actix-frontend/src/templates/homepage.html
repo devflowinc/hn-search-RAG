@@ -1,18 +1,72 @@
-{% extends "index.html" %}
-{% block body %}
-<form action="/">{% include "components/filterbar.html" %}</form>
-<div id="pagespace" title="" class="h-[10px]"></div>
-{% if results %}
-<div class="flex flex-col gap-1">
-  {% for result in results %}
-    {% include "components/searchresult.html" %}
-  {% endfor %}
-</div>
-{% else %}
-  <div class="my-6 flex flex-col gap-y-5">
-    {% include "components/advancedsearchsyntax.html" %}
-    {% include "components/searchmodes.html" %}
+{% extends "index.html" %} {% block body %}
+<div
+  class="relative z-10"
+  aria-labelledby="modal-title"
+  role="dialog"
+  aria-modal="true"
+>
+  <div
+    class="fixed inset-0 bg-gray-500/75 transition-opacity"
+    aria-hidden="true"
+  >
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div
+        class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+      >
+        <div
+          class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6"
+        >
+          <div>
+            <div
+              class="mx-auto flex size-12 items-center justify-center rounded-full bg-yellow-100"
+            >
+              <svg
+                class="size-10 text-yellow-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-5">
+              <h3
+                class="text-base font-semibold text-gray-900"
+                id="modal-title"
+              >
+                Under Maintenance
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                  We are doing some work on this demo over the holidays and will
+                  be back January 2025! Feel free to reach out to us at
+                  <a class="hover:underline" href="mailto:humans@trieve.ai">
+                    humans@trieve.ai </a
+                  >if you need urgent assistance.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-{% endif %}
-
-{% endblock %}
+  <form action="/">{% include "components/filterbar.html" %}</form>
+  <div id="pagespace" title="" class="h-[10px]"></div>
+  {% if results %}
+  <div class="flex flex-col gap-1">
+    {% for result in results %} {% include "components/searchresult.html" %} {%
+    endfor %}
+  </div>
+  {% else %}
+  <div class="my-6 flex flex-col gap-y-5">
+    {% include "components/advancedsearchsyntax.html" %} {% include
+    "components/searchmodes.html" %}
+  </div>
+  {% endif %} {% endblock %}
+</div>
